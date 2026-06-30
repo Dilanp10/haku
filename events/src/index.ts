@@ -24,6 +24,12 @@ export {
   type SearchEventsNearbyInput,
 } from "./application/use-cases/search-events-nearby.use-case.js";
 
+// Creación manual (admin)
+export {
+  createEvent,
+  type CreateEventInput,
+} from "./application/use-cases/create-event.use-case.js";
+
 // Moderación (admin)
 export {
   listAllEvents,

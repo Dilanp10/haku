@@ -10,7 +10,7 @@ const NAV_LINKS = [
   { href: "/eventos", label: "Eventos" },
 ] as const;
 
-export function SiteNav({ hasSession = false }: { hasSession?: boolean }) {
+export function SiteNav({ hasSession = false, children }: { hasSession?: boolean; children?: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [searching, setSearching] = useState(false);
@@ -101,6 +101,7 @@ export function SiteNav({ hasSession = false }: { hasSession?: boolean }) {
 
             {/* Acciones */}
             <div className="flex items-center gap-2">
+              {children}
               <button
                 onClick={openSearch}
                 aria-label="Abrir busqueda"

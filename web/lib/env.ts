@@ -8,6 +8,7 @@ export const env = {
   supabaseUrl: required("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
   supabaseAnonKey: required("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
   appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  vapidPublicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
 };
 
 /** Solo servidor. No importar desde componentes cliente. */
@@ -18,4 +19,6 @@ export const serverEnv = {
   resendApiKey: process.env.RESEND_API_KEY,
   resendFrom: process.env.RESEND_FROM ?? "onboarding@resend.dev",
   adminEmail: process.env.ADMIN_EMAIL,
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY ?? "",
+  vapidSubject: process.env.VAPID_SUBJECT ?? "mailto:admin@haku.app",
 };

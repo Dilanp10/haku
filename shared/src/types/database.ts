@@ -237,6 +237,26 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["events"]["Insert"]>;
         Relationships: [];
       };
+      push_subscriptions: {
+        Row: {
+          id: string;
+          endpoint: string;
+          keys_p256dh: string;
+          keys_auth: string;
+          user_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          endpoint: string;
+          keys_p256dh: string;
+          keys_auth: string;
+          user_id?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["push_subscriptions"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: {
       venue_rating_stats: {

@@ -122,4 +122,16 @@ kubectl get cronjobs
 | `NEXT_PUBLIC_APP_URL` | Si | URL publica de la app (IP del LB) |
 | `RESEND_API_KEY` | No | API key de Resend para emails |
 | `ADMIN_EMAIL` | No | Email del admin para alertas de ingesta |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Si (push) | Clave publica VAPID para Web Push |
+| `VAPID_PRIVATE_KEY` | Si (push) | Clave privada VAPID (solo servidor) |
+| `VAPID_SUBJECT` | Si (push) | Email del operador, ej: `mailto:admin@haku.app` |
 | `EVENTS_SCRAPER_USER_AGENT` | No | User-Agent del scraper (default: HakuBot/0.1) |
+
+## Generar VAPID keys
+
+```bash
+npx web-push generate-vapid-keys
+```
+
+Copiar las claves generadas a los secrets del cluster. Las VAPID keys son permanentes:
+si se pierden, todas las suscripciones push existentes se invalidan.

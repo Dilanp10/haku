@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, MapPin, Pencil } from "lucide-react";
+import { CalendarDays, MapPin, Pencil, Plus } from "lucide-react";
 import {
   listAllEvents,
   createSupabaseEventRepository,
@@ -80,7 +80,15 @@ export default async function AdminEventosPage({
             {statusFilter ? ` — ${STATUS_LABELS[statusFilter].toLowerCase()}s` : ""}
           </p>
         </div>
-        <TriggerIngestionBtn />
+        <div className="flex gap-2">
+          <Link
+            href="/admin/eventos/nuevo"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" /> Nuevo evento
+          </Link>
+          <TriggerIngestionBtn />
+        </div>
       </header>
 
       {/* Filtro por estado */}

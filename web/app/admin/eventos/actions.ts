@@ -14,6 +14,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { serverEnv } from "@/lib/env";
 import { buildSources, type SourceRow } from "@/lib/events/build-sources";
+import { sendNewEventNotifications } from "@/lib/push/send-notifications";
 
 export async function publishEventAction(formData: FormData): Promise<void> {
   await requireProfile("admin");
@@ -73,5 +74,12 @@ export async function triggerIngestionAction(): Promise<IngestionSummary> {
 
   revalidatePath("/admin/eventos");
   revalidatePath("/eventos");
+
+  if (summary.inserted > 0) {
+    sendNewEventNotifications([
+      { title: `${summary.inserted} evento${summary.inserted > 1 ? "s" : ""} nuevo${summary.inserted > 1 ? "s" : ""}`, slug: "" },
+    ]).catch(() => {});
+  }
+
   return summary;
 }
