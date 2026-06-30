@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@haku/shared", "@haku/core", "@haku/auth", "@haku/events"],
-  output: "standalone",
+  ...(process.env.NEXT_OUTPUT === "standalone" ? { output: "standalone" as const } : {}),
   experimental: {
     typedRoutes: true,
   },

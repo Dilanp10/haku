@@ -1,0 +1,12 @@
+{
+  "buildCommand": "pnpm --filter @haku/web build",
+  "outputDirectory": "web/.next",
+  "framework": "nextjs",
+  "installCommand": "pnpm install",
+  "crons": [
+    {
+      "path": "/api/events/ingest",
+      "schedule": "0 8 * * *"
+    }
+  ]
+}

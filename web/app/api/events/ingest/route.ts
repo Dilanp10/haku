@@ -15,7 +15,9 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(req: Request): Promise<Response> {
   const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!serverEnv.ingestToken || token !== serverEnv.ingestToken) {
+  const cronSecret = process.env.CRON_SECRET;
+  const validToken = token && (token === serverEnv.ingestToken || token === cronSecret);
+  if (!validToken) {
     return NextResponse.json({ error: "no autorizado" }, { status: 401 });
   }
 
