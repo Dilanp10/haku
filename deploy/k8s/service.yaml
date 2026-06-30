@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: haku-web
+  labels:
+    app: haku-web
+spec:
+  type: LoadBalancer
+  selector:
+    app: haku-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000

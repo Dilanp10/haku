@@ -1,0 +1,10 @@
+{
+  "name": "Haku — Descubrí Catamarca",
+  "short_name": "Haku",
+  "description": "Lugares, gastronomía y eventos de Catamarca.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#d9533a",
+  "icons": []
+}

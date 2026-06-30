@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haku-web
+  labels:
+    app: haku-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: haku-web
+  template:
+    metadata:
+      labels:
+        app: haku-web
+    spec:
+      containers:
+        - name: haku-web
+          image: haku-web
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_SUPABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: haku-secrets
+                  key: NEXT_PUBLIC_SUPABASE_URL
+            - name: NEXT_PUBLIC_SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: haku-secrets
+                  key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+            - name: SUPABASE_SERVICE_ROLE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: haku-secrets
+                  key: SUPABASE_SERVICE_ROLE_KEY
+            - name: EVENTS_INGEST_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: haku-secrets
+                  key: EVENTS_INGEST_TOKEN
+            - name: NEXT_PUBLIC_APP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: haku-secrets
+                  key: NEXT_PUBLIC_APP_URL
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

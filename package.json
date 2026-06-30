@@ -1,0 +1,31 @@
+{
+  "name": "haku",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Haku — descubrimiento hiperlocal de Catamarca (gastronomía + eventos). Monorepo modular SDD.",
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @haku/web dev",
+    "build": "pnpm -r --filter ./core --filter ./auth --filter ./events --filter ./shared build && pnpm --filter @haku/web build",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:diff": "supabase db diff",
+    "db:push": "supabase db push",
+    "db:reset": "supabase db reset",
+    "db:seed": "supabase db reset"
+  },
+  "devDependencies": {
+    "@next/eslint-plugin-next": "^15.1.3",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "globals": "^15.14.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.2"
+  }
+}

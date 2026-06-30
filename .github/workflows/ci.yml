@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (root, all workspaces)
+        run: pnpm lint
+
+      - name: Typecheck (all workspaces)
+        run: pnpm -r typecheck
+
+      - name: Test (all workspaces)
+        run: pnpm -r test
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase local stack
+        run: supabase start
+
+      - name: Apply migrations and seed
+        run: supabase db reset
+
+      - name: Export Supabase credentials
+        run: |
+          SUPABASE_STATUS=$(supabase status --output json)
+          echo "SUPABASE_URL=$(echo $SUPABASE_STATUS | jq -r '.API_URL')" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(echo $SUPABASE_STATUS | jq -r '.SERVICE_ROLE_KEY')" >> $GITHUB_ENV
+
+      - name: Integration tests — core
+        run: pnpm --filter @haku/core test:integration
+
+      - name: Integration tests — events
+        run: pnpm --filter @haku/events test:integration

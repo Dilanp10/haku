@@ -1,0 +1,14 @@
+{
+  "project": "haku",
+  "speckitVersion": "0.1.0",
+  "specsDir": "specs",
+  "constitution": ".specify/memory/constitution.md",
+  "templates": {
+    "spec": ".specify/templates/spec-template.md",
+    "plan": ".specify/templates/plan-template.md",
+    "tasks": ".specify/templates/tasks-template.md",
+    "checklist": ".specify/templates/checklist-template.md",
+    "constitution": ".specify/templates/constitution-template.md"
+  },
+  "artifacts": ["spec.md", "plan.md", "tasks.md", "checklists", "contracts"]
+}

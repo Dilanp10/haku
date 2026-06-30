@@ -1,0 +1,29 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+.next/
+out/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env*.local
+!.env.example
+
+# supabase local
+supabase/.branches/
+supabase/.temp/
+
+# editor / os
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# logs / coverage
+*.log
+coverage/

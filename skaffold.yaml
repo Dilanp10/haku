@@ -1,0 +1,45 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: haku
+build:
+  artifacts:
+    - image: haku-web
+      docker:
+        dockerfile: Dockerfile
+  local:
+    push: false
+    useBuildkit: true
+manifests:
+  rawYaml:
+    - deploy/k8s/deployment.yaml
+    - deploy/k8s/service.yaml
+deploy:
+  kubectl: {}
+portForward:
+  - resourceType: service
+    resourceName: haku-web
+    port: 80
+    localPort: 3000
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+  - name: prod
+    build:
+      artifacts:
+        - image: ghcr.io/OWNER/haku-web
+          docker:
+            dockerfile: Dockerfile
+      local:
+        push: true
+        useBuildkit: true
+      tagPolicy:
+        gitCommit: {}
+    manifests:
+      rawYaml:
+        - deploy/k8s/deployment.yaml
+        - deploy/k8s/service.yaml
+        - deploy/k8s/events-cron.yaml
+    deploy:
+      kubectl: {}

@@ -1,0 +1,8 @@
+# Cada dominio es una carpeta independiente en la raíz y un paquete del workspace.
+# Regla de oro: un módulo solo puede importar la API pública (index.ts) de otro.
+packages:
+  - "shared"
+  - "core"
+  - "auth"
+  - "events"
+  - "web"

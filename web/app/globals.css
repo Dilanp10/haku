@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 98%;
+    --foreground: 20 14% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 14% 12%;
+    --primary: 14 80% 52%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 40 14% 94%;
+    --muted-foreground: 20 8% 42%;
+    --border: 20 12% 88%;
+    --input: 20 12% 88%;
+    --ring: 14 80% 52%;
+    --radius: 0.75rem;
+  }
+  .dark {
+    --background: 20 14% 8%;
+    --foreground: 40 33% 96%;
+    --card: 20 14% 11%;
+    --card-foreground: 40 33% 96%;
+    --primary: 14 80% 56%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 20 10% 16%;
+    --muted-foreground: 40 10% 65%;
+    --border: 20 10% 20%;
+    --input: 20 10% 20%;
+    --ring: 14 80% 56%;
+  }
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}

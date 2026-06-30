@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: haku-events-ingest
+  labels:
+    app: haku
+    component: events-ingest
+spec:
+  # Cada 6 horas (UTC).
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: curl
+              image: curlimages/curl:8.10.1
+              env:
+                - name: EVENTS_INGEST_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: haku-secrets
+                      key: EVENTS_INGEST_TOKEN
+              args:
+                - "-fsS"
+                - "-X"
+                - "POST"
+                - "-H"
+                - "Authorization: Bearer $(EVENTS_INGEST_TOKEN)"
+                - "http://haku-web/api/events/ingest"
