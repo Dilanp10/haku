@@ -1,18 +1,19 @@
 {
   "name": "Haku — Descubrí Catamarca",
   "short_name": "Haku",
-  "description": "Lugares y eventos de Catamarca, cerca tuyo.",
+  "description": "Lugares, gastronomía y eventos de Catamarca.",
   "lang": "es-AR",
   "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#d9533a",
-  "background_color": "#ffffff",
+  "theme_color": "#D67849",
+  "background_color": "#F4EDE1",
   "categories": ["travel", "food", "lifestyle", "local"],
   "icons": [
     { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
-    { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "maskable" }
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any maskable" }
   ]
 }

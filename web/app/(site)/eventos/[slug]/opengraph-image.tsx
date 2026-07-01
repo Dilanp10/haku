@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getEventBySlug, createSupabaseEventRepository } from "@haku/events";
+import { createSupabaseEventRepository } from "@haku/events";
 import { createServerSupabase } from "@/lib/supabase/server";
 
 export const runtime = "edge";

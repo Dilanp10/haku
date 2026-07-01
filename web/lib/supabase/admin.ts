@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@haku/shared";
-import { env } from "../env.js";
-import { serverEnv } from "../env.js";
+import { env } from "../env";
+import { serverEnv } from "../env";
 
 /**
  * Cliente con SERVICE ROLE. Bypassa RLS. SOLO en servidor (jobs de ingesta,

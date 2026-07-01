@@ -1,52 +1,83 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin } from "lucide-react";
 import type { Venue, Category } from "@haku/core";
 
 interface Props {
   venue: Venue;
   category: Category | undefined;
+  priority?: boolean;
 }
 
-export function VenueCard({ venue, category }: Props) {
+export function VenueCard({ venue, category, priority }: Props) {
+  const meta = [category?.name, venue.address].filter(Boolean).join(" · ");
+
   return (
-    <Link
-      href={{ pathname: "/lugares/[slug]", query: { slug: venue.slug } } as const}
-      className="group block overflow-hidden rounded-lg border bg-card transition hover:border-primary/40 hover:shadow-sm"
-    >
-      <div className="relative aspect-[16/10] w-full bg-muted overflow-hidden">
+    <div className="group relative flex items-center gap-4 py-4 row-sep animate-fade-in-up">
+      <Link
+        href={{ pathname: "/lugares/[slug]", query: { slug: venue.slug } } as const}
+        aria-label={venue.name}
+        className="absolute inset-0 z-10 transition-opacity active:opacity-70"
+      />
+
+      {/* Thumb */}
+      <div
+        className="relative shrink-0 size-16 rounded-[10px] overflow-hidden"
+        style={{ background: "var(--card-2)" }}
+      >
         {venue.coverImageUrl ? (
           <Image
             src={venue.coverImageUrl}
-            alt={venue.name}
+            alt=""
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition group-hover:scale-[1.02]"
+            sizes="64px"
+            className="object-cover"
+            {...(priority ? { priority: true } : {})}
           />
-        ) : null}
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center text-xl text-brand"
+            style={{ color: "var(--fg-30)" }}
+          >
+            {venue.name.charAt(0)}
+          </div>
+        )}
       </div>
-      <div className="p-4">
+
+      {/* Text */}
+      <div className="relative flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2">
-          <h3 className="truncate font-semibold">{venue.name}</h3>
-          {venue.priceRange ? (
-            <span className="shrink-0 text-xs text-muted-foreground">{venue.priceRange}</span>
-          ) : null}
-        </div>
-        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-          {venue.description ?? "Sin descripción aún."}
-        </p>
-        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5" />
-            {venue.address ?? "Catamarca"}
-          </span>
-          {category ? (
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
-              {category.name}
+          <h3
+            className="text-brand text-[19px] leading-tight truncate"
+            style={{ color: "var(--fg)" }}
+          >
+            {venue.name}
+          </h3>
+          {venue.priceRange && (
+            <span
+              className="text-data shrink-0"
+              style={{ color: "var(--fg-30)" }}
+            >
+              {venue.priceRange}
             </span>
-          ) : null}
+          )}
         </div>
+        {meta && (
+          <p
+            className="text-xs mt-0.5 truncate"
+            style={{ color: "var(--fg-50)" }}
+          >
+            {meta}
+          </p>
+        )}
+        {venue.description && (
+          <p
+            className="text-[13px] mt-1 line-clamp-1"
+            style={{ color: "var(--fg-70)" }}
+          >
+            {venue.description}
+          </p>
+        )}
       </div>
-    </Link>
+    </div>
   );
 }

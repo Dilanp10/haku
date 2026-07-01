@@ -1,14 +1,15 @@
-/** Acceso tipado a variables de entorno. Falla temprano si faltan las públicas. */
-function required(name: string, value: string | undefined): string {
+/** Acceso tipado a variables de entorno. Falla en runtime si faltan las públicas. */
+function required(name: string): string {
+  const value = process.env[name];
   if (!value) throw new Error(`Falta la variable de entorno ${name}`);
   return value;
 }
 
 export const env = {
-  supabaseUrl: required("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
-  supabaseAnonKey: required("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-  appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  vapidPublicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
+  get supabaseUrl() { return required("NEXT_PUBLIC_SUPABASE_URL"); },
+  get supabaseAnonKey() { return required("NEXT_PUBLIC_SUPABASE_ANON_KEY"); },
+  get appUrl() { return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"; },
+  get vapidPublicKey() { return process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ""; },
 };
 
 /** Solo servidor. No importar desde componentes cliente. */

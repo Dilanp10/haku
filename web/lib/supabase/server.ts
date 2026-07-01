@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@haku/shared";
-import { env } from "../env.js";
+import { env } from "../env";
 
 /**
  * Cliente Supabase para Server Components / Server Actions / route handlers.

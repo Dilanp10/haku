@@ -7,16 +7,76 @@ const config: Config = {
     container: { center: true, padding: "1rem", screens: { "2xl": "1280px" } },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
-        muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
-        card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
+        // Theme-aware tokens (vars CSS directos sin HSL)
+        background: "var(--bg)",
+        "background-deep": "var(--bg-deep)",
+        foreground: "var(--fg)",
+        card: {
+          DEFAULT: "var(--card-bg)",
+          foreground: "var(--fg)",
+        },
+        "card-2": "var(--card-2)",
+        muted: {
+          DEFAULT: "var(--muted-bg)",
+          foreground: "var(--fg-70)",
+        },
+        border: "var(--line-2)",
+        input: "var(--line-2)",
+        ring: "var(--terra)",
+        line: "var(--line)",
+        "line-2": "var(--line-2)",
+
+        // Brand palette Tierra
+        terra: {
+          DEFAULT: "#D67849",
+          deep: "#A85A30",
+          soft: "#E89B6F",
+          wash: "rgba(214,120,73,0.12)",
+        },
+        ochre: "#C99347",
+        moss: "#8AA265",
+        rust: "#C0664E",
+
+        // Shadcn primary mapeado a terra (compat con componentes existentes)
+        primary: {
+          DEFAULT: "#D67849",
+          foreground: "#FFFFFF",
+        },
+
+        // Aliases semánticos
+        success: "#8AA265",
+        danger: "#C0664E",
       },
-      borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
+      fontFamily: {
+        serif: ["var(--font-serif)", "Georgia", "serif"],
+        sans: ["var(--font-sans)", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
+      borderRadius: {
+        lg: "12px",
+        md: "10px",
+        sm: "8px",
+        card: "12px",
+        button: "8px",
+        pill: "20px",
+      },
+      spacing: {
+        bottom: "var(--bottom-nav-height, 80px)",
+      },
+      keyframes: {
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(6px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "soft-pulse": {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(138, 162, 101, 0.55)" },
+          "50%": { boxShadow: "0 0 0 6px rgba(138, 162, 101, 0)" },
+        },
+      },
+      animation: {
+        "fade-in-up": "fade-in-up 350ms ease-out both",
+        "soft-pulse": "soft-pulse 2.4s ease-in-out infinite",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

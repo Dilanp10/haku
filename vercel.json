@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm --filter @haku/web build",
+  "buildCommand": "pnpm run build",
   "outputDirectory": "web/.next",
   "framework": "nextjs",
   "installCommand": "pnpm install",

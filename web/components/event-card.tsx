@@ -1,51 +1,84 @@
 import Link from "next/link";
-import { CalendarDays, MapPin } from "lucide-react";
+import Image from "next/image";
 import type { Event } from "@haku/events";
 
-const fmt = new Intl.DateTimeFormat("es-AR", {
-  weekday: "short",
+const fmtDay = new Intl.DateTimeFormat("es-AR", {
   day: "2-digit",
+  timeZone: "America/Argentina/Catamarca",
+});
+const fmtMonth = new Intl.DateTimeFormat("es-AR", {
   month: "short",
+  timeZone: "America/Argentina/Catamarca",
+});
+const fmtTime = new Intl.DateTimeFormat("es-AR", {
   hour: "2-digit",
   minute: "2-digit",
   timeZone: "America/Argentina/Catamarca",
 });
 
 export function EventCard({ event }: { event: Event }) {
+  const d = new Date(event.startsAt);
+  const meta = [fmtTime.format(d), event.venueName].filter(Boolean).join(" · ");
+
   return (
-    <Link
-      href={{ pathname: "/eventos/[slug]", query: { slug: event.slug } } as const}
-      className="group block overflow-hidden rounded-lg border bg-card transition hover:border-primary/40 hover:shadow-sm"
-    >
-      <div className="aspect-[16/9] w-full bg-muted">
-        {event.imageUrl ? (
-          <img
+    <div className="group relative flex items-center gap-4 py-4 row-sep animate-fade-in-up">
+      <Link
+        href={{ pathname: "/eventos/[slug]", query: { slug: event.slug } } as const}
+        aria-label={event.title}
+        className="absolute inset-0 z-10 transition-opacity active:opacity-70"
+      />
+
+      {/* Date block o thumb */}
+      {event.imageUrl ? (
+        <div
+          className="relative shrink-0 size-16 rounded-[10px] overflow-hidden"
+          style={{ background: "var(--card-2)" }}
+        >
+          <Image
             src={event.imageUrl}
-            alt={event.title}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover transition group-hover:scale-[1.02]"
+            alt=""
+            fill
+            sizes="64px"
+            className="object-cover"
           />
-        ) : null}
-      </div>
-      <div className="p-4">
-        <h3 className="line-clamp-2 font-semibold">{event.title}</h3>
-        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-          {event.description ?? "—"}
-        </p>
-        <div className="mt-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <CalendarDays className="h-3.5 w-3.5" />
-            {fmt.format(new Date(event.startsAt))}
-          </span>
-          {event.venueName ? (
-            <span className="inline-flex items-center gap-1 truncate">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{event.venueName}</span>
-            </span>
-          ) : null}
         </div>
+      ) : (
+        <div
+          className="relative shrink-0 size-16 rounded-[10px] flex flex-col items-center justify-center"
+          style={{ background: "var(--terra-wash)", color: "var(--terra-deep)" }}
+        >
+          <span className="text-brand text-2xl leading-none">{fmtDay.format(d)}</span>
+          <span className="text-data uppercase mt-0.5" style={{ fontSize: "10px" }}>
+            {fmtMonth.format(d).replace(".", "")}
+          </span>
+        </div>
+      )}
+
+      {/* Text */}
+      <div className="relative flex-1 min-w-0">
+        <h3
+          className="text-brand text-[19px] leading-tight line-clamp-2"
+          style={{ color: "var(--fg)" }}
+        >
+          {event.title}
+        </h3>
+        {meta && (
+          <p
+            className="text-xs mt-0.5 truncate"
+            style={{ color: "var(--fg-50)" }}
+          >
+            {meta}
+          </p>
+        )}
+        {event.description && (
+          <p
+            className="text-[13px] mt-1 line-clamp-1"
+            style={{ color: "var(--fg-70)" }}
+          >
+            {event.description}
+          </p>
+        )}
       </div>
-    </Link>
+    </div>
   );
 }

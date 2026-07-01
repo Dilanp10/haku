@@ -4,9 +4,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@haku/shared", "@haku/core", "@haku/auth", "@haku/events"],
   ...(process.env.NEXT_OUTPUT === "standalone" ? { output: "standalone" as const } : {}),
-  experimental: {
-    typedRoutes: true,
-  },
+  experimental: {},
   images: {
     remotePatterns: [
       // Supabase Storage (produccion: <project>.supabase.co)

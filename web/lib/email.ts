@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import type { IngestionSummary } from "@haku/events";
-import { serverEnv } from "./env.js";
+import { serverEnv } from "./env";
 
 export async function sendAdminIngestionAlert(
   summary: IngestionSummary,
