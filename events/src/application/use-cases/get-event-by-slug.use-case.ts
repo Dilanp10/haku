@@ -1,6 +1,6 @@
 import { type Result, ok, err, NotFoundError, UnexpectedError } from "@haku/shared";
-import type { EventRepository } from "../ports/event-repository.port.js";
-import type { Event } from "../../domain/event.js";
+import type { EventRepository } from "../ports/event-repository.port";
+import type { Event } from "../../domain/event";
 
 export async function getEventBySlug(
   repo: EventRepository,

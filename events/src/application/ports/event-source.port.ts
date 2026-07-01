@@ -1,4 +1,4 @@
-import type { RawEvent } from "../../domain/event.js";
+import type { RawEvent } from "../../domain/event";
 
 /** Un scraper/fuente. Solo obtiene datos crudos; nunca toca la base de datos. */
 export interface EventSourcePort {

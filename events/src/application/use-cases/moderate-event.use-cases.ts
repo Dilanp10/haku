@@ -7,8 +7,8 @@ import {
   NotFoundError,
   UnexpectedError,
 } from "@haku/shared";
-import type { EventRepository } from "../ports/event-repository.port.js";
-import type { Event } from "../../domain/event.js";
+import type { EventRepository } from "../ports/event-repository.port";
+import type { Event } from "../../domain/event";
 
 const idSchema = z.object({ id: z.string().uuid() });
 

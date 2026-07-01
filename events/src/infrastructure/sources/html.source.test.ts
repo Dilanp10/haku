@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { createHtmlSource } from "./html.source.js";
+import { createHtmlSource } from "./html.source";
 
 const SAMPLE_HTML = `
 <html><body>

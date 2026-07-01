@@ -1,6 +1,6 @@
 import { type Result, ok, err, UnexpectedError } from "@haku/shared";
-import type { EventRepository } from "../ports/event-repository.port.js";
-import type { Event } from "../../domain/event.js";
+import type { EventRepository } from "../ports/event-repository.port";
+import type { Event } from "../../domain/event";
 
 /**
  * Lista eventos `pending` para moderación admin. La autorización del rol admin

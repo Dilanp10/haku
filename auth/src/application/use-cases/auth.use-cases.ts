@@ -1,6 +1,6 @@
 import { type Result, ok, err, NotFoundError, ForbiddenError } from "@haku/shared";
-import { type Role, type Profile, type AuthUser, hasAtLeast } from "../../domain/role.js";
-import type { AuthPort } from "../ports/auth.port.js";
+import { type Role, type Profile, type AuthUser, hasAtLeast } from "../../domain/role";
+import type { AuthPort } from "../ports/auth.port";
 
 export async function getCurrentUser(port: AuthPort): Promise<AuthUser | null> {
   return port.getCurrentUser();

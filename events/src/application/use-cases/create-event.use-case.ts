@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { type Result, ok, err, ValidationError, UnexpectedError } from "@haku/shared";
-import type { EventRepository } from "../ports/event-repository.port.js";
-import { normalize, type RawEvent } from "../../domain/event.js";
+import type { EventRepository } from "../ports/event-repository.port";
+import { normalize, type RawEvent } from "../../domain/event";
 
 const schema = z.object({
   title: z.string().min(1, "El titulo es obligatorio").max(300),

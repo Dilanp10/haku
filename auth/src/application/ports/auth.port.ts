@@ -1,4 +1,4 @@
-import type { AuthUser, Profile } from "../../domain/role.js";
+import type { AuthUser, Profile } from "../../domain/role";
 
 /** Puerto de identidad. Lo implementa la infraestructura (Supabase Auth). */
 export interface AuthPort {

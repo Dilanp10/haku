@@ -19,8 +19,8 @@ import type {
   ListVenuesQuery,
   Paginated,
   UpdateVenueData,
-} from "../application/ports/core-repository.port.js";
-import { distanceKm, type Category, type FoodType, type Venue } from "../domain/venue.js";
+} from "../application/ports/core-repository.port";
+import { distanceKm, type Category, type FoodType, type Venue } from "../domain/venue";
 
 type VenueRow = Tables<"venues"> & {
   venue_food_types?: { food_type_id: string }[] | null;

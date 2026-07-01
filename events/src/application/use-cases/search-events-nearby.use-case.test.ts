@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { searchEventsNearby } from "./search-events-nearby.use-case.js";
-import type { EventRepository } from "../ports/event-repository.port.js";
-import type { Event } from "../../domain/event.js";
+import { searchEventsNearby } from "./search-events-nearby.use-case";
+import type { EventRepository } from "../ports/event-repository.port";
+import type { Event } from "../../domain/event";
 
 const sampleEvent = (overrides: Partial<Event> = {}): Event => ({
   id: "11111111-1111-1111-1111-111111111111",

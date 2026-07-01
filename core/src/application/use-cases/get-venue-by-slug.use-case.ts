@@ -8,8 +8,8 @@ import {
   UnexpectedError,
   slugSchema,
 } from "@haku/shared";
-import type { CoreRepository } from "../ports/core-repository.port.js";
-import type { Venue } from "../../domain/venue.js";
+import type { CoreRepository } from "../ports/core-repository.port";
+import type { Venue } from "../../domain/venue";
 
 const inputSchema = z.object({ slug: slugSchema });
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { listVenues } from "./list-venues.use-case.js";
-import type { CoreRepository, Paginated } from "../ports/core-repository.port.js";
-import type { Venue } from "../../domain/venue.js";
+import { listVenues } from "./list-venues.use-case";
+import type { CoreRepository, Paginated } from "../ports/core-repository.port";
+import type { Venue } from "../../domain/venue";
 
 const emptyPage: Paginated<Venue> = { items: [], total: 0, page: 1, pageSize: 20 };
 

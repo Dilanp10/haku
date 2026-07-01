@@ -8,8 +8,8 @@ import {
   ConflictError,
   UnexpectedError,
 } from "@haku/shared";
-import type { CoreRepository, UpdateVenueData } from "../ports/core-repository.port.js";
-import type { Venue } from "../../domain/venue.js";
+import type { CoreRepository, UpdateVenueData } from "../ports/core-repository.port";
+import type { Venue } from "../../domain/venue";
 
 const dataSchema = z.object({
   name: z.string().trim().min(2).max(120).optional(),

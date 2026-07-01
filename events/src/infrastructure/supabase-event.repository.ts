@@ -4,8 +4,8 @@ import type {
   EventRepository,
   ListUpcomingQuery,
   UpdateEventData,
-} from "../application/ports/event-repository.port.js";
-import type { Event } from "../domain/event.js";
+} from "../application/ports/event-repository.port";
+import type { Event } from "../domain/event";
 
 type HakuSupabaseClient = SupabaseClient<Database, "public", any, any, any>;
 type EventRow = Tables<"events">;

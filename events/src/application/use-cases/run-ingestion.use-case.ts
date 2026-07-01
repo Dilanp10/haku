@@ -1,6 +1,6 @@
-import { normalize, type Event } from "../../domain/event.js";
-import type { EventSourcePort } from "../ports/event-source.port.js";
-import type { EventRepository } from "../ports/event-repository.port.js";
+import { normalize, type Event } from "../../domain/event";
+import type { EventSourcePort } from "../ports/event-source.port";
+import type { EventRepository } from "../ports/event-repository.port";
 
 export interface IngestionDeps {
   sources: EventSourcePort[];

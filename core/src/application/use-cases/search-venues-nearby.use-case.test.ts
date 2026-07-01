@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { searchVenuesNearby } from "./search-venues-nearby.use-case.js";
-import type { CoreRepository } from "../ports/core-repository.port.js";
-import type { Venue } from "../../domain/venue.js";
+import { searchVenuesNearby } from "./search-venues-nearby.use-case";
+import type { CoreRepository } from "../ports/core-repository.port";
+import type { Venue } from "../../domain/venue";
 
 const sample: Venue = {
   id: "00000000-0000-0000-0000-000000000020",

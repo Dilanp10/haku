@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { runIngestion } from "./run-ingestion.use-case.js";
-import type { EventSourcePort } from "../ports/event-source.port.js";
-import type { EventRepository } from "../ports/event-repository.port.js";
-import type { RawEvent } from "../../domain/event.js";
+import { runIngestion } from "./run-ingestion.use-case";
+import type { EventSourcePort } from "../ports/event-source.port";
+import type { EventRepository } from "../ports/event-repository.port";
+import type { RawEvent } from "../../domain/event";
 
 const raw = (over: Partial<RawEvent>): RawEvent => ({
   sourceKey: "s1",

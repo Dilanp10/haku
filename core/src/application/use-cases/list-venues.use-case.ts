@@ -11,8 +11,8 @@ import type {
   CoreRepository,
   ListVenuesQuery,
   Paginated,
-} from "../ports/core-repository.port.js";
-import type { Venue } from "../../domain/venue.js";
+} from "../ports/core-repository.port";
+import type { Venue } from "../../domain/venue";
 
 const inputSchema = z.object({
   categorySlug: z.string().optional(),

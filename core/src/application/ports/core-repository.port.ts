@@ -1,5 +1,5 @@
 import type { GeoPoint, PriceRange, Pagination } from "@haku/shared";
-import type { Category, FoodType, Venue } from "../../domain/venue.js";
+import type { Category, FoodType, Venue } from "../../domain/venue";
 
 export interface Paginated<T> {
   items: T[];

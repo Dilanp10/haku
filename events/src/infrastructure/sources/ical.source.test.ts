@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { createICalSource } from "./ical.source.js";
+import { createICalSource } from "./ical.source";
 
 const SAMPLE_ICS = `BEGIN:VCALENDAR
 VERSION:2.0

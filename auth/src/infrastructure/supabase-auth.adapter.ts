@@ -2,8 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@haku/shared";
 
 type HakuSupabaseClient = SupabaseClient<Database, "public", any, any, any>;
-import type { AuthPort } from "../application/ports/auth.port.js";
-import type { AuthUser, Profile } from "../domain/role.js";
+import type { AuthPort } from "../application/ports/auth.port";
+import type { AuthUser, Profile } from "../domain/role";
 
 /**
  * Adapter de Supabase Auth.

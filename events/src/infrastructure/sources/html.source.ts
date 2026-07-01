@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
-import type { EventSourcePort } from "../../application/ports/event-source.port.js";
-import type { RawEvent } from "../../domain/event.js";
+import type { EventSourcePort } from "../../application/ports/event-source.port";
+import type { RawEvent } from "../../domain/event";
 
 /** Configuración de un scraper HTML, almacenada en event_sources.config (JSONB). */
 export interface HtmlSourceConfig {

@@ -1,6 +1,6 @@
 import { type Result, ok, err, UnexpectedError } from "@haku/shared";
-import type { CoreRepository } from "../ports/core-repository.port.js";
-import type { Category, FoodType } from "../../domain/venue.js";
+import type { CoreRepository } from "../ports/core-repository.port";
+import type { Category, FoodType } from "../../domain/venue";
 
 export async function listCategories(repo: CoreRepository): Promise<Result<Category[]>> {
   try {

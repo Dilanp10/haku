@@ -1,4 +1,4 @@
-import type { Event } from "../../domain/event.js";
+import type { Event } from "../../domain/event";
 import type { EventStatus, GeoPoint } from "@haku/shared";
 
 export interface ListUpcomingQuery {

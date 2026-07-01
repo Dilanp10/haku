@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { type Result, ok, err, ValidationError, UnexpectedError } from "@haku/shared";
-import type { EventRepository, UpdateEventData } from "../ports/event-repository.port.js";
-import type { Event } from "../../domain/event.js";
+import type { EventRepository, UpdateEventData } from "../ports/event-repository.port";
+import type { Event } from "../../domain/event";
 
 const schema = z.object({
   id: z.string().uuid(),

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { distanceKm } from "./venue.js";
+import { distanceKm } from "./venue";
 
 describe("distanceKm", () => {
   it("vale 0 entre el mismo punto", () => {

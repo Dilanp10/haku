@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { NotFoundError, ConflictError } from "@haku/shared";
-import { updateVenue } from "./update-venue.use-case.js";
-import type { CoreRepository } from "../ports/core-repository.port.js";
-import type { Venue } from "../../domain/venue.js";
+import { updateVenue } from "./update-venue.use-case";
+import type { CoreRepository } from "../ports/core-repository.port";
+import type { Venue } from "../../domain/venue";
 
 const sample: Venue = {
   id: "00000000-0000-0000-0000-000000000010",

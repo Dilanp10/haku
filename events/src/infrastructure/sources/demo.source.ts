@@ -1,5 +1,5 @@
-import type { EventSourcePort } from "../../application/ports/event-source.port.js";
-import type { RawEvent } from "../../domain/event.js";
+import type { EventSourcePort } from "../../application/ports/event-source.port";
+import type { RawEvent } from "../../domain/event";
 
 /**
  * Fuente de demostración: genera eventos sintéticos pero realistas de Catamarca con

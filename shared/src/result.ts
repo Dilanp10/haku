@@ -1,4 +1,4 @@
-import type { AppError } from "./errors.js";
+import type { AppError } from "./errors";
 
 /** Resultado explícito de un caso de uso: éxito con valor o fallo con error tipado. */
 export type Result<T, E = AppError> =

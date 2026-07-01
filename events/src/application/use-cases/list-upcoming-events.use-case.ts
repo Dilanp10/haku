@@ -1,6 +1,6 @@
 import { type Result, ok, err, UnexpectedError } from "@haku/shared";
-import type { Event } from "../../domain/event.js";
-import type { EventRepository, ListUpcomingQuery } from "../ports/event-repository.port.js";
+import type { Event } from "../../domain/event";
+import type { EventRepository, ListUpcomingQuery } from "../ports/event-repository.port";
 
 export interface ListUpcomingInput {
   from?: string;

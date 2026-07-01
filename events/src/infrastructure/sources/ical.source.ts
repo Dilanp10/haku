@@ -1,5 +1,5 @@
-import type { EventSourcePort } from "../../application/ports/event-source.port.js";
-import type { RawEvent } from "../../domain/event.js";
+import type { EventSourcePort } from "../../application/ports/event-source.port";
+import type { RawEvent } from "../../domain/event";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Mini-parser iCal (RFC 5545 subset) — sin dependencias externas.
