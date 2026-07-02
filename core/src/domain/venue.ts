@@ -26,7 +26,9 @@ export interface Venue {
   instagram?: string | null;
   priceRange?: PriceRange | null;
   coverImageUrl?: string | null;
+  neighborhood?: string | null;
   foodTypeIds: string[];
+  attributes?: Record<string, boolean>;
   status: ContentStatus;
   viewCount: number;
   createdAt: string;

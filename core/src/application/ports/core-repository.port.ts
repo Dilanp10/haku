@@ -10,10 +10,15 @@ export interface Paginated<T> {
 
 export interface ListVenuesQuery {
   categorySlug?: string;
+  categorySlugs?: string[];
   foodTypeSlug?: string;
+  foodTypeSlugs?: string[];
   priceRange?: PriceRange;
+  priceRanges?: PriceRange[];
   search?: string;
   status?: "draft" | "published" | "archived";
+  openNow?: boolean;
+  attributes?: string[];
   pagination: Pagination;
 }
 
@@ -28,6 +33,7 @@ export interface CreateVenueData {
   phone?: string | undefined;
   website?: string | undefined;
   instagram?: string | undefined;
+  coverImageUrl?: string | undefined;
   foodTypeIds?: string[] | undefined;
   status: "draft" | "published" | "archived";
 }

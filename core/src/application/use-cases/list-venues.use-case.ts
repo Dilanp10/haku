@@ -16,10 +16,15 @@ import type { Venue } from "../../domain/venue";
 
 const inputSchema = z.object({
   categorySlug: z.string().optional(),
+  categorySlugs: z.array(z.string()).optional(),
   foodTypeSlug: z.string().optional(),
+  foodTypeSlugs: z.array(z.string()).optional(),
   priceRange: z.enum(["$", "$$", "$$$"]).optional(),
+  priceRanges: z.array(z.enum(["$", "$$", "$$$"])).optional(),
   search: z.string().trim().min(1).max(120).optional(),
   status: z.enum(["draft", "published", "archived"]).optional(),
+  openNow: z.boolean().optional(),
+  attributes: z.array(z.string()).optional(),
   pagination: paginationSchema.optional(),
 });
 export type ListVenuesInput = z.input<typeof inputSchema>;
@@ -46,6 +51,11 @@ export async function listVenues(
     ...(rest.priceRange !== undefined ? { priceRange: rest.priceRange } : {}),
     ...(rest.search !== undefined ? { search: rest.search } : {}),
     ...(rest.status !== undefined ? { status: rest.status } : {}),
+    ...(rest.openNow !== undefined ? { openNow: rest.openNow } : {}),
+    ...(rest.categorySlugs !== undefined ? { categorySlugs: rest.categorySlugs } : {}),
+    ...(rest.foodTypeSlugs !== undefined ? { foodTypeSlugs: rest.foodTypeSlugs } : {}),
+    ...(rest.priceRanges !== undefined ? { priceRanges: rest.priceRanges } : {}),
+    ...(rest.attributes !== undefined ? { attributes: rest.attributes } : {}),
   };
   try {
     return ok(await repo.listVenues(query));

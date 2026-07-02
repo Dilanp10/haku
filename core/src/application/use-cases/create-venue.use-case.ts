@@ -22,6 +22,7 @@ const inputSchema = z.object({
   phone: z.string().trim().max(30).optional(),
   website: z.string().trim().url().max(200).optional(),
   instagram: z.string().trim().max(60).optional(),
+  coverImageUrl: z.string().trim().url().max(500).optional(),
   foodTypeIds: z.array(z.string().uuid()).optional(),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
 });

@@ -68,6 +68,8 @@ export interface Database {
           cover_image_url: string | null;
           status: ContentStatusEnum;
           view_count: number;
+          attributes: Record<string, boolean>;
+          neighborhood: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -87,6 +89,8 @@ export interface Database {
           cover_image_url?: string | null;
           status?: ContentStatusEnum;
           view_count?: number;
+          attributes?: Record<string, boolean>;
+          neighborhood?: string | null;
           created_at?: string;
           updated_at?: string;
         };

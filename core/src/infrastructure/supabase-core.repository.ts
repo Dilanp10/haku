@@ -42,7 +42,9 @@ function rowToVenue(row: VenueRow): Venue {
     instagram: row.instagram,
     priceRange: row.price_range,
     coverImageUrl: row.cover_image_url,
+    neighborhood: row.neighborhood,
     foodTypeIds: row.venue_food_types?.map((j) => j.food_type_id) ?? [],
+    attributes: (row.attributes ?? {}) as Record<string, boolean>,
     status: row.status,
     viewCount: row.view_count ?? 0,
     createdAt: row.created_at,
@@ -63,23 +65,60 @@ export function createSupabaseCoreRepository(
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
 
-      // Si hay filtro por food_type, resolvemos su id primero (evita join complejo).
-      let foodTypeId: string | null = null;
-      if (query.foodTypeSlug) {
+      // Si hay filtro por food_type (single o multi), resolvemos ids.
+      const foodSlugs =
+        query.foodTypeSlugs && query.foodTypeSlugs.length > 0
+          ? query.foodTypeSlugs
+          : query.foodTypeSlug
+            ? [query.foodTypeSlug]
+            : [];
+      let foodTypeIds: string[] = [];
+      if (foodSlugs.length > 0) {
         const ftRes = await client
           .from("food_types")
           .select("id")
-          .eq("slug", query.foodTypeSlug)
-          .maybeSingle();
-        const ft = ftRes.data as { id: string } | null;
-        if (!ft) return { items: [], total: 0, page, pageSize };
-        foodTypeId = ft.id;
+          .in("slug", foodSlugs);
+        if (ftRes.error) throw ftRes.error;
+        const fts = (ftRes.data ?? []) as { id: string }[];
+        if (fts.length === 0) return { items: [], total: 0, page, pageSize };
+        foodTypeIds = fts.map((f) => f.id);
+      }
+
+      // "Abierto ahora": obtener IDs de venues abiertos en este momento.
+      let openVenueIds: string[] | null = null;
+      if (query.openNow) {
+        const now = new Date();
+        const argTime = new Date(now.toLocaleString("en-US", { timeZone: "America/Argentina/Catamarca" }));
+        const dow = argTime.getDay();
+        const hh = String(argTime.getHours()).padStart(2, "0");
+        const mm = String(argTime.getMinutes()).padStart(2, "0");
+        const timeStr = `${hh}:${mm}:00`;
+
+        const hoursRes = await client
+          .from("venue_hours")
+          .select("venue_id, opens_at, closes_at")
+          .eq("day_of_week", dow)
+          .eq("closed", false);
+
+        if (hoursRes.error) throw hoursRes.error;
+        const rows = (hoursRes.data ?? []) as { venue_id: string; opens_at: string; closes_at: string }[];
+
+        const ids = new Set<string>();
+        for (const r of rows) {
+          if (r.opens_at <= r.closes_at) {
+            if (timeStr >= r.opens_at && timeStr <= r.closes_at) ids.add(r.venue_id);
+          } else {
+            if (timeStr >= r.opens_at || timeStr <= r.closes_at) ids.add(r.venue_id);
+          }
+        }
+        openVenueIds = [...ids];
+        if (openVenueIds.length === 0) return { items: [], total: 0, page, pageSize };
       }
 
       let q = client
         .from("venues")
         .select(
-          foodTypeId
+          foodTypeIds.length > 0
             ? "*, categories!inner(slug), venue_food_types!inner(food_type_id)"
             : "*, categories!inner(slug)",
           { count: "exact" },
@@ -87,9 +126,35 @@ export function createSupabaseCoreRepository(
         .order("updated_at", { ascending: false })
         .range(from, to);
 
-      if (query.categorySlug) q = q.eq("categories.slug", query.categorySlug);
-      if (foodTypeId) q = q.eq("venue_food_types.food_type_id", foodTypeId);
-      if (query.priceRange) q = q.eq("price_range", query.priceRange);
+      if (openVenueIds) q = q.in("id", openVenueIds);
+
+      const catSlugs =
+        query.categorySlugs && query.categorySlugs.length > 0
+          ? query.categorySlugs
+          : query.categorySlug
+            ? [query.categorySlug]
+            : [];
+      if (catSlugs.length === 1) q = q.eq("categories.slug", catSlugs[0]!);
+      else if (catSlugs.length > 1) q = q.in("categories.slug", catSlugs);
+
+      if (foodTypeIds.length === 1) q = q.eq("venue_food_types.food_type_id", foodTypeIds[0]!);
+      else if (foodTypeIds.length > 1) q = q.in("venue_food_types.food_type_id", foodTypeIds);
+
+      const priceRanges =
+        query.priceRanges && query.priceRanges.length > 0
+          ? query.priceRanges
+          : query.priceRange
+            ? [query.priceRange]
+            : [];
+      if (priceRanges.length === 1) q = q.eq("price_range", priceRanges[0]!);
+      else if (priceRanges.length > 1) q = q.in("price_range", priceRanges);
+
+      if (query.attributes && query.attributes.length > 0) {
+        // Cada atributo debe ser true: attributes @> '{"wifi":true, "terraza":true}'
+        const attrsObj = Object.fromEntries(query.attributes.map((k) => [k, true]));
+        q = q.contains("attributes", attrsObj);
+      }
+
       if (query.status) q = q.eq("status", query.status);
       if (query.search) {
         const pattern = `%${query.search}%`;
@@ -185,6 +250,7 @@ export function createSupabaseCoreRepository(
           phone: data.phone ?? null,
           website: data.website ?? null,
           instagram: data.instagram ?? null,
+          cover_image_url: data.coverImageUrl ?? null,
           status: data.status,
         })
         .select("*")
