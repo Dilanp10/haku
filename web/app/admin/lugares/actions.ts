@@ -87,6 +87,65 @@ export async function approveSuggestedHoursAction(formData: FormData) {
   if (slug) revalidatePath(`/lugares/${slug}`);
 }
 
+type GeocodeResult =
+  | { ok: true; lat: number; lng: number; display: string }
+  | { ok: false; error: string };
+
+/**
+ * Geocodifica la dirección del venue con Nominatim (OpenStreetMap) y guarda lat/lng.
+ * Uso admin, un lugar por vez (respeta el límite de 1 req/s de Nominatim).
+ */
+export async function geocodeVenueAction(formData: FormData): Promise<GeocodeResult> {
+  await requireProfile("admin");
+  const id = String(formData.get("id") ?? "");
+  const slug = String(formData.get("slug") ?? "");
+  const address = String(formData.get("address") ?? "").trim();
+  if (!id || !address) return { ok: false, error: "Falta la dirección." };
+
+  // Sesgamos a Catamarca, Argentina si no está en el texto.
+  const query = /catamarca/i.test(address)
+    ? address
+    : `${address}, San Fernando del Valle de Catamarca, Argentina`;
+
+  const url =
+    "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ar&q=" +
+    encodeURIComponent(query);
+
+  let json: Array<{ lat: string; lon: string; display_name: string }> = [];
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Haku/1.0 (https://haku20.vercel.app; admin@haku.app)",
+        "Accept-Language": "es",
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) return { ok: false, error: `Nominatim respondió ${res.status}.` };
+    json = (await res.json()) as typeof json;
+  } catch {
+    return { ok: false, error: "No pudimos contactar el servicio de geocodificación." };
+  }
+
+  const hit = json[0];
+  if (!hit) return { ok: false, error: "No encontramos esa dirección. Revisala o cargá lat/lng a mano." };
+
+  const lat = Number(hit.lat);
+  const lng = Number(hit.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return { ok: false, error: "Coordenadas inválidas." };
+  }
+
+  const supabase = await createServerSupabase();
+  const repo = createSupabaseCoreRepository(supabase);
+  const upd = await updateVenue(repo, { id, location: { lat, lng } });
+  if (!upd.ok) return { ok: false, error: upd.error.message };
+
+  revalidatePath("/admin/lugares");
+  if (slug) revalidatePath(`/admin/lugares/${slug}`);
+  if (slug) revalidatePath(`/lugares/${slug}`);
+  return { ok: true, lat, lng, display: hit.display_name };
+}
+
 /** Descarta solo la metadata del wizard sin materializar horarios. */
 export async function dismissSuggestionMetaAction(formData: FormData) {
   await requireProfile("admin");

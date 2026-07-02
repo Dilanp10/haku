@@ -13,6 +13,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { VenueMap } from "@/components/venue-map";
 import { QuickStatusBtn } from "../quick-status-btn";
 import { SuggestionReview } from "../suggestion-review";
+import { GeocodeBtn } from "../geocode-btn";
 
 interface SuggestedHour {
   day: number;
@@ -184,7 +185,7 @@ export default async function AdminVenueDetailPage({ params }: Props) {
             </section>
           )}
 
-          {venue.location && (
+          {venue.location ? (
             <section>
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Cómo llegar
@@ -197,7 +198,20 @@ export default async function AdminVenueDetailPage({ params }: Props) {
                 />
               </div>
             </section>
-          )}
+          ) : venue.address ? (
+            <section>
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Ubicación
+              </h2>
+              <div className="rounded-lg border bg-muted/40 p-4">
+                <p className="mb-3 text-sm text-muted-foreground">
+                  Este lugar no tiene coordenadas. Buscalas por su dirección para que
+                  aparezca en el mapa y se ordene por cercanía.
+                </p>
+                <GeocodeBtn id={venue.id} slug={venue.slug} address={venue.address} />
+              </div>
+            </section>
+          ) : null}
         </div>
 
         {/* Sidebar */}
