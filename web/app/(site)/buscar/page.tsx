@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarDays, MapPin, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import {
   listVenues,
   listCategories,
@@ -9,21 +9,16 @@ import {
 } from "@haku/core";
 import { listUpcomingEvents, createSupabaseEventRepository } from "@haku/events";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { getVenueStatuses } from "@/lib/venue-open-now";
 import { SearchInput } from "@/components/search-input";
+import { VenueCard } from "@/components/venue-card";
+import { EventCard } from "@/components/event-card";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Buscar",
   robots: { index: false },
 };
-
-const fmtDate = new Intl.DateTimeFormat("es-AR", {
-  day: "2-digit",
-  month: "short",
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "America/Argentina/Catamarca",
-});
 
 export default async function BuscarPage({
   searchParams,
@@ -37,16 +32,14 @@ export default async function BuscarPage({
   const coreRepo = createSupabaseCoreRepository(supabase);
   const eventsRepo = createSupabaseEventRepository(supabase);
 
-  const [venuesRes, categoriesRes, eventsRes] = query
+  const [venuesRes, categoriesRes, eventsRes, statuses] = query
     ? await Promise.all([
-        listVenues(coreRepo, {
-          search: query,
-          pagination: { page: 1, pageSize: 6 },
-        }),
+        listVenues(coreRepo, { search: query, pagination: { page: 1, pageSize: 6 } }),
         listCategories(coreRepo),
         listUpcomingEvents(eventsRepo, { search: query, limit: 6 }),
+        getVenueStatuses(supabase),
       ])
-    : [null, null, null];
+    : [null, null, null, null];
 
   const venues = venuesRes?.ok ? venuesRes.value.items : [];
   const venuesTotal = venuesRes?.ok ? venuesRes.value.total : 0;
@@ -81,7 +74,9 @@ export default async function BuscarPage({
 
       {!query && (
         <div className="mt-12 text-center" style={{ color: "var(--fg-50)" }}>
-          <p className="text-sm">Ingresá un término para buscar lugares y eventos en Catamarca.</p>
+          <p className="text-sm">
+            Ingresá un término para buscar lugares y eventos en Catamarca.
+          </p>
         </div>
       )}
 
@@ -104,7 +99,10 @@ export default async function BuscarPage({
 
       {venues.length > 0 && (
         <section className="mt-8">
-          <div className="flex items-end justify-between gap-2 pb-2 border-b" style={{ borderColor: "var(--line)" }}>
+          <div
+            className="flex items-end justify-between gap-2 pb-2 border-b"
+            style={{ borderColor: "var(--line)" }}
+          >
             <h2 className="text-brand text-xl" style={{ color: "var(--fg)" }}>Lugares</h2>
             {venuesTotal > 6 && (
               <Link
@@ -116,40 +114,32 @@ export default async function BuscarPage({
               </Link>
             )}
           </div>
-          <ul>
-            {venues.map((v) => (
-              <li key={v.id} className="row-sep">
-                <Link
-                  href={`/lugares/${v.slug}`}
-                  className="flex items-center justify-between gap-3 py-3 transition-opacity active:opacity-70"
-                >
-                  <div className="min-w-0">
-                    <p className="text-brand text-[17px] truncate" style={{ color: "var(--fg)" }}>
-                      {v.name}
-                    </p>
-                    <p className="mt-0.5 flex items-center gap-1 truncate text-xs" style={{ color: "var(--fg-50)" }}>
-                      <MapPin className="h-3 w-3 shrink-0" />
-                      {v.address ?? "Catamarca"}
-                    </p>
-                  </div>
-                  {catById.get(v.categoryId) && (
-                    <span
-                      className="shrink-0 rounded-full border px-2 py-0.5 text-data"
-                      style={{ borderColor: "var(--line-2)", color: "var(--fg-50)" }}
-                    >
-                      {catById.get(v.categoryId)!.name}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <div className="mt-1">
+            {venues.map((v, i) => {
+              const open = statuses?.open.get(v.id);
+              const known = statuses?.knownIds.has(v.id) ?? false;
+              return (
+                <VenueCard
+                  key={v.id}
+                  venue={v}
+                  category={catById.get(v.categoryId)}
+                  priority={i < 2}
+                  openNow={!!open}
+                  {...(open?.closesAt ? { closesAt: open.closesAt } : {})}
+                  closed={!open && known}
+                />
+              );
+            })}
+          </div>
         </section>
       )}
 
       {events.length > 0 && (
         <section className="mt-8">
-          <div className="flex items-end justify-between gap-2 pb-2 border-b" style={{ borderColor: "var(--line)" }}>
+          <div
+            className="flex items-end justify-between gap-2 pb-2 border-b"
+            style={{ borderColor: "var(--line)" }}
+          >
             <h2 className="text-brand text-xl" style={{ color: "var(--fg)" }}>Eventos</h2>
             <Link
               href={`/eventos?q=${encodeURIComponent(query)}`}
@@ -159,35 +149,11 @@ export default async function BuscarPage({
               Ver en eventos <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          <ul>
+          <div className="mt-1">
             {events.map((e) => (
-              <li key={e.id} className="row-sep">
-                <Link
-                  href={`/eventos/${e.slug}`}
-                  className="flex items-center justify-between gap-3 py-3 transition-opacity active:opacity-70"
-                >
-                  <div className="min-w-0">
-                    <p className="text-brand text-[17px] truncate" style={{ color: "var(--fg)" }}>
-                      {e.title}
-                    </p>
-                    <p className="mt-0.5 flex items-center gap-1 truncate text-xs" style={{ color: "var(--fg-50)" }}>
-                      <CalendarDays className="h-3 w-3 shrink-0" />
-                      {fmtDate.format(new Date(e.startsAt))}
-                      {e.venueName && <span className="ml-1">&middot; {e.venueName}</span>}
-                    </p>
-                  </div>
-                  {e.category && (
-                    <span
-                      className="shrink-0 rounded-full border px-2 py-0.5 text-data"
-                      style={{ borderColor: "var(--line-2)", color: "var(--fg-50)" }}
-                    >
-                      {e.category}
-                    </span>
-                  )}
-                </Link>
-              </li>
+              <EventCard key={e.id} event={e} />
             ))}
-          </ul>
+          </div>
         </section>
       )}
     </main>
