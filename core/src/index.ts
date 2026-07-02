@@ -3,6 +3,11 @@
 // Dominio
 export type { Venue, Category, FoodType } from "./domain/venue";
 export { distanceKm } from "./domain/venue";
+export {
+  openStateAt,
+  type OpeningRange,
+  type OpenState,
+} from "./domain/opening-hours";
 
 // Contratos de aplicación
 export type {

@@ -21,6 +21,7 @@ import type {
   UpdateVenueData,
 } from "../application/ports/core-repository.port";
 import { distanceKm, type Category, type FoodType, type Venue } from "../domain/venue";
+import { openStateAt, type OpeningRange } from "../domain/opening-hours";
 
 type VenueRow = Tables<"venues"> & {
   venue_food_types?: { food_type_id: string }[] | null;
@@ -84,32 +85,38 @@ export function createSupabaseCoreRepository(
         foodTypeIds = fts.map((f) => f.id);
       }
 
-      // "Abierto ahora": obtener IDs de venues abiertos en este momento.
+      // "Abierto ahora": obtener IDs de venues abiertos, delegando el cálculo en el dominio.
       let openVenueIds: string[] | null = null;
       if (query.openNow) {
         const now = new Date();
-        const argTime = new Date(now.toLocaleString("en-US", { timeZone: "America/Argentina/Catamarca" }));
-        const dow = argTime.getDay();
-        const hh = String(argTime.getHours()).padStart(2, "0");
-        const mm = String(argTime.getMinutes()).padStart(2, "0");
-        const timeStr = `${hh}:${mm}:00`;
+        const argNow = new Date(
+          now.toLocaleString("en-US", { timeZone: "America/Argentina/Catamarca" }),
+        );
 
         const hoursRes = await client
           .from("venue_hours")
-          .select("venue_id, opens_at, closes_at")
-          .eq("day_of_week", dow)
+          .select("venue_id, day_of_week, opens_at, closes_at")
+          .eq("day_of_week", argNow.getDay())
           .eq("closed", false);
 
         if (hoursRes.error) throw hoursRes.error;
-        const rows = (hoursRes.data ?? []) as { venue_id: string; opens_at: string; closes_at: string }[];
+        const rows = (hoursRes.data ?? []) as {
+          venue_id: string;
+          day_of_week: number;
+          opens_at: string;
+          closes_at: string;
+        }[];
+
+        const rangesByVenue = new Map<string, OpeningRange[]>();
+        for (const r of rows) {
+          const list = rangesByVenue.get(r.venue_id) ?? [];
+          list.push({ day: r.day_of_week, opensAt: r.opens_at, closesAt: r.closes_at });
+          rangesByVenue.set(r.venue_id, list);
+        }
 
         const ids = new Set<string>();
-        for (const r of rows) {
-          if (r.opens_at <= r.closes_at) {
-            if (timeStr >= r.opens_at && timeStr <= r.closes_at) ids.add(r.venue_id);
-          } else {
-            if (timeStr >= r.opens_at || timeStr <= r.closes_at) ids.add(r.venue_id);
-          }
+        for (const [venueId, ranges] of rangesByVenue) {
+          if (openStateAt(ranges, argNow).open) ids.add(venueId);
         }
         openVenueIds = [...ids];
         if (openVenueIds.length === 0) return { items: [], total: 0, page, pageSize };
