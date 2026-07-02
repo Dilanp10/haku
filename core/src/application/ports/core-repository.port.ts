@@ -34,6 +34,7 @@ export interface CreateVenueData {
   website?: string | undefined;
   instagram?: string | undefined;
   coverImageUrl?: string | undefined;
+  attributes?: Record<string, unknown> | undefined;
   foodTypeIds?: string[] | undefined;
   status: "draft" | "published" | "archived";
 }

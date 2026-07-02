@@ -9,8 +9,8 @@
 
 ### Bloque 2 — Core
 - [x] T2a [B] — `CreateVenueData.coverImageUrl?` + adapter inserta `cover_image_url`.
-- [ ] T2b [B] — **PENDIENTE (fix IV)** — `CreateVenueData.attributes?: Record<string, boolean>`
-  + adapter inserta `attributes` en el `INSERT` de `createVenue`.
+- [x] T2b [B] — **(fix IV)** — `CreateVenueData.attributes?: Record<string, unknown>` + Zod en
+  `createVenue` + adapter inserta `attributes` en el `INSERT`.
 
 ### Bloque 3 — Web
 - [x] T3 [B] — `suggest-form.tsx`: wizard 7 pasos con barra de progreso.
@@ -19,8 +19,9 @@
 - [x] T6 [P] — Paso foto: file picker con preview + validación tipo/tamaño.
 - [x] T7 [P] — Paso horarios: `HoursPicker` multi-rango por día + atajos copiar.
 - [x] T8 [B] — `actions.ts`: Zod (nombre + ubicación obligatorios), uploads foto/audio.
-- [ ] T9 [B] — **PENDIENTE (fix IV)** — `actions.ts`: pasar `attributes` (`_hours`, `_audio_url`)
-  a `createVenue` (INSERT) en vez de hacer `UPDATE venues` post-insert.
+- [x] T9 [B] — **(fix IV)** — `actions.ts`: crear el venue con `createAdminSupabase()`
+  (service-role) y pasar `attributes` (`_hours`, `_audio_url`) en el `INSERT`. Elimina el
+  `UPDATE` post-insert y evita el fallo de readback bajo RLS para anónimos.
 - [x] T10 [P] — `page.tsx`: wrapper Tierra.
 
 ## Verificación final
@@ -29,5 +30,5 @@
 - [x] AC3 — Audio grabable y subido.
 - [x] AC4 — Foto previsualizada y subida.
 - [x] AC5 — Horarios multi-rango.
-- [ ] AC6 — **Metadata persiste también para anónimos** (requiere T2b + T9).
-- [ ] `pnpm -r typecheck` tras el fix.
+- [x] AC6 — **Metadata persiste también para anónimos** (service-role + attributes en INSERT).
+- [x] `pnpm -r typecheck` tras el fix.

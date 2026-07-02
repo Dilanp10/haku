@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { createVenue, createSupabaseCoreRepository } from "@haku/core";
-import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5MB
 const MAX_AUDIO_BYTES = 3 * 1024 * 1024; // 3MB
@@ -40,7 +40,7 @@ function randomSuffix(): string {
 }
 
 async function uploadFile(
-  supabase: Awaited<ReturnType<typeof createServerSupabase>>,
+  supabase: ReturnType<typeof createAdminSupabase>,
   file: File,
   path: string,
 ): Promise<string | null> {
@@ -109,7 +109,10 @@ export async function suggestVenueAction(
     };
   }
 
-  const supabase = await createServerSupabase();
+  // Server Action: usamos service-role (Principio IV permite service_role en el servidor).
+  // Necesario porque la policy RLS de venues no deja a un anónimo releer su propio draft
+  // (SELECT solo published), y `createVenue` re-lee la fila tras insertarla.
+  const supabase = createAdminSupabase();
   const slug = `${toSlug(data.name)}-${randomSuffix()}`;
 
   // Uploads
@@ -150,6 +153,13 @@ export async function suggestVenueAction(
     if (url) audioUrl = url;
   }
 
+  // Metadata del wizard para revisión admin (horarios + audio). Va en el INSERT:
+  // la policy RLS permite INSERT de drafts para anónimos, pero NO UPDATE — hacerlo
+  // por UPDATE post-insert perdería estos datos silenciosamente (fix constitución IV).
+  const meta: Record<string, unknown> = {};
+  if (audioUrl) meta["_audio_url"] = audioUrl;
+  if (data.hours && data.hours.length > 0) meta["_hours"] = data.hours;
+
   const repo = createSupabaseCoreRepository(supabase);
   const res = await createVenue(repo, {
     slug,
@@ -163,23 +173,12 @@ export async function suggestVenueAction(
       : {}),
     ...(data.description ? { description: data.description } : {}),
     ...(coverImageUrl ? { coverImageUrl } : {}),
+    ...(Object.keys(meta).length > 0 ? { attributes: meta } : {}),
     status: "draft",
   });
 
   if (!res.ok) {
     return { status: "error", message: res.error.message };
-  }
-
-  // Guardar horarios y audio como metadata en attributes JSONB del venue draft
-  // (para que el admin los revise antes de materializarlos).
-  const meta: Record<string, unknown> = {};
-  if (audioUrl) meta["_audio_url"] = audioUrl;
-  if (data.hours && data.hours.length > 0) meta["_hours"] = data.hours;
-  if (Object.keys(meta).length > 0) {
-    await supabase
-      .from("venues")
-      .update({ attributes: meta as Record<string, boolean> })
-      .eq("slug", slug);
   }
 
   return { status: "success", name: data.name };

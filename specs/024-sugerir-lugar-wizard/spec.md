@@ -101,11 +101,14 @@ attributes?: Record<string, boolean>; // NUEVO (fix IV): permite pasar metadata 
 - AC7 — `pnpm -r typecheck` pasa.
 
 ## 9. Riesgos y supuestos
-- **❌ Bug IV (RLS) a corregir:** la implementación actual hace `INSERT` (OK por
-  `venues_public_suggest`) y luego `UPDATE venues SET attributes` para guardar `_hours`/
-  `_audio_url`. No hay policy de UPDATE para anónimos → **para usuarios no logueados la
-  metadata se pierde silenciosamente**. **Corrección mandada:** incluir `attributes` en el
-  `INSERT` (extender `CreateVenueData.attributes` y el adapter), eliminando el UPDATE.
+- **✅ Bug IV (RLS) — corregido:** el problema era doble. (1) La metadata se guardaba con
+  `UPDATE venues SET attributes` post-insert, pero no hay policy de UPDATE para anónimos →
+  se perdía. (2) Más grave: la policy SELECT de `venues` solo permite `published`, así que un
+  anónimo **no puede releer su propio draft**, y `createVenue` re-lee la fila tras insertarla
+  → el `INSERT ... RETURNING`/re-fetch **falla para anónimos**. **Corrección aplicada:** la
+  Server Action crea el venue con **cliente service-role** (`createAdminSupabase()`, permitido
+  por Principio IV en el servidor), pasando `attributes` en el `INSERT`. Se eliminó el UPDATE.
+  El input sigue validado con Zod y `status` forzado a `draft`.
 - **⚠️ Tipado (V):** `attributes` se tipa `Record<string, boolean>` pero `_hours` es un array
   y `_audio_url` un string. Se acepta como metadata transitoria del draft (el admin la
   materializa en spec 025 y limpia esas claves). Documentado como deuda menor.

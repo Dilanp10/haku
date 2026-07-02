@@ -258,6 +258,7 @@ export function createSupabaseCoreRepository(
           website: data.website ?? null,
           instagram: data.instagram ?? null,
           cover_image_url: data.coverImageUrl ?? null,
+          ...(data.attributes ? { attributes: data.attributes as Record<string, boolean> } : {}),
           status: data.status,
         })
         .select("*")
