@@ -1,43 +1,126 @@
 import Link from "next/link";
-import { MapPin, ArrowRight } from "lucide-react";
 import {
   listVenues,
   listCategories,
+  listFoodTypes,
   createSupabaseCoreRepository,
+  distanceKm as computeDistanceKm,
   type Category,
 } from "@haku/core";
+import type { PriceRange } from "@haku/shared";
 import {
   listUpcomingEvents,
   createSupabaseEventRepository,
 } from "@haku/events";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { getVenueStatuses } from "@/lib/venue-open-now";
 import { VenueCard } from "@/components/venue-card";
 import { EventCard } from "@/components/event-card";
+import { VenuesFilters } from "@/components/venues-filters";
+import { LocateMeInline } from "@/components/locate-me-inline";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+interface SearchParams {
+  categoria?: string;
+  precio?: string;
+  comida?: string;
+  attrs?: string;
+  abierto?: string;
+  q?: string;
+  lat?: string;
+  lng?: string;
+}
+
+function parseList(v: string | undefined): string[] {
+  if (!v) return [];
+  return v.split(",").filter(Boolean);
+}
+
+const PRICE_VALUES: PriceRange[] = ["$", "$$", "$$$"];
+function parsePrices(v: string | undefined): PriceRange[] {
+  return parseList(v).filter((x): x is PriceRange =>
+    PRICE_VALUES.includes(x as PriceRange),
+  );
+}
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
+  const isOpenNow = sp.abierto === "1";
+  const categorySlugs = parseList(sp.categoria);
+  const foodTypeSlugs = parseList(sp.comida);
+  const priceRanges = parsePrices(sp.precio);
+  const attributes = parseList(sp.attrs);
+
+  const lat = sp.lat !== undefined ? Number(sp.lat) : NaN;
+  const lng = sp.lng !== undefined ? Number(sp.lng) : NaN;
+  const userLocation =
+    Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+
   const supabase = await createServerSupabase();
   const coreRepo = createSupabaseCoreRepository(supabase);
   const eventsRepo = createSupabaseEventRepository(supabase);
 
-  const [venuesRes, categoriesRes, eventsRes] = await Promise.all([
-    listVenues(coreRepo, { pagination: { page: 1, pageSize: 4 } }),
-    listCategories(coreRepo),
-    listUpcomingEvents(eventsRepo, { limit: 4 }),
-  ]);
+  const pageSize = userLocation ? 50 : 20;
 
-  const venues = venuesRes.ok ? venuesRes.value.items : [];
-  const catById = new Map<string, Category>(
-    (categoriesRes.ok ? categoriesRes.value : []).map((c) => [c.id, c]),
-  );
+  const [filteredRes, totalRes, categoriesRes, foodTypesRes, eventsRes, statuses] =
+    await Promise.all([
+      listVenues(coreRepo, {
+        ...(categorySlugs.length ? { categorySlugs } : {}),
+        ...(priceRanges.length ? { priceRanges } : {}),
+        ...(foodTypeSlugs.length ? { foodTypeSlugs } : {}),
+        ...(attributes.length ? { attributes } : {}),
+        ...(sp.q ? { search: sp.q } : {}),
+        ...(isOpenNow ? { openNow: true } : {}),
+        pagination: { page: 1, pageSize },
+      }),
+      listVenues(coreRepo, { pagination: { page: 1, pageSize: 1 } }),
+      listCategories(coreRepo),
+      listFoodTypes(coreRepo),
+      listUpcomingEvents(eventsRepo, { limit: 4 }),
+      getVenueStatuses(supabase),
+    ]);
+
+  let venues = filteredRes.ok ? filteredRes.value.items : [];
+  const shownCount = filteredRes.ok ? filteredRes.value.total : 0;
+  const totalVenues = totalRes.ok ? totalRes.value.total : 0;
+  const openCount = statuses.open.size;
+  const categories = categoriesRes.ok ? categoriesRes.value : [];
+  const foodTypes = foodTypesRes.ok ? foodTypesRes.value : [];
+  const catById = new Map<string, Category>(categories.map((c) => [c.id, c]));
   const events = eventsRes.ok ? eventsRes.value : [];
+
+  // Ordenar por distancia cuando hay ubicación
+  const distances = new Map<string, number>();
+  if (userLocation) {
+    for (const v of venues) {
+      if (v.location) {
+        distances.set(v.id, computeDistanceKm(userLocation, v.location));
+      }
+    }
+    venues = [...venues].sort((a, b) => {
+      const da = distances.get(a.id) ?? Infinity;
+      const db = distances.get(b.id) ?? Infinity;
+      return da - db;
+    });
+  }
+
+  const hasFilters =
+    isOpenNow ||
+    categorySlugs.length > 0 ||
+    foodTypeSlugs.length > 0 ||
+    priceRanges.length > 0 ||
+    attributes.length > 0 ||
+    !!sp.q;
 
   return (
     <main id="main" className="mx-auto max-w-2xl px-4 sm:px-6 pb-bottom">
-      {/* Hero tipográfico */}
-      <header className="pt-8 pb-6">
-        <p className="text-section mb-2">Catamarca · Argentina</p>
+      <header className="pt-8 pb-2">
+        <p className="text-section mb-2">Catamarca · Ahora</p>
         <h1
           className="text-brand leading-none"
           style={{ fontSize: "clamp(3rem,12vw,4.5rem)", color: "var(--terra)" }}
@@ -45,111 +128,87 @@ export default async function HomePage() {
           Haku.
         </h1>
         <p className="mt-2 text-[15px]" style={{ color: "var(--fg-70)" }}>
-          &ldquo;Vamos&rdquo; en quechua. Descubrí lugares, gastronomía y eventos cerca tuyo.
+          ¿Qué está abierto ahora?
         </p>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <Link
-            href="/lugares"
-            className="inline-flex items-center gap-2 rounded-button px-4 py-2 text-sm font-medium transition active:opacity-80"
-            style={{ background: "var(--terra)", color: "#fff" }}
-          >
-            Explorar lugares <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            href="/lugares/cerca"
-            className="inline-flex items-center gap-2 rounded-button border px-4 py-2 text-sm font-medium transition active:opacity-80"
-            style={{ borderColor: "var(--line-2)", color: "var(--fg)" }}
-          >
-            <MapPin className="h-4 w-4" style={{ color: "var(--terra)" }} /> Cerca tuyo
-          </Link>
-        </div>
+
+        <VenuesFilters
+          categories={categories}
+          foodTypes={foodTypes}
+          basePath="/"
+          compact
+        />
+
+        <LocateMeInline />
       </header>
 
-      {/* Lugares */}
-      <section className="pt-6">
-        <SectionHeader title="Lugares" subtitle="Gastronomía y salidas" href="/lugares" />
+      <div className="mt-2 flex items-center justify-between">
+        <p className="text-section" style={{ color: "var(--fg-50)" }}>
+          {hasFilters ? `${shownCount} resultados` : `${totalVenues} lugares`}
+        </p>
+        <p className="text-section">
+          <span style={{ color: "var(--moss)" }}>{openCount} abiertos</span>
+          <span style={{ color: "var(--fg-30)" }}> · {totalVenues} total</span>
+        </p>
+      </div>
+
+      <section className="pt-2">
         {venues.length > 0 ? (
-          <div className="mt-2">
-            {venues.map((v, i) => (
-              <VenueCard
-                key={v.id}
-                venue={v}
-                category={catById.get(v.categoryId)}
-                priority={i < 2}
-              />
-            ))}
+          <div>
+            {venues.map((v, i) => {
+              const open = statuses.open.get(v.id);
+              const known = statuses.knownIds.has(v.id);
+              const dist = distances.get(v.id);
+              return (
+                <VenueCard
+                  key={v.id}
+                  venue={v}
+                  category={catById.get(v.categoryId)}
+                  priority={i < 2}
+                  openNow={!!open}
+                  {...(open?.closesAt ? { closesAt: open.closesAt } : {})}
+                  closed={!open && known}
+                  {...(dist !== undefined ? { distanceKm: dist } : {})}
+                />
+              );
+            })}
           </div>
         ) : (
-          <EmptyState text="Todavía no hay lugares publicados." href="/lugares" linkText="Ver todos" />
+          <div
+            className="mt-4 rounded-card border p-8 text-center text-sm"
+            style={{ borderColor: "var(--line)", background: "var(--card-bg)", color: "var(--fg-50)" }}
+          >
+            No hay lugares con estos filtros.
+          </div>
         )}
       </section>
 
-      {/* Eventos */}
-      <section className="pt-10">
-        <SectionHeader title="Próximos eventos" subtitle="Qué está pasando" href="/eventos" />
-        {events.length > 0 ? (
+      {events.length > 0 && (
+        <section className="pt-10">
+          <div
+            className="flex items-end justify-between gap-3 pb-2 border-b"
+            style={{ borderColor: "var(--line)" }}
+          >
+            <div>
+              <p className="text-section">Catamarca</p>
+              <h2 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>
+                Próximos eventos
+              </h2>
+            </div>
+            <Link
+              href="/eventos"
+              className="shrink-0 text-xs font-medium hover:underline"
+              style={{ color: "var(--terra)" }}
+            >
+              Ver todos
+            </Link>
+          </div>
           <div className="mt-2">
             {events.map((e) => (
               <EventCard key={e.id} event={e} />
             ))}
           </div>
-        ) : (
-          <EmptyState text="Todavía no hay eventos publicados." href="/eventos" linkText="Ver eventos" />
-        )}
-      </section>
+        </section>
+      )}
     </main>
-  );
-}
-
-function SectionHeader({
-  title,
-  subtitle,
-  href,
-}: {
-  title: string;
-  subtitle: string;
-  href: string;
-}) {
-  return (
-    <div className="flex items-end justify-between gap-3 pb-2 border-b" style={{ borderColor: "var(--line)" }}>
-      <div>
-        <p className="text-section">Catamarca</p>
-        <h2 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>
-          {title}
-        </h2>
-        <p className="mt-0.5 text-xs" style={{ color: "var(--fg-50)" }}>
-          {subtitle}
-        </p>
-      </div>
-      <Link
-        href={href}
-        className="shrink-0 inline-flex items-center gap-1 text-xs font-medium hover:underline"
-        style={{ color: "var(--terra)" }}
-      >
-        Ver todos <ArrowRight className="h-3 w-3" />
-      </Link>
-    </div>
-  );
-}
-
-function EmptyState({
-  text,
-  href,
-  linkText,
-}: {
-  text: string;
-  href: string;
-  linkText: string;
-}) {
-  return (
-    <div
-      className="mt-4 rounded-card border p-8 text-center text-sm"
-      style={{ borderColor: "var(--line)", background: "var(--card-bg)", color: "var(--fg-50)" }}
-    >
-      {text}{" "}
-      <Link href={href} className="hover:underline" style={{ color: "var(--terra)" }}>
-        {linkText}
-      </Link>
-    </div>
   );
 }

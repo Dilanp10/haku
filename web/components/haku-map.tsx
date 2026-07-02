@@ -9,6 +9,8 @@ import { MapContainer, Marker, Popup, TileLayer, CircleMarker } from "react-leaf
 const CATAMARCA_CENTER = { lat: -28.4696, lng: -65.7795 };
 const DEFAULT_ZOOM = 14;
 
+export type VenueStatus = "open" | "closed" | "unknown";
+
 export interface MapPoint {
   slug: string;
   name: string;
@@ -17,6 +19,9 @@ export interface MapPoint {
   kind: "venue" | "event";
   meta?: string | null;
   category?: string | null;
+  neighborhood?: string | null;
+  status?: VenueStatus;
+  closesAt?: string | null;
 }
 
 function pinSvg(color: string): string {
@@ -37,8 +42,17 @@ function buildIcon(color: string): L.DivIcon {
   });
 }
 
-const iconVenue = buildIcon("#D67849"); // terra
-const iconEvent = buildIcon("#8AA265"); // moss
+const iconOpen = buildIcon("#8AA265");   // moss (verde)
+const iconClosed = buildIcon("#C0664E"); // rust (rojo)
+const iconUnknown = buildIcon("#D67849"); // terra
+const iconEvent = buildIcon("#8AA265");   // moss
+
+function iconForPoint(p: MapPoint): L.DivIcon {
+  if (p.kind === "event") return iconEvent;
+  if (p.status === "open") return iconOpen;
+  if (p.status === "closed") return iconClosed;
+  return iconUnknown;
+}
 
 type Coords = { lat: number; lng: number };
 
@@ -66,46 +80,70 @@ export default function HakuMap({ points }: { points: MapPoint[] }) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      {points.map((p) => (
-        <Marker
-          key={`${p.kind}-${p.slug}`}
-          position={[p.lat, p.lng]}
-          icon={p.kind === "event" ? iconEvent : iconVenue}
-        >
-          <Popup>
-            <div style={{ color: "var(--fg)" }}>
-              <div
-                className="text-brand text-base leading-tight"
-                style={{ color: "var(--fg)" }}
-              >
-                {p.name}
-              </div>
-              {(p.category || p.meta) && (
-                <div className="text-xs mt-0.5" style={{ color: "var(--fg-50)" }}>
-                  {[p.category, p.meta].filter(Boolean).join(" · ")}
+      {points.map((p) => {
+        const catMeta = [p.category, p.neighborhood ?? p.meta]
+          .filter(Boolean)
+          .join(" · ");
+        const isOpen = p.status === "open";
+        const isClosed = p.status === "closed";
+        return (
+          <Marker
+            key={`${p.kind}-${p.slug}`}
+            position={[p.lat, p.lng]}
+            icon={iconForPoint(p)}
+          >
+            <Popup>
+              <div style={{ color: "var(--fg)" }}>
+                <div
+                  className="text-brand text-base leading-tight"
+                  style={{ color: "var(--fg)" }}
+                >
+                  {p.name}
                 </div>
-              )}
-              <div className="inline-flex items-center gap-1.5 text-xs mt-1.5 font-mono">
-                <span
-                  aria-hidden
-                  className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{ background: p.kind === "event" ? "var(--moss)" : "var(--terra)" }}
-                />
-                <span style={{ color: p.kind === "event" ? "var(--moss)" : "var(--terra)" }}>
-                  {p.kind === "event" ? "Evento" : "Lugar"}
-                </span>
+                {catMeta && (
+                  <div className="text-xs mt-0.5" style={{ color: "var(--fg-50)" }}>
+                    {p.kind === "venue" && (p.category ? "☕ " : "")}
+                    {catMeta}
+                  </div>
+                )}
+                {p.kind === "venue" && (isOpen || isClosed) && (
+                  <div className="inline-flex items-center gap-1.5 text-xs mt-1 font-mono">
+                    <span
+                      aria-hidden
+                      className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ background: isOpen ? "#8AA265" : "#C0664E" }}
+                    />
+                    <span style={{ color: isOpen ? "#8AA265" : "#C0664E" }}>
+                      {isOpen
+                        ? p.closesAt
+                          ? `Abierto · cierra a las ${p.closesAt}`
+                          : "Abierto"
+                        : "Cerrado"}
+                    </span>
+                  </div>
+                )}
+                {p.kind === "event" && (
+                  <div className="inline-flex items-center gap-1.5 text-xs mt-1 font-mono">
+                    <span
+                      aria-hidden
+                      className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ background: "#8AA265" }}
+                    />
+                    <span style={{ color: "#8AA265" }}>Evento</span>
+                  </div>
+                )}
+                <Link
+                  href={`/${p.kind === "event" ? "eventos" : "lugares"}/${p.slug}` as never}
+                  className="block mt-2 font-medium text-sm"
+                  style={{ color: "var(--terra)" }}
+                >
+                  Ver ficha →
+                </Link>
               </div>
-              <Link
-                href={`/${p.kind === "event" ? "eventos" : "lugares"}/${p.slug}` as never}
-                className="block mt-2 font-medium text-sm"
-                style={{ color: "var(--terra)" }}
-              >
-                Ver ficha →
-              </Link>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
+            </Popup>
+          </Marker>
+        );
+      })}
 
       {coords && (
         <CircleMarker

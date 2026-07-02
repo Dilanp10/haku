@@ -16,7 +16,7 @@ const fmtTime = new Intl.DateTimeFormat("es-AR", {
   timeZone: "America/Argentina/Catamarca",
 });
 
-export function EventCard({ event }: { event: Event }) {
+export function EventCard({ event, distanceKm }: { event: Event; distanceKm?: number }) {
   const d = new Date(event.startsAt);
   const meta = [fmtTime.format(d), event.venueName].filter(Boolean).join(" · ");
 
@@ -56,12 +56,22 @@ export function EventCard({ event }: { event: Event }) {
 
       {/* Text */}
       <div className="relative flex-1 min-w-0">
-        <h3
-          className="text-brand text-[19px] leading-tight line-clamp-2"
-          style={{ color: "var(--fg)" }}
-        >
-          {event.title}
-        </h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3
+            className="text-brand text-[19px] leading-tight line-clamp-2"
+            style={{ color: "var(--fg)" }}
+          >
+            {event.title}
+          </h3>
+          {distanceKm !== undefined && (
+            <span
+              className="text-data shrink-0"
+              style={{ color: "var(--terra)" }}
+            >
+              {formatDistance(distanceKm)}
+            </span>
+          )}
+        </div>
         {meta && (
           <p
             className="text-xs mt-0.5 truncate"
@@ -81,4 +91,10 @@ export function EventCard({ event }: { event: Event }) {
       </div>
     </div>
   );
+}
+
+function formatDistance(km: number): string {
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  if (km < 10) return `${km.toFixed(1)} km`;
+  return `${Math.round(km)} km`;
 }

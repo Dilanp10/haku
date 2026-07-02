@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import {
   listUpcomingEvents,
   createSupabaseEventRepository,
+  type Event,
 } from "@haku/events";
+import { distanceKm as computeDistanceKm } from "@haku/core";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { EventCard } from "@/components/event-card";
 import { SearchInput } from "@/components/search-input";
+import { LocateMeInline } from "@/components/locate-me-inline";
 
 export const metadata: Metadata = {
   title: "Eventos",
@@ -20,11 +23,13 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 interface SearchParams {
   q?: string;
   categoria?: string;
+  lat?: string;
+  lng?: string;
 }
 
 export default async function EventosPage({
@@ -36,9 +41,14 @@ export default async function EventosPage({
   const supabase = await createServerSupabase();
   const repo = createSupabaseEventRepository(supabase);
 
+  const lat = sp.lat !== undefined ? Number(sp.lat) : NaN;
+  const lng = sp.lng !== undefined ? Number(sp.lng) : NaN;
+  const userLocation =
+    Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+
   const [eventsRes, categories] = await Promise.all([
     listUpcomingEvents(repo, {
-      limit: 30,
+      limit: userLocation ? 60 : 30,
       ...(sp.q ? { search: sp.q } : {}),
       ...(sp.categoria ? { category: sp.categoria } : {}),
     }),
@@ -47,48 +57,65 @@ export default async function EventosPage({
 
   if (!eventsRes.ok) {
     return (
-      <main className="container py-10">
-        <h1 className="text-2xl font-bold">No pudimos cargar los eventos</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{eventsRes.error.message}</p>
+      <main className="mx-auto max-w-2xl px-4 py-10">
+        <h1 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>
+          No pudimos cargar los eventos
+        </h1>
+        <p className="mt-2 text-sm" style={{ color: "var(--fg-50)" }}>
+          {eventsRes.error.message}
+        </p>
       </main>
     );
   }
 
-  const events = eventsRes.value;
+  let events: Event[] = eventsRes.value;
+  const distances = new Map<string, number>();
+  if (userLocation) {
+    for (const e of events) {
+      if (e.location) distances.set(e.id, computeDistanceKm(userLocation, e.location));
+    }
+    events = [...events].sort((a, b) => {
+      const da = distances.get(a.id) ?? Infinity;
+      const db = distances.get(b.id) ?? Infinity;
+      return da - db;
+    });
+  }
+
   const hasFilters = !!(sp.q || sp.categoria);
   const activeFilters: Record<string, string> = {};
   if (sp.q) activeFilters["q"] = sp.q;
   if (sp.categoria) activeFilters["categoria"] = sp.categoria;
 
   return (
-    <main id="main" className="container py-10">
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-widest text-primary">Catamarca</p>
-          <h1 className="mt-1 text-3xl font-bold">Eventos</h1>
-          <p className="mt-2 text-muted-foreground">
-            {events.length} {events.length === 1 ? "evento" : "eventos"}{hasFilters ? " con estos filtros" : " próximos"}.
-          </p>
-        </div>
-        <Link
-          href="/eventos/cerca"
-          className="inline-flex items-center gap-2 rounded-md border border-primary/40 bg-primary/5 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/10"
-        >
-          <MapPin className="h-4 w-4" />
-          Cerca tuyo
-        </Link>
+    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
+      <header className="mb-6">
+        <p className="text-section mb-1">Catamarca</p>
+        <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
+          Eventos
+        </h1>
+        <p className="mt-1 text-sm" style={{ color: "var(--fg-50)" }}>
+          {events.length} {events.length === 1 ? "evento" : "eventos"}
+          {hasFilters ? " con estos filtros" : " próximos"}.
+        </p>
       </header>
 
       {/* Filtros */}
-      <aside className="mb-8 space-y-4 rounded-lg border bg-card p-4">
+      <aside
+        className="mb-6 space-y-4 rounded-[12px] border p-4"
+        style={{ borderColor: "var(--line)", background: "var(--card-bg)" }}
+      >
         <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <span
+            className="flex items-center gap-1.5 text-data uppercase"
+            style={{ color: "var(--fg-50)" }}
+          >
             <SlidersHorizontal className="h-3.5 w-3.5" /> Filtros
           </span>
           {hasFilters && (
             <Link
               href="/eventos"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+              className="inline-flex items-center gap-1 text-xs transition-opacity hover:opacity-70"
+              style={{ color: "var(--fg-50)" }}
             >
               <X className="h-3 w-3" /> Limpiar todo
             </Link>
@@ -104,30 +131,51 @@ export default async function EventosPage({
 
         {categories.length > 0 && (
           <div>
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Categoría</p>
-            <CategoryPills categories={categories} active={sp.categoria} activeFilters={activeFilters} />
+            <p className="mb-2 text-data" style={{ color: "var(--fg-50)" }}>Categoría</p>
+            <EventCategoryPills
+              categories={categories}
+              active={sp.categoria}
+              activeFilters={activeFilters}
+            />
           </div>
         )}
       </aside>
 
+      <LocateMeInline />
+
       {events.length === 0 ? (
-        <div className="rounded-lg border bg-card p-10 text-center text-muted-foreground">
-          No hay eventos{hasFilters ? " con estos filtros" : " publicados todavía"}. {hasFilters ? (
-            <Link href="/eventos" className="text-primary hover:underline">Quitar filtros</Link>
-          ) : "Volvé pronto."}
+        <div
+          className="mt-4 rounded-[12px] border p-10 text-center text-sm"
+          style={{ borderColor: "var(--line)", background: "var(--card-bg)", color: "var(--fg-50)" }}
+        >
+          No hay eventos{hasFilters ? " con estos filtros" : " publicados todavía"}.{" "}
+          {hasFilters ? (
+            <Link href="/eventos" className="hover:underline" style={{ color: "var(--terra)" }}>
+              Quitar filtros
+            </Link>
+          ) : (
+            "Volvé pronto."
+          )}
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {events.map((e) => (
-            <EventCard key={e.id} event={e} />
-          ))}
+        <div>
+          {events.map((e) => {
+            const d = distances.get(e.id);
+            return (
+              <EventCard
+                key={e.id}
+                event={e}
+                {...(d !== undefined ? { distanceKm: d } : {})}
+              />
+            );
+          })}
         </div>
       )}
     </main>
   );
 }
 
-function CategoryPills({
+function EventCategoryPills({
   categories,
   active,
   activeFilters,
@@ -157,11 +205,12 @@ function Pill({ href, active, label }: { href: string; active: boolean; label: s
   return (
     <Link
       href={href}
-      className={`rounded-full border px-3 py-1 text-sm transition ${
+      className="rounded-full border px-3 py-1 text-sm transition"
+      style={
         active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card hover:border-primary/40"
-      }`}
+          ? { background: "var(--terra)", borderColor: "var(--terra)", color: "#fff" }
+          : { background: "var(--card-bg)", borderColor: "var(--line-2)", color: "var(--fg-70)" }
+      }
     >
       {label}
     </Link>

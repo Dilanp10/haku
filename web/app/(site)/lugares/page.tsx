@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LocateFixed, SlidersHorizontal, X } from "lucide-react";
 import {
   listVenues,
   listCategories,
   listFoodTypes,
   createSupabaseCoreRepository,
+  distanceKm as computeDistanceKm,
   type Category,
 } from "@haku/core";
 import type { PriceRange } from "@haku/shared";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { getVenueStatuses } from "@/lib/venue-open-now";
 import { VenueCard } from "@/components/venue-card";
-import { CategoryPills } from "@/components/category-pills";
-import { PricePills } from "@/components/price-pills";
-import { FoodTypePills } from "@/components/food-type-pills";
-import { SearchInput } from "@/components/search-input";
+import { VenuesFilters } from "@/components/venues-filters";
+import { LocateMeInline } from "@/components/locate-me-inline";
 
 export const metadata: Metadata = {
   title: "Lugares",
@@ -28,14 +27,30 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 300; // ISR 5 min
+export const dynamic = "force-dynamic";
 
 interface SearchParams {
   categoria?: string;
   precio?: string;
   comida?: string;
+  attrs?: string;
+  abierto?: string;
   q?: string;
+  lat?: string;
+  lng?: string;
   page?: string;
+}
+
+function parseList(v: string | undefined): string[] {
+  if (!v) return [];
+  return v.split(",").filter(Boolean);
+}
+
+const PRICE_VALUES: PriceRange[] = ["$", "$$", "$$$"];
+function parsePrices(v: string | undefined): PriceRange[] {
+  return parseList(v).filter((x): x is PriceRange =>
+    PRICE_VALUES.includes(x as PriceRange),
+  );
 }
 
 export default async function VenuesPage({
@@ -44,140 +59,127 @@ export default async function VenuesPage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = await searchParams;
+  const isOpenNow = sp.abierto === "1";
+  const categorySlugs = parseList(sp.categoria);
+  const foodTypeSlugs = parseList(sp.comida);
+  const priceRanges = parsePrices(sp.precio);
+  const attributes = parseList(sp.attrs);
+
+  const lat = sp.lat !== undefined ? Number(sp.lat) : NaN;
+  const lng = sp.lng !== undefined ? Number(sp.lng) : NaN;
+  const userLocation =
+    Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+
   const supabase = await createServerSupabase();
   const repo = createSupabaseCoreRepository(supabase);
+  const pageSize = userLocation ? 50 : 12;
 
-  const [venuesRes, categoriesRes, foodTypesRes] = await Promise.all([
+  const [venuesRes, categoriesRes, foodTypesRes, statuses] = await Promise.all([
     listVenues(repo, {
-      ...(sp.categoria ? { categorySlug: sp.categoria } : {}),
-      ...(isPriceRange(sp.precio) ? { priceRange: sp.precio } : {}),
-      ...(sp.comida ? { foodTypeSlug: sp.comida } : {}),
+      ...(categorySlugs.length ? { categorySlugs } : {}),
+      ...(priceRanges.length ? { priceRanges } : {}),
+      ...(foodTypeSlugs.length ? { foodTypeSlugs } : {}),
+      ...(attributes.length ? { attributes } : {}),
       ...(sp.q ? { search: sp.q } : {}),
-      pagination: { page: Number(sp.page ?? 1), pageSize: 12 },
+      ...(isOpenNow ? { openNow: true } : {}),
+      pagination: { page: Number(sp.page ?? 1), pageSize },
     }),
     listCategories(repo),
     listFoodTypes(repo),
+    getVenueStatuses(supabase),
   ]);
 
-  if (!venuesRes.ok) return <ErrorBlock title="No pudimos cargar los lugares" detail={venuesRes.error.message} />;
-  if (!categoriesRes.ok) return <ErrorBlock title="No pudimos cargar las categorías" detail={categoriesRes.error.message} />;
+  if (!venuesRes.ok)
+    return <ErrorBlock title="No pudimos cargar los lugares" detail={venuesRes.error.message} />;
+  if (!categoriesRes.ok)
+    return <ErrorBlock title="No pudimos cargar las categorías" detail={categoriesRes.error.message} />;
 
-  const { items: venues, total, page, pageSize } = venuesRes.value;
+  let { items: venues } = venuesRes.value;
+  const { total, page } = venuesRes.value;
   const categories = categoriesRes.value;
   const foodTypes = foodTypesRes.ok ? foodTypesRes.value : [];
   const byId = new Map<string, Category>(categories.map((c) => [c.id, c]));
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  // Parámetros activos para preservar al paginar / cambiar un filtro sin resetear los demás.
-  const activeFilters: Record<string, string> = {};
-  if (sp.categoria) activeFilters["categoria"] = sp.categoria;
-  if (sp.precio) activeFilters["precio"] = sp.precio;
-  if (sp.comida) activeFilters["comida"] = sp.comida;
-  if (sp.q) activeFilters["q"] = sp.q;
+  const distances = new Map<string, number>();
+  if (userLocation) {
+    for (const v of venues) {
+      if (v.location) distances.set(v.id, computeDistanceKm(userLocation, v.location));
+    }
+    venues = [...venues].sort((a, b) => {
+      const da = distances.get(a.id) ?? Infinity;
+      const db = distances.get(b.id) ?? Infinity;
+      return da - db;
+    });
+  }
 
-  const hasFilters = Object.keys(activeFilters).length > 0;
+  const hasFilters =
+    isOpenNow ||
+    categorySlugs.length > 0 ||
+    foodTypeSlugs.length > 0 ||
+    priceRanges.length > 0 ||
+    attributes.length > 0 ||
+    !!sp.q;
 
   return (
-    <main id="main" className="container py-10">
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-widest text-primary">Catamarca</p>
-          <h1 className="mt-1 text-3xl font-bold">Lugares</h1>
-          <p className="mt-2 text-muted-foreground">
-            {total} {total === 1 ? "lugar" : "lugares"}{hasFilters ? " con estos filtros" : " publicados"}.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link
-            href="/lugares/cerca"
-            className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition hover:border-primary/40"
-          >
-            <LocateFixed className="h-4 w-4" />
-            Cerca tuyo
-          </Link>
-          <Link
-            href="/lugares/sugerir"
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-          >
-            + Sugerir lugar
-          </Link>
-        </div>
+    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
+      <header className="mb-6">
+        <p className="text-section mb-1">Catamarca</p>
+        <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
+          Lugares
+        </h1>
+        <p className="mt-1 text-sm" style={{ color: "var(--fg-50)" }}>
+          {total} {total === 1 ? "lugar" : "lugares"}
+          {hasFilters ? " con estos filtros" : " publicados"}.
+        </p>
       </header>
 
-      {/* Filtros */}
-      <aside className="mb-8 space-y-4 rounded-lg border bg-card p-4">
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            <SlidersHorizontal className="h-3.5 w-3.5" /> Filtros
-          </span>
-          {hasFilters && (
-            <Link
-              href="/lugares"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-3 w-3" /> Limpiar todo
-            </Link>
-          )}
-        </div>
+      <VenuesFilters
+        categories={categories}
+        foodTypes={foodTypes}
+        basePath="/lugares"
+      />
 
-        {/* Búsqueda */}
-        <SearchInput
-          value={sp.q}
-          placeholder="Buscar por nombre o descripción…"
-          action="/lugares"
-          preserveParams={{ ...activeFilters, q: "" }}
-        />
+      <LocateMeInline />
 
-        {/* Categoría */}
-        <div>
-          <p className="mb-2 text-xs font-medium text-muted-foreground">Categoría</p>
-          <CategoryPills
-            categories={categories}
-            active={sp.categoria}
-            preserveParams={{ ...activeFilters, categoria: "" }}
-          />
-        </div>
-
-        {/* Precio */}
-        <div>
-          <p className="mb-2 text-xs font-medium text-muted-foreground">Precio</p>
-          <PricePills
-            active={sp.precio}
-            basePath="/lugares"
-            preserveParams={{ ...activeFilters, precio: "" }}
-          />
-        </div>
-
-        {/* Tipo de comida */}
-        {foodTypes.length > 0 && (
-          <div>
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Qué encontrás</p>
-            <FoodTypePills
-              foodTypes={foodTypes}
-              active={sp.comida}
-              basePath="/lugares"
-              preserveParams={{ ...activeFilters, comida: "" }}
-            />
-          </div>
-        )}
-      </aside>
-
-      <section>
+      <section className="pt-2">
         {venues.length === 0 ? (
-          <EmptyState />
+          <div
+            className="mt-4 rounded-[12px] border p-10 text-center text-sm"
+            style={{ borderColor: "var(--line)", background: "var(--card-bg)", color: "var(--fg-50)" }}
+          >
+            Todavía no hay lugares con estos filtros.{" "}
+            <Link href="/lugares" className="hover:underline" style={{ color: "var(--terra)" }}>
+              Quitar filtros
+            </Link>
+          </div>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {venues.map((v) => (
-              <VenueCard key={v.id} venue={v} category={byId.get(v.categoryId)} />
-            ))}
+          <div>
+            {venues.map((v, i) => {
+              const open = statuses.open.get(v.id);
+              const known = statuses.knownIds.has(v.id);
+              const dist = distances.get(v.id);
+              return (
+                <VenueCard
+                  key={v.id}
+                  venue={v}
+                  category={byId.get(v.categoryId)}
+                  priority={i < 2}
+                  openNow={!!open}
+                  {...(open?.closesAt ? { closesAt: open.closesAt } : {})}
+                  closed={!open && known}
+                  {...(dist !== undefined ? { distanceKm: dist } : {})}
+                />
+              );
+            })}
           </div>
         )}
       </section>
 
-      {totalPages > 1 && (
-        <nav className="mt-10 flex items-center justify-center gap-2 text-sm">
+      {totalPages > 1 && !userLocation && (
+        <nav className="mt-8 flex items-center justify-center gap-2 text-sm">
           <PageLink params={sp} page={page - 1} disabled={page <= 1} label="← Anterior" />
-          <span className="px-2 text-muted-foreground">
+          <span className="text-data px-2" style={{ color: "var(--fg-50)" }}>
             Página {page} de {totalPages}
           </span>
           <PageLink params={sp} page={page + 1} disabled={page >= totalPages} label="Siguiente →" />
@@ -185,10 +187,6 @@ export default async function VenuesPage({
       )}
     </main>
   );
-}
-
-function isPriceRange(v: string | undefined): v is PriceRange {
-  return v === "$" || v === "$$" || v === "$$$";
 }
 
 function PageLink({
@@ -202,36 +200,41 @@ function PageLink({
   disabled: boolean;
   label: string;
 }) {
-  if (disabled) return <span className="rounded-md border px-3 py-1.5 text-muted-foreground/50">{label}</span>;
+  if (disabled)
+    return (
+      <span
+        className="rounded-[10px] border px-3 py-1.5"
+        style={{ borderColor: "var(--line)", color: "var(--fg-30)" }}
+      >
+        {label}
+      </span>
+    );
+
   const qs = new URLSearchParams();
   if (params.categoria) qs.set("categoria", params.categoria);
   if (params.precio) qs.set("precio", params.precio);
   if (params.comida) qs.set("comida", params.comida);
+  if (params.attrs) qs.set("attrs", params.attrs);
   if (params.q) qs.set("q", params.q);
+  if (params.abierto) qs.set("abierto", params.abierto);
   qs.set("page", String(page));
+
   return (
-    <Link href={`/lugares?${qs.toString()}`} className="rounded-md border px-3 py-1.5 hover:border-primary/40">
+    <Link
+      href={`/lugares?${qs.toString()}`}
+      className="rounded-[10px] border px-3 py-1.5 transition-opacity hover:opacity-70"
+      style={{ borderColor: "var(--line-2)", color: "var(--fg)" }}
+    >
       {label}
     </Link>
   );
 }
 
-function EmptyState() {
-  return (
-    <div className="rounded-lg border bg-card p-10 text-center text-muted-foreground">
-      Todavía no hay lugares con estos filtros.{" "}
-      <Link href="/lugares" className="text-primary hover:underline">
-        Quitar filtros
-      </Link>
-    </div>
-  );
-}
-
 function ErrorBlock({ title, detail }: { title: string; detail: string }) {
   return (
-    <main className="container py-10">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{detail}</p>
+    <main className="mx-auto max-w-2xl px-4 py-10">
+      <h1 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>{title}</h1>
+      <p className="mt-2 text-sm" style={{ color: "var(--fg-50)" }}>{detail}</p>
     </main>
   );
 }

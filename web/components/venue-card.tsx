@@ -1,25 +1,37 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Venue, Category } from "@haku/core";
+import { CardSaveButton } from "@/components/card-save-button";
 
 interface Props {
   venue: Venue;
   category: Category | undefined;
   priority?: boolean;
+  openNow?: boolean;
+  closesAt?: string; // "HH:MM"
+  closed?: boolean;
+  distanceKm?: number;
 }
 
-export function VenueCard({ venue, category, priority }: Props) {
+export function VenueCard({
+  venue,
+  category,
+  priority,
+  openNow,
+  closesAt,
+  closed,
+  distanceKm,
+}: Props) {
   const meta = [category?.name, venue.address].filter(Boolean).join(" · ");
 
   return (
-    <div className="group relative flex items-center gap-4 py-4 row-sep animate-fade-in-up">
+    <div className="group relative flex items-start gap-4 py-4 row-sep animate-fade-in-up">
       <Link
         href={{ pathname: "/lugares/[slug]", query: { slug: venue.slug } } as const}
         aria-label={venue.name}
         className="absolute inset-0 z-10 transition-opacity active:opacity-70"
       />
 
-      {/* Thumb */}
       <div
         className="relative shrink-0 size-16 rounded-[10px] overflow-hidden"
         style={{ background: "var(--card-2)" }}
@@ -43,23 +55,26 @@ export function VenueCard({ venue, category, priority }: Props) {
         )}
       </div>
 
-      {/* Text */}
       <div className="relative flex-1 min-w-0">
-        <div className="flex items-baseline justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
           <h3
             className="text-brand text-[19px] leading-tight truncate"
             style={{ color: "var(--fg)" }}
           >
             {venue.name}
           </h3>
-          {venue.priceRange && (
-            <span
-              className="text-data shrink-0"
-              style={{ color: "var(--fg-30)" }}
-            >
-              {venue.priceRange}
-            </span>
-          )}
+          <div className="flex flex-col items-end shrink-0 gap-0.5">
+            {distanceKm !== undefined && (
+              <span className="text-data" style={{ color: "var(--terra)" }}>
+                {formatDistance(distanceKm)}
+              </span>
+            )}
+            {venue.neighborhood && (
+              <span className="text-data" style={{ color: "var(--fg-30)" }}>
+                {venue.neighborhood}
+              </span>
+            )}
+          </div>
         </div>
         {meta && (
           <p
@@ -69,15 +84,66 @@ export function VenueCard({ venue, category, priority }: Props) {
             {meta}
           </p>
         )}
-        {venue.description && (
+
+        {openNow ? (
           <p
-            className="text-[13px] mt-1 line-clamp-1"
-            style={{ color: "var(--fg-70)" }}
+            className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium"
+            style={{ color: "var(--moss)" }}
           >
-            {venue.description}
+            <StatusDot color="var(--moss)" pulse />
+            Abierto
+            {closesAt && (
+              <span className="text-data" style={{ color: "var(--moss)" }}>
+                · cierra a las {closesAt}
+              </span>
+            )}
           </p>
+        ) : closed ? (
+          <p
+            className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium"
+            style={{ color: "var(--rust)" }}
+          >
+            <StatusDot color="var(--rust)" />
+            Cerrado
+          </p>
+        ) : (
+          venue.description && (
+            <p
+              className="text-[13px] mt-1 line-clamp-1"
+              style={{ color: "var(--fg-70)" }}
+            >
+              {venue.description}
+            </p>
+          )
         )}
+      </div>
+
+      <div className="relative z-20 shrink-0 self-center">
+        <CardSaveButton venueId={venue.id} slug={venue.slug} />
       </div>
     </div>
   );
+}
+
+function StatusDot({ color, pulse }: { color: string; pulse?: boolean }) {
+  return (
+    <span className="relative inline-flex h-2 w-2">
+      {pulse && (
+        <span
+          className="absolute inset-0 rounded-full opacity-75 animate-ping"
+          style={{ background: color }}
+        />
+      )}
+      <span
+        className="relative inline-flex h-2 w-2 rounded-full"
+        style={{ background: color }}
+      />
+    </span>
+  );
+}
+
+function formatDistance(km: number): string {
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  if (km < 10) return `${km.toFixed(1)} km`;
+  return `${Math.round(km)} km`;
 }
