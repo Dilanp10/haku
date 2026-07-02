@@ -21,6 +21,11 @@ tiene hoy ningún lugar para ver su sesión ni cerrarla desde la UI pública.
   (`/lugares/sugerir`), y **Panel de administración** (`/admin`) solo si `role === "admin"`.
 - O5 — Botón **Cerrar sesión** (reusa `logoutAction` existente).
 - O6 — Estilo Tierra, consistente con `/mas`.
+- O7 — **Acceso de sesión en `/mas`** (session-aware): la página `/mas` muestra una entrada
+  contextual según el estado de sesión:
+  - Sin sesión → **"Iniciar sesión"** → `/login?from=admin`.
+  - Sesión admin → **"Panel de administración"** → `/admin` (ver y modificar todo).
+  - Sesión no-admin → **"Mi perfil"** (ya existente) y **"Cerrar sesión"**; sin acceso admin.
 
 ## 4. No-objetivos (fuera de alcance, declarados)
 - N1 — Edición del perfil (cambiar nombre/avatar/contraseña).
@@ -55,6 +60,10 @@ Ninguno nuevo. Reusa:
 Nuevo archivo: `web/app/(site)/perfil/page.tsx`. Posible componente client mínimo para el
 botón de logout (`logout-button.tsx`) o un `<form action={logoutAction}>`.
 
+Para O7, `web/app/(site)/mas/page.tsx` pasa a ser **RSC async** (`force-dynamic`) y usa
+`getCurrentProfile()` para decidir qué entrada de sesión mostrar. La autorización real del
+panel sigue en `/admin` (`requireProfile("admin")`); el link solo es un acceso.
+
 ## 8. Criterios de aceptación
 - AC1 — `/perfil` ya no da 404; renderiza el perfil del usuario logueado.
 - AC2 — Sin sesión → redirige a `/login?from=/perfil`.
@@ -62,6 +71,8 @@ botón de logout (`logout-button.tsx`) o un `<form action={logoutAction}>`.
 - AC4 — Accesos a favoritos y sugerir; el de admin solo si `role==="admin"`.
 - AC5 — "Cerrar sesión" cierra la sesión y redirige a `/`.
 - AC6 — `pnpm -r typecheck` pasa.
+- AC7 — `/mas` muestra "Iniciar sesión" si no hay sesión, y "Panel de administración" si el
+  usuario es admin.
 
 ## 9. Riesgos y supuestos
 - **Supuesto:** `getProfile` requiere una fila en `profiles` para el usuario. Si un usuario
