@@ -15,10 +15,12 @@ export interface LoginState {
 }
 
 export async function loginAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
+  // formData.get devuelve null cuando el campo no está: lo normalizamos a undefined
+  // para que el `.optional()` de Zod no falle con "Expected string, received null".
   const parsed = schema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
-    from: formData.get("from"),
+    email: formData.get("email") ?? undefined,
+    password: formData.get("password") ?? undefined,
+    from: formData.get("from") ?? undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
