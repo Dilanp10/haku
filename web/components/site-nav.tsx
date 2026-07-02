@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV_LINKS = [
   { href: "/lugares", label: "Lugares" },
   { href: "/eventos", label: "Eventos" },
 ] as const;
 
-export function SiteNav({ children }: { hasSession?: boolean; children?: React.ReactNode }) {
+export function SiteNav() {
   const pathname = usePathname();
 
   return (
@@ -21,7 +20,6 @@ export function SiteNav({ children }: { hasSession?: boolean; children?: React.R
       }}
     >
       <div className="container flex h-14 items-center justify-between gap-4">
-        {/* Logo brand */}
         <Link
           href="/"
           className="flex items-baseline gap-2 transition-opacity hover:opacity-80"
@@ -37,7 +35,6 @@ export function SiteNav({ children }: { hasSession?: boolean; children?: React.R
           </span>
         </Link>
 
-        {/* Links principales (solo desktop; en mobile va el BottomNav) */}
         <nav className="hidden md:flex items-center gap-1" aria-label="Navegación principal">
           {NAV_LINKS.map(({ href, label }) => {
             const active = pathname.startsWith(href);
@@ -57,12 +54,6 @@ export function SiteNav({ children }: { hasSession?: boolean; children?: React.R
             );
           })}
         </nav>
-
-        {/* Acciones */}
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          {children}
-        </div>
       </div>
     </header>
   );

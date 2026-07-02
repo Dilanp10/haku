@@ -21,7 +21,7 @@ export function SiteFooter() {
         <nav className="flex flex-wrap justify-center gap-x-5 gap-y-1" aria-label="Links del pie">
           <Link href="/lugares" className="hover:text-foreground transition-colors">Lugares</Link>
           <Link href="/eventos" className="hover:text-foreground transition-colors">Eventos</Link>
-          <Link href="/lugares/cerca" className="hover:text-foreground transition-colors">Cerca tuyo</Link>
+          <Link href="/mapa" className="hover:text-foreground transition-colors">Mapa</Link>
         </nav>
 
         <p className="text-xs">© {YEAR} Haku</p>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Info, MessageSquarePlus, User } from "lucide-react";
 import { ThemeToggleRow } from "./theme-toggle-row";
+import { NotificationsRow } from "./notifications-row";
 
 export const metadata: Metadata = {
   title: "Más",
@@ -35,6 +36,12 @@ export default function MasPage() {
             </li>
           );
         })}
+      </ul>
+
+      <h2 className="text-section mt-8 mb-4">Ajustes</h2>
+
+      <ul className="divide-y" style={{ borderColor: "var(--line)" }}>
+        <NotificationsRow />
         <ThemeToggleRow />
       </ul>
 
