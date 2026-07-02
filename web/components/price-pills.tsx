@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 const PRICES = [
   { value: "$",   label: "$ Económico" },
@@ -23,29 +22,24 @@ export function PricePills({ active, basePath, preserveParams = {} }: Props) {
 
   return (
     <nav aria-label="Filtro por precio" className="flex flex-wrap gap-2">
-      <PricePill href={buildHref()} active={!active} label="Cualquier precio" />
+      <Pill href={buildHref()} active={!active} label="Cualquier precio" />
       {PRICES.map(({ value, label }) => (
-        <PricePill
-          key={value}
-          href={buildHref(value)}
-          active={active === value}
-          label={label}
-        />
+        <Pill key={value} href={buildHref(value)} active={active === value} label={label} />
       ))}
     </nav>
   );
 }
 
-function PricePill({ href, active, label }: { href: string; active: boolean; label: string }) {
+function Pill({ href, active, label }: { href: string; active: boolean; label: string }) {
   return (
     <Link
       href={href}
-      className={cn(
-        "rounded-full border px-3 py-1 text-sm transition",
+      className="rounded-full border px-3 py-1 text-sm transition"
+      style={
         active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card hover:border-primary/40",
-      )}
+          ? { background: "var(--terra)", borderColor: "var(--terra)", color: "#fff" }
+          : { background: "var(--card-bg)", borderColor: "var(--line-2)", color: "var(--fg-70)" }
+      }
     >
       {label}
     </Link>

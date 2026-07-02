@@ -8,14 +8,16 @@ interface RatingDisplayProps {
 export function RatingDisplay({ averageRating, ratingCount }: RatingDisplayProps) {
   if (averageRating === null || ratingCount === 0) {
     return (
-      <span className="text-xs text-muted-foreground">Sin puntuaciones aún</span>
+      <span className="text-xs" style={{ color: "var(--fg-30)" }}>
+        Sin puntuaciones aún
+      </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-      <span className="font-medium text-foreground">{averageRating}</span>
+    <span className="inline-flex items-center gap-1 text-sm" style={{ color: "var(--fg-50)" }}>
+      <Star className="h-3.5 w-3.5" style={{ color: "var(--ochre)" }} fill="currentColor" />
+      <span className="font-medium" style={{ color: "var(--fg)" }}>{averageRating}</span>
       <span>({ratingCount} {ratingCount === 1 ? "voto" : "votos"})</span>
     </span>
   );

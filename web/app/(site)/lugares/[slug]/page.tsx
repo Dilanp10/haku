@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Phone, Globe, Instagram, MapPin } from "lucide-react";
+import { ArrowLeft, Phone, Globe, Instagram, MapPin, Navigation } from "lucide-react";
 import {
   getVenueBySlug,
   listFoodTypes,
@@ -17,7 +17,7 @@ import { RatingDisplay } from "./rating-display";
 import { RatingPicker } from "./rating-picker";
 import { OpeningHours } from "./opening-hours";
 
-export const revalidate = 600; // ISR 10 min
+export const revalidate = 600;
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -78,20 +78,21 @@ export default async function VenueDetailPage({ params }: Props) {
     : [];
 
   return (
-    <main id="main" className="container py-10">
+    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
       <Link
         href="/lugares"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1 text-data transition-opacity hover:opacity-70"
+        style={{ color: "var(--fg-50)" }}
       >
-        <ArrowLeft className="h-4 w-4" /> Todos los lugares
+        <ArrowLeft className="h-3.5 w-3.5" /> Todos los lugares
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-          Catamarca
-        </p>
-        <div className="mt-1 flex items-center gap-2">
-          <h1 className="text-3xl font-bold">{venue.name}</h1>
+        <p className="text-section mb-1">Catamarca</p>
+        <div className="flex items-center gap-2">
+          <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
+            {venue.name}
+          </h1>
           <SaveButton venueId={venue.id} slug={slug} />
         </div>
         <div className="mt-1 flex items-center gap-3">
@@ -102,14 +103,18 @@ export default async function VenueDetailPage({ params }: Props) {
           <RatingPicker venueId={venue.id} slug={slug} hasSession={!!profile} />
         </div>
         {venue.address && (
-          <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 shrink-0" /> {venue.address}
+          <p
+            className="mt-1 flex items-center gap-1 text-sm"
+            style={{ color: "var(--fg-50)" }}
+          >
+            <MapPin className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--terra)" }} />
+            {venue.address}
           </p>
         )}
       </header>
 
       {venue.coverImageUrl && (
-        <div className="relative mt-6 aspect-[16/7] overflow-hidden rounded-lg border">
+        <div className="relative mt-6 aspect-[16/7] overflow-hidden rounded-[12px] border" style={{ borderColor: "var(--line)" }}>
           <Image
             src={venue.coverImageUrl}
             alt={venue.name}
@@ -121,119 +126,138 @@ export default async function VenueDetailPage({ params }: Props) {
         </div>
       )}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-3">
-        {/* Info principal */}
-        <div className="lg:col-span-2 space-y-6">
-          {venue.description && (
-            <section>
-              <p className="text-muted-foreground leading-relaxed">{venue.description}</p>
-            </section>
+      <div className="mt-8 space-y-6">
+        {venue.description && (
+          <section>
+            <p className="text-[15px] leading-relaxed" style={{ color: "var(--fg-70)" }}>
+              {venue.description}
+            </p>
+          </section>
+        )}
+
+        {venueFoodTypes.length > 0 && (
+          <section>
+            <h2 className="text-section mb-2">Qué encontrás</h2>
+            <div className="flex flex-wrap gap-2">
+              {venueFoodTypes.map((ft) => (
+                <span
+                  key={ft.id}
+                  className="rounded-full border px-3 py-1 text-xs"
+                  style={{ borderColor: "var(--line-2)", color: "var(--fg-70)", background: "var(--card-bg)" }}
+                >
+                  {ft.name}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Info cards row */}
+        <div className="flex flex-wrap gap-3">
+          {venue.priceRange && (
+            <InfoCard label="Precio">
+              <span className="text-brand text-lg" style={{ color: "var(--terra)" }}>
+                {venue.priceRange}
+              </span>
+            </InfoCard>
           )}
 
-          {venueFoodTypes.length > 0 && (
-            <section>
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Qué encontrás
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {venueFoodTypes.map((ft) => (
-                  <span
-                    key={ft.id}
-                    className="rounded-full border bg-muted px-3 py-1 text-xs font-medium"
-                  >
-                    {ft.name}
-                  </span>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {venue.location && (
-            <section>
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Cómo llegar
-              </h2>
-              <div className="overflow-hidden rounded-lg border">
-                <VenueMap
-                  markers={markers}
-                  center={venue.location}
-                  className="h-[300px] w-full"
-                />
-              </div>
-            </section>
+          {hours.length > 0 && (
+            <InfoCard label="Horarios" className="flex-1 min-w-[200px]">
+              <OpeningHours hours={hours} />
+            </InfoCard>
           )}
         </div>
 
-        {/* Sidebar */}
-        <aside className="space-y-4">
-          {hours.length > 0 && (
-            <div className="rounded-lg border bg-card p-4">
-              <OpeningHours hours={hours} />
+        {(venue.phone || venue.website || venue.instagram) && (
+          <InfoCard label="Contacto">
+            <ul className="space-y-2 text-sm">
+              {venue.phone && (
+                <li>
+                  <a
+                    href={`tel:${venue.phone}`}
+                    className="inline-flex items-center gap-2 transition-opacity hover:opacity-70"
+                    style={{ color: "var(--fg)" }}
+                  >
+                    <Phone className="h-4 w-4" style={{ color: "var(--fg-50)" }} />
+                    {venue.phone}
+                  </a>
+                </li>
+              )}
+              {venue.website && (
+                <li>
+                  <a
+                    href={venue.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 transition-opacity hover:opacity-70"
+                    style={{ color: "var(--terra)" }}
+                  >
+                    <Globe className="h-4 w-4" style={{ color: "var(--fg-50)" }} />
+                    Sitio web
+                  </a>
+                </li>
+              )}
+              {venue.instagram && (
+                <li>
+                  <a
+                    href={`https://instagram.com/${venue.instagram.replace(/^@/, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 transition-opacity hover:opacity-70"
+                    style={{ color: "var(--terra)" }}
+                  >
+                    <Instagram className="h-4 w-4" style={{ color: "var(--fg-50)" }} />
+                    @{venue.instagram.replace(/^@/, "")}
+                  </a>
+                </li>
+              )}
+            </ul>
+          </InfoCard>
+        )}
+
+        {venue.location && (
+          <section>
+            <h2 className="text-section mb-2">Cómo llegar</h2>
+            <div className="overflow-hidden rounded-[12px] border" style={{ borderColor: "var(--line)" }}>
+              <VenueMap
+                markers={markers}
+                center={venue.location}
+                className="h-[250px] w-full"
+              />
             </div>
-          )}
-
-          {venue.priceRange && (
-            <InfoCard label="Precio">
-              <span className="text-lg font-bold text-primary">{venue.priceRange}</span>
-            </InfoCard>
-          )}
-
-          {(venue.phone || venue.website || venue.instagram) && (
-            <InfoCard label="Contacto">
-              <ul className="space-y-2 text-sm">
-                {venue.phone && (
-                  <li>
-                    <a
-                      href={`tel:${venue.phone}`}
-                      className="inline-flex items-center gap-2 hover:text-primary"
-                    >
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      {venue.phone}
-                    </a>
-                  </li>
-                )}
-                {venue.website && (
-                  <li>
-                    <a
-                      href={venue.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 hover:text-primary"
-                    >
-                      <Globe className="h-4 w-4 text-muted-foreground" />
-                      Sitio web
-                    </a>
-                  </li>
-                )}
-                {venue.instagram && (
-                  <li>
-                    <a
-                      href={`https://instagram.com/${venue.instagram.replace(/^@/, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 hover:text-primary"
-                    >
-                      <Instagram className="h-4 w-4 text-muted-foreground" />
-                      @{venue.instagram.replace(/^@/, "")}
-                    </a>
-                  </li>
-                )}
-              </ul>
-            </InfoCard>
-          )}
-        </aside>
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${venue.location.lat},${venue.location.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-2 rounded-[10px] border px-4 py-2 text-sm font-medium transition active:opacity-80"
+              style={{ borderColor: "var(--line-2)", color: "var(--terra)" }}
+            >
+              <Navigation className="h-4 w-4" /> Abrir en Google Maps
+            </a>
+          </section>
+        )}
       </div>
       <ViewCounter slug={slug} />
     </main>
   );
 }
 
-function InfoCard({ label, children }: { label: string; children: React.ReactNode }) {
+function InfoCard({
+  label,
+  children,
+  className = "",
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className="rounded-lg border bg-card p-4">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
-      </p>
+    <div
+      className={`rounded-[12px] border p-4 ${className}`}
+      style={{ borderColor: "var(--line)", background: "var(--card-bg)" }}
+    >
+      <p className="text-section mb-2">{label}</p>
       {children}
     </div>
   );

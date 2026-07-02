@@ -57,13 +57,18 @@ export default async function BuscarPage({
   const total = venues.length + events.length;
 
   return (
-    <main id="main" className="container max-w-3xl py-10">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold">Buscar</h1>
+    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
+      <header className="mb-6">
+        <p className="text-section mb-1">Catamarca</p>
+        <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
+          Buscar
+        </h1>
         {query && (
-          <p className="mt-1 text-muted-foreground">
+          <p className="mt-1 text-sm" style={{ color: "var(--fg-50)" }}>
             {total} resultado{total !== 1 ? "s" : ""} para{" "}
-            <span className="font-semibold text-foreground">&ldquo;{query}&rdquo;</span>
+            <span className="text-brand" style={{ color: "var(--fg)" }}>
+              &ldquo;{query}&rdquo;
+            </span>
           </p>
         )}
       </header>
@@ -75,19 +80,22 @@ export default async function BuscarPage({
       />
 
       {!query && (
-        <div className="mt-12 text-center text-muted-foreground">
-          <p className="text-sm">Ingresa un termino para buscar lugares y eventos en Catamarca.</p>
+        <div className="mt-12 text-center" style={{ color: "var(--fg-50)" }}>
+          <p className="text-sm">Ingresá un término para buscar lugares y eventos en Catamarca.</p>
         </div>
       )}
 
       {query && total === 0 && (
-        <div className="mt-12 rounded-lg border bg-card p-10 text-center text-muted-foreground">
-          <p>Sin resultados para &ldquo;{query}&rdquo;.</p>
+        <div
+          className="mt-12 rounded-[12px] border p-10 text-center text-sm"
+          style={{ borderColor: "var(--line)", background: "var(--card-bg)", color: "var(--fg-50)" }}
+        >
+          Sin resultados para &ldquo;{query}&rdquo;.
           <div className="mt-4 flex flex-wrap justify-center gap-3">
-            <Link href="/lugares" className="text-sm text-primary hover:underline">
+            <Link href="/lugares" className="text-sm hover:underline" style={{ color: "var(--terra)" }}>
               Ver todos los lugares
             </Link>
-            <Link href="/eventos" className="text-sm text-primary hover:underline">
+            <Link href="/eventos" className="text-sm hover:underline" style={{ color: "var(--terra)" }}>
               Ver todos los eventos
             </Link>
           </div>
@@ -95,34 +103,40 @@ export default async function BuscarPage({
       )}
 
       {venues.length > 0 && (
-        <section className="mt-10">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="font-semibold">Lugares</h2>
+        <section className="mt-8">
+          <div className="flex items-end justify-between gap-2 pb-2 border-b" style={{ borderColor: "var(--line)" }}>
+            <h2 className="text-brand text-xl" style={{ color: "var(--fg)" }}>Lugares</h2>
             {venuesTotal > 6 && (
               <Link
                 href={`/lugares?q=${encodeURIComponent(query)}`}
-                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-medium hover:underline"
+                style={{ color: "var(--terra)" }}
               >
-                Ver los {venuesTotal} resultados <ArrowRight className="h-3 w-3" />
+                Ver los {venuesTotal} <ArrowRight className="h-3 w-3" />
               </Link>
             )}
           </div>
-          <ul className="mt-3 divide-y rounded-lg border bg-card">
+          <ul>
             {venues.map((v) => (
-              <li key={v.id}>
+              <li key={v.id} className="row-sep">
                 <Link
                   href={`/lugares/${v.slug}`}
-                  className="flex items-center justify-between gap-3 px-4 py-3 transition hover:bg-muted/50"
+                  className="flex items-center justify-between gap-3 py-3 transition-opacity active:opacity-70"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{v.name}</p>
-                    <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
+                    <p className="text-brand text-[17px] truncate" style={{ color: "var(--fg)" }}>
+                      {v.name}
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-1 truncate text-xs" style={{ color: "var(--fg-50)" }}>
                       <MapPin className="h-3 w-3 shrink-0" />
                       {v.address ?? "Catamarca"}
                     </p>
                   </div>
                   {catById.get(v.categoryId) && (
-                    <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
+                    <span
+                      className="shrink-0 rounded-full border px-2 py-0.5 text-data"
+                      style={{ borderColor: "var(--line-2)", color: "var(--fg-50)" }}
+                    >
                       {catById.get(v.categoryId)!.name}
                     </span>
                   )}
@@ -134,33 +148,39 @@ export default async function BuscarPage({
       )}
 
       {events.length > 0 && (
-        <section className="mt-10">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="font-semibold">Eventos</h2>
+        <section className="mt-8">
+          <div className="flex items-end justify-between gap-2 pb-2 border-b" style={{ borderColor: "var(--line)" }}>
+            <h2 className="text-brand text-xl" style={{ color: "var(--fg)" }}>Eventos</h2>
             <Link
               href={`/eventos?q=${encodeURIComponent(query)}`}
-              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-medium hover:underline"
+              style={{ color: "var(--terra)" }}
             >
               Ver en eventos <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          <ul className="mt-3 divide-y rounded-lg border bg-card">
+          <ul>
             {events.map((e) => (
-              <li key={e.id}>
+              <li key={e.id} className="row-sep">
                 <Link
                   href={`/eventos/${e.slug}`}
-                  className="flex items-center justify-between gap-3 px-4 py-3 transition hover:bg-muted/50"
+                  className="flex items-center justify-between gap-3 py-3 transition-opacity active:opacity-70"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{e.title}</p>
-                    <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
+                    <p className="text-brand text-[17px] truncate" style={{ color: "var(--fg)" }}>
+                      {e.title}
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-1 truncate text-xs" style={{ color: "var(--fg-50)" }}>
                       <CalendarDays className="h-3 w-3 shrink-0" />
                       {fmtDate.format(new Date(e.startsAt))}
-                      {e.venueName && <span className="ml-1 truncate">&middot; {e.venueName}</span>}
+                      {e.venueName && <span className="ml-1">&middot; {e.venueName}</span>}
                     </p>
                   </div>
                   {e.category && (
-                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                    <span
+                      className="shrink-0 rounded-full border px-2 py-0.5 text-data"
+                      style={{ borderColor: "var(--line-2)", color: "var(--fg-50)" }}
+                    >
                       {e.category}
                     </span>
                   )}

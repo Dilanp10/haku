@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, MapPin, ExternalLink } from "lucide-react";
+import { ArrowLeft, CalendarDays, MapPin, ExternalLink, Navigation } from "lucide-react";
 import {
   getEventBySlug,
   createSupabaseEventRepository,
@@ -9,7 +9,7 @@ import {
 import { createServerSupabase } from "@/lib/supabase/server";
 import { VenueMap } from "@/components/venue-map";
 
-export const revalidate = 600; // ISR 10 min
+export const revalidate = 600;
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -57,27 +57,28 @@ export default async function EventDetailPage({ params }: Props) {
     : [];
 
   return (
-    <main id="main" className="container py-10">
+    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
       <Link
         href="/eventos"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1 text-data transition-opacity hover:opacity-70"
+        style={{ color: "var(--fg-50)" }}
       >
-        <ArrowLeft className="h-4 w-4" /> Todos los eventos
+        <ArrowLeft className="h-3.5 w-3.5" /> Todos los eventos
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-          Catamarca · Evento
-        </p>
-        <h1 className="mt-1 text-3xl font-bold">{event.title}</h1>
-        <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+        <p className="text-section mb-1">Catamarca · Evento</p>
+        <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
+          {event.title}
+        </h1>
+        <div className="mt-2 flex flex-wrap items-center gap-4 text-sm" style={{ color: "var(--fg-50)" }}>
           <span className="inline-flex items-center gap-1">
-            <CalendarDays className="h-4 w-4" />
+            <CalendarDays className="h-4 w-4" style={{ color: "var(--terra)" }} />
             {fmt.format(new Date(event.startsAt))}
           </span>
           {event.venueName && (
             <span className="inline-flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
+              <MapPin className="h-4 w-4" style={{ color: "var(--terra)" }} />
               {event.venueName}
               {event.address && ` — ${event.address}`}
             </span>
@@ -86,7 +87,10 @@ export default async function EventDetailPage({ params }: Props) {
       </header>
 
       {event.imageUrl && (
-        <div className="mt-6 overflow-hidden rounded-lg border">
+        <div
+          className="mt-6 overflow-hidden rounded-[12px] border"
+          style={{ borderColor: "var(--line)" }}
+        >
           <img
             src={event.imageUrl}
             alt={event.title}
@@ -95,63 +99,87 @@ export default async function EventDetailPage({ params }: Props) {
         </div>
       )}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          {event.description && (
-            <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-              {event.description}
-            </p>
-          )}
+      <div className="mt-8 space-y-6">
+        {event.description && (
+          <p
+            className="text-[15px] leading-relaxed whitespace-pre-line"
+            style={{ color: "var(--fg-70)" }}
+          >
+            {event.description}
+          </p>
+        )}
 
-          {event.location && (
-            <section>
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Ubicación
-              </h2>
-              <div className="overflow-hidden rounded-lg border">
-                <VenueMap
-                  markers={markers}
-                  center={event.location}
-                  className="h-[300px] w-full"
-                />
-              </div>
-            </section>
-          )}
-        </div>
-
-        <aside className="space-y-4">
+        {/* Info cards */}
+        <div className="flex flex-wrap gap-3">
           {event.endsAt && (
-            <div className="rounded-lg border bg-card p-4">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Hasta
+            <InfoCard label="Hasta">
+              <p className="text-sm" style={{ color: "var(--fg)" }}>
+                {fmt.format(new Date(event.endsAt))}
               </p>
-              <p className="text-sm">{fmt.format(new Date(event.endsAt))}</p>
-            </div>
-          )}
-
-          {event.url && (
-            <a
-              href={event.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-lg border bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
-            >
-              Más información <ExternalLink className="h-4 w-4" />
-            </a>
+            </InfoCard>
           )}
 
           {event.category && (
-            <div className="rounded-lg border bg-card p-4">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Categoría
-              </p>
-              <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium capitalize">
+            <InfoCard label="Categoría">
+              <span
+                className="rounded-full border px-3 py-1 text-xs capitalize"
+                style={{ borderColor: "var(--line-2)", color: "var(--fg-70)", background: "var(--card-bg)" }}
+              >
                 {event.category}
               </span>
-            </div>
+            </InfoCard>
           )}
-        </aside>
+        </div>
+
+        {event.url && (
+          <a
+            href={event.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 rounded-[10px] px-4 py-2.5 text-sm font-medium transition active:opacity-80"
+            style={{ background: "var(--terra)", color: "#fff" }}
+          >
+            Más información <ExternalLink className="h-4 w-4" />
+          </a>
+        )}
+
+        {event.location && (
+          <section>
+            <h2 className="text-section mb-2">Ubicación</h2>
+            <div
+              className="overflow-hidden rounded-[12px] border"
+              style={{ borderColor: "var(--line)" }}
+            >
+              <VenueMap
+                markers={markers}
+                center={event.location}
+                className="h-[250px] w-full"
+              />
+            </div>
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${event.location.lat},${event.location.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-2 rounded-[10px] border px-4 py-2 text-sm font-medium transition active:opacity-80"
+              style={{ borderColor: "var(--line-2)", color: "var(--terra)" }}
+            >
+              <Navigation className="h-4 w-4" /> Abrir en Google Maps
+            </a>
+          </section>
+        )}
       </div>
     </main>
+  );
+}
+
+function InfoCard({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div
+      className="rounded-[12px] border p-4"
+      style={{ borderColor: "var(--line)", background: "var(--card-bg)" }}
+    >
+      <p className="text-section mb-2">{label}</p>
+      {children}
+    </div>
   );
 }

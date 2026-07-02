@@ -14,13 +14,11 @@ interface OpeningHoursProps {
 }
 
 const DAY_SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-const DAY_LONG  = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+const DAY_LONG = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
 function toMinutes(t: string): number {
   const parts = t.split(":");
-  const h = Number(parts[0] ?? 0);
-  const m = Number(parts[1] ?? 0);
-  return h * 60 + m;
+  return Number(parts[0] ?? 0) * 60 + Number(parts[1] ?? 0);
 }
 
 function fmt(t: string): string {
@@ -44,7 +42,6 @@ function calcStatus(hours: HourRow[], now: Date): OpenStatus {
     }
   }
 
-  // Buscar próxima apertura (los siguientes 7 días)
   for (let d = 1; d <= 7; d++) {
     const nextDay = (today + d) % 7;
     const row = hours.find((h) => h.day_of_week === nextDay && !h.closed);
@@ -66,22 +63,19 @@ export function OpeningHours({ hours }: OpeningHoursProps) {
   if (hours.length === 0) return null;
 
   return (
-    <section className="space-y-3">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Horarios
-      </h2>
-
-      {/* Badge — solo se muestra una vez que el cliente calculó el estado */}
+    <div className="space-y-3">
       {status && (
         <div
-          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
+          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+          style={
             status.open
-              ? "bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-400"
-              : "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-400"
-          }`}
+              ? { background: "rgba(138,162,101,0.15)", color: "var(--moss)" }
+              : { background: "rgba(192,102,78,0.15)", color: "var(--rust)" }
+          }
         >
           <span
-            className={`h-1.5 w-1.5 rounded-full ${status.open ? "bg-green-500" : "bg-red-500"}`}
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: status.open ? "var(--moss)" : "var(--rust)" }}
           />
           {status.open
             ? `Abierto · Cierra a las ${status.closesAt}`
@@ -91,23 +85,20 @@ export function OpeningHours({ hours }: OpeningHoursProps) {
         </div>
       )}
 
-      {/* Tabla compacta */}
       <table className="w-full text-sm">
         <tbody>
           {hours.map((row) => (
-            <tr key={row.day_of_week} className="border-b last:border-0">
-              <td className="py-1 pr-4 font-medium text-foreground">
+            <tr key={row.day_of_week} className="border-b last:border-0" style={{ borderColor: "var(--line)" }}>
+              <td className="py-1 pr-4 text-data" style={{ color: "var(--fg)" }}>
                 {DAY_SHORT[row.day_of_week]}
               </td>
-              <td className="py-1 text-muted-foreground">
-                {row.closed
-                  ? "Cerrado"
-                  : `${fmt(row.opens_at)} – ${fmt(row.closes_at)}`}
+              <td className="py-1" style={{ color: "var(--fg-50)" }}>
+                {row.closed ? "Cerrado" : `${fmt(row.opens_at)} – ${fmt(row.closes_at)}`}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </section>
+    </div>
   );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { FoodType } from "@haku/core";
-import { cn } from "@/lib/utils";
 
 interface Props {
   foodTypes: FoodType[];
@@ -23,12 +22,7 @@ export function FoodTypePills({ foodTypes, active, basePath, preserveParams = {}
     <nav aria-label="Filtro por tipo de comida" className="flex flex-wrap gap-2">
       <Pill href={buildHref()} active={!active} label="Todo tipo" />
       {foodTypes.map((ft) => (
-        <Pill
-          key={ft.id}
-          href={buildHref(ft.slug)}
-          active={active === ft.slug}
-          label={ft.name}
-        />
+        <Pill key={ft.id} href={buildHref(ft.slug)} active={active === ft.slug} label={ft.name} />
       ))}
     </nav>
   );
@@ -38,12 +32,12 @@ function Pill({ href, active, label }: { href: string; active: boolean; label: s
   return (
     <Link
       href={href}
-      className={cn(
-        "rounded-full border px-3 py-1 text-sm transition",
+      className="rounded-full border px-3 py-1 text-sm transition"
+      style={
         active
-          ? "border-primary bg-primary/90 text-primary-foreground"
-          : "border-border bg-card hover:border-primary/40",
-      )}
+          ? { background: "var(--terra)", borderColor: "var(--terra)", color: "#fff" }
+          : { background: "var(--card-bg)", borderColor: "var(--line-2)", color: "var(--fg-70)" }
+      }
     >
       {label}
     </Link>

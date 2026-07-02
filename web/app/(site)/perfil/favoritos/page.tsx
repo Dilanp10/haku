@@ -42,51 +42,74 @@ export default async function FavoritosPage() {
   const venues = saves.map((s) => s.venues).filter((v): v is VenueRow => v !== null);
 
   return (
-    <main id="main" className="container py-10">
-      <header className="mb-8 flex items-center gap-3">
-        <Heart className="h-6 w-6 text-red-500" fill="currentColor" />
-        <h1 className="text-2xl font-bold">Mis favoritos</h1>
+    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
+      <header className="mb-6 flex items-center gap-3">
+        <Heart className="h-5 w-5" style={{ color: "var(--rust)" }} fill="currentColor" />
+        <h1 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>
+          Mis favoritos
+        </h1>
       </header>
 
       {venues.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 rounded-lg border bg-card py-16 text-center">
-          <Heart className="h-12 w-12 text-muted-foreground/30" />
-          <p className="text-muted-foreground">Todavía no guardaste ningún lugar.</p>
+        <div
+          className="flex flex-col items-center gap-4 rounded-[12px] border py-16 text-center"
+          style={{ borderColor: "var(--line)", background: "var(--card-bg)" }}
+        >
+          <Heart className="h-12 w-12" style={{ color: "var(--fg-30)" }} />
+          <p style={{ color: "var(--fg-50)" }}>Todavía no guardaste ningún lugar.</p>
           <Link
             href="/lugares"
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+            className="rounded-[10px] px-4 py-2 text-sm font-medium transition active:opacity-80"
+            style={{ background: "var(--terra)", color: "#fff" }}
           >
             Descubrí lugares
           </Link>
         </div>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul>
           {venues.map((venue) => (
-            <li key={venue.id}>
+            <li key={venue.id} className="row-sep">
               <Link
                 href={`/lugares/${venue.slug}`}
-                className="group block overflow-hidden rounded-lg border bg-card transition hover:border-primary/40 hover:shadow-sm"
+                className="flex items-center gap-4 py-4 transition-opacity active:opacity-70"
               >
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
+                <div
+                  className="relative shrink-0 size-16 rounded-[10px] overflow-hidden"
+                  style={{ background: "var(--card-2)" }}
+                >
                   {venue.cover_image_url ? (
                     <Image
                       src={venue.cover_image_url}
-                      alt={venue.name}
+                      alt=""
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition group-hover:scale-[1.02]"
+                      sizes="64px"
+                      className="object-cover"
                     />
-                  ) : null}
+                  ) : (
+                    <div
+                      className="flex h-full w-full items-center justify-center text-xl text-brand"
+                      style={{ color: "var(--fg-30)" }}
+                    >
+                      {venue.name.charAt(0)}
+                    </div>
+                  )}
                 </div>
-                <div className="p-4">
-                  <h3 className="truncate font-semibold">{venue.name}</h3>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {venue.description ?? "Sin descripción aún."}
-                  </p>
+                <div className="flex-1 min-w-0">
+                  <h3
+                    className="text-brand text-[17px] leading-tight truncate"
+                    style={{ color: "var(--fg)" }}
+                  >
+                    {venue.name}
+                  </h3>
                   {venue.address && (
-                    <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5" />
+                    <p className="mt-0.5 flex items-center gap-1 text-xs truncate" style={{ color: "var(--fg-50)" }}>
+                      <MapPin className="h-3 w-3 shrink-0" />
                       {venue.address}
+                    </p>
+                  )}
+                  {venue.description && (
+                    <p className="text-[13px] mt-1 line-clamp-1" style={{ color: "var(--fg-70)" }}>
+                      {venue.description}
                     </p>
                   )}
                 </div>

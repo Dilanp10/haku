@@ -43,7 +43,7 @@ export function RatingPicker({ venueId, slug, hasSession }: RatingPickerProps) {
         setError(
           result.error === "UNAUTHENTICATED"
             ? "Iniciá sesión para puntuar"
-            : "No pudimos guardar tu puntuación. Intentá de nuevo.",
+            : "No pudimos guardar tu puntuación.",
         );
       } else {
         setMyRating(result.rating);
@@ -69,15 +69,18 @@ export function RatingPicker({ venueId, slug, hasSession }: RatingPickerProps) {
             onMouseEnter={() => hasSession && setHovered(star)}
             onMouseLeave={() => setHovered(null)}
             aria-label={`${star} estrella${star !== 1 ? "s" : ""}`}
-            className={`transition-colors ${
-              !hasSession || !loaded
-                ? "cursor-default text-muted-foreground/30"
-                : isPending
-                ? "cursor-default text-muted-foreground/50"
-                : star <= activeRating
-                ? "text-amber-400 hover:text-amber-500"
-                : "text-muted-foreground/40 hover:text-amber-300"
-            }`}
+            className="transition-colors"
+            style={{
+              color:
+                !hasSession || !loaded
+                  ? "var(--fg-30)"
+                  : isPending
+                  ? "var(--fg-30)"
+                  : star <= activeRating
+                  ? "var(--ochre)"
+                  : "var(--fg-30)",
+              cursor: !hasSession || !loaded || isPending ? "default" : "pointer",
+            }}
           >
             <Star
               className="h-5 w-5"
@@ -87,7 +90,9 @@ export function RatingPicker({ venueId, slug, hasSession }: RatingPickerProps) {
           </button>
         ))}
       </span>
-      {error && <span className="text-xs text-destructive">{error}</span>}
+      {error && (
+        <span className="text-xs" style={{ color: "var(--rust)" }}>{error}</span>
+      )}
     </span>
   );
 }

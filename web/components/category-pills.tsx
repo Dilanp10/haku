@@ -1,11 +1,9 @@
 import Link from "next/link";
 import type { Category } from "@haku/core";
-import { cn } from "@/lib/utils";
 
 interface Props {
   categories: Category[];
   active?: string | undefined;
-  /** Parámetros extra a preservar en cada enlace (precio, comida, q, etc.). */
   preserveParams?: Record<string, string>;
 }
 
@@ -21,12 +19,7 @@ export function CategoryPills({ categories, active, preserveParams = {} }: Props
     <nav aria-label="Categorías" className="flex flex-wrap gap-2">
       <Pill href={buildHref()} active={!active} label="Todo" />
       {categories.map((c) => (
-        <Pill
-          key={c.id}
-          href={buildHref(c.slug)}
-          active={active === c.slug}
-          label={c.name}
-        />
+        <Pill key={c.id} href={buildHref(c.slug)} active={active === c.slug} label={c.name} />
       ))}
     </nav>
   );
@@ -36,12 +29,12 @@ function Pill({ href, active, label }: { href: string; active: boolean; label: s
   return (
     <Link
       href={href}
-      className={cn(
-        "rounded-full border px-3 py-1 text-sm transition",
+      className="rounded-full border px-3 py-1 text-sm transition"
+      style={
         active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card hover:border-primary/40",
-      )}
+          ? { background: "var(--terra)", borderColor: "var(--terra)", color: "#fff" }
+          : { background: "var(--card-bg)", borderColor: "var(--line-2)", color: "var(--fg-70)" }
+      }
     >
       {label}
     </Link>

@@ -33,7 +33,7 @@ export function SaveButton({ venueId, slug }: SaveButtonProps) {
         setError(
           result.error === "UNAUTHENTICATED"
             ? "Iniciá sesión para guardar"
-            : "No pudimos guardar tu favorito. Intentá de nuevo.",
+            : "No pudimos guardar tu favorito.",
         );
       } else {
         setSaved(result.saved);
@@ -42,21 +42,18 @@ export function SaveButton({ venueId, slug }: SaveButtonProps) {
   }
 
   const isLoading = saved === null;
-  const label = saved ? "Quitar de favoritos" : "Guardar favorito";
 
   return (
     <span className="inline-flex flex-col items-start gap-1">
       <button
         onClick={handleToggle}
         disabled={isLoading || isPending}
-        aria-label={label}
-        className={`rounded-full p-1.5 transition-colors ${
-          isLoading || isPending
-            ? "cursor-default text-muted-foreground/40"
-            : saved
-            ? "text-red-500 hover:text-red-600"
-            : "text-muted-foreground hover:text-red-400"
-        }`}
+        aria-label={saved ? "Quitar de favoritos" : "Guardar favorito"}
+        className="rounded-full p-1.5 transition-opacity active:opacity-70"
+        style={{
+          color: isLoading || isPending ? "var(--fg-30)" : saved ? "var(--rust)" : "var(--fg-30)",
+          cursor: isLoading || isPending ? "default" : "pointer",
+        }}
       >
         <Heart
           className="h-5 w-5"
@@ -65,7 +62,7 @@ export function SaveButton({ venueId, slug }: SaveButtonProps) {
         />
       </button>
       {error && (
-        <span className="text-xs text-destructive">{error}</span>
+        <span className="text-xs" style={{ color: "var(--rust)" }}>{error}</span>
       )}
     </span>
   );
