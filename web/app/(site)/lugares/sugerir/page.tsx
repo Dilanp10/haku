@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { listCategories, createSupabaseCoreRepository } from "@haku/core";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { SuggestForm } from "./suggest-form";
 
 export const metadata: Metadata = {
   title: "Sugerir un lugar",
-  description: "Conocés un bar, café o restaurante de Catamarca que debería estar en Haku? Contanos y lo revisamos.",
+  description:
+    "Conocés un bar, café o restaurante de Catamarca que debería estar en Haku? Contanos y lo revisamos.",
   robots: { index: false },
 };
 
@@ -20,27 +21,26 @@ export default async function SuggestPage() {
   const categories = categoriesRes.ok ? categoriesRes.value : [];
 
   return (
-    <main id="main" className="container max-w-2xl py-10">
+    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
       <Link
         href="/lugares"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1 text-data transition-opacity hover:opacity-70"
+        style={{ color: "var(--fg-50)" }}
       >
-        <ChevronLeft className="h-4 w-4" /> Volver a Lugares
+        <ArrowLeft className="h-3.5 w-3.5" /> Todos los lugares
       </Link>
 
-      <header className="mb-8">
-        <p className="text-sm font-medium uppercase tracking-widest text-primary">Comunidad</p>
-        <h1 className="mt-1 text-3xl font-bold">Sugerir un lugar</h1>
-        <p className="mt-2 text-muted-foreground">
-          ¿Conocés un bar, café o restaurante de Catamarca que debería estar en Haku?
-          Completá el formulario y lo revisamos. Los campos marcados con <span className="font-medium">*</span> son
-          obligatorios; el resto nos ayuda a enriquecer la ficha.
+      <header className="mt-4 mb-8">
+        <p className="text-section mb-1">Comunidad</p>
+        <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
+          Sugerir un lugar
+        </h1>
+        <p className="mt-1 text-sm" style={{ color: "var(--fg-50)" }}>
+          ¿Conocés un lugar de Catamarca que debería estar en Haku?
         </p>
       </header>
 
-      <div className="rounded-lg border bg-card p-6">
-        <SuggestForm categories={categories} />
-      </div>
+      <SuggestForm categories={categories} />
     </main>
   );
 }
