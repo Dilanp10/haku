@@ -12,6 +12,16 @@ import { requireProfile } from "@/lib/auth";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { VenueMap } from "@/components/venue-map";
 import { QuickStatusBtn } from "../quick-status-btn";
+import { SuggestionReview } from "../suggestion-review";
+
+interface SuggestedHour {
+  day: number;
+  opens: string;
+  closes: string;
+}
+
+const DAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +63,22 @@ export default async function AdminVenueDetailPage({ params }: Props) {
   const allFoodTypes = foodTypesRes.ok ? foodTypesRes.value : [];
   const venueFoodTypes = allFoodTypes.filter((ft) => venue.foodTypeIds.includes(ft.id));
 
+  // Metadata del wizard de sugerencias (guardada en attributes)
+  const attrs = (venue.attributes ?? {}) as Record<string, unknown>;
+  const suggestedHours = Array.isArray(attrs["_hours"])
+    ? (attrs["_hours"] as SuggestedHour[])
+    : [];
+  const suggestedAudio =
+    typeof attrs["_audio_url"] === "string" ? (attrs["_audio_url"] as string) : null;
+
+  // Horarios ya cargados en venue_hours
+  const { data: hoursData } = await supabase
+    .from("venue_hours")
+    .select("day_of_week, opens_at, closes_at, closed")
+    .eq("venue_id", venue.id)
+    .order("day_of_week");
+  const currentHours = hoursData ?? [];
+
   const markers = venue.location
     ? [{ lat: venue.location.lat, lng: venue.location.lng, title: venue.name }]
     : [];
@@ -92,6 +118,18 @@ export default async function AdminVenueDetailPage({ params }: Props) {
           )}
         </div>
       </div>
+
+      {/* Panel de revisión de sugerencia (audio + horarios pendientes) */}
+      {(suggestedHours.length > 0 || suggestedAudio) && (
+        <div className="mb-6">
+          <SuggestionReview
+            venueId={venue.id}
+            slug={venue.slug}
+            hours={suggestedHours}
+            audioUrl={suggestedAudio}
+          />
+        </div>
+      )}
 
       {/* Contenido del venue (mismo layout que la página pública) */}
       <header className="mt-2">
@@ -184,6 +222,34 @@ export default async function AdminVenueDetailPage({ params }: Props) {
           {venue.priceRange && (
             <InfoCard label="Precio">
               <span className="text-lg font-bold text-primary">{venue.priceRange}</span>
+            </InfoCard>
+          )}
+
+          {currentHours.length > 0 && (
+            <InfoCard label="Horarios cargados">
+              <ul className="space-y-1 text-sm">
+                {DAY_ORDER.map((day) => {
+                  const entries = currentHours.filter(
+                    (h) => h.day_of_week === day && !h.closed,
+                  );
+                  if (entries.length === 0) return null;
+                  return (
+                    <li key={day} className="flex gap-2">
+                      <span className="w-10 font-medium text-muted-foreground">
+                        {DAY_LABELS[day]}
+                      </span>
+                      <span>
+                        {entries
+                          .map(
+                            (e) =>
+                              `${e.opens_at.slice(0, 5)}–${e.closes_at.slice(0, 5)}`,
+                          )
+                          .join(", ")}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
             </InfoCard>
           )}
 

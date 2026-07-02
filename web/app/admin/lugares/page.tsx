@@ -25,6 +25,11 @@ const STATUS_TONE: Record<Venue["status"], string> = {
 
 type StatusFilter = "draft" | "published" | "archived" | undefined;
 
+function hasPendingSuggestion(v: Venue): boolean {
+  const a = (v.attributes ?? {}) as Record<string, unknown>;
+  return Array.isArray(a["_hours"]) || typeof a["_audio_url"] === "string";
+}
+
 const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: undefined, label: "Todos" },
   { value: "draft",     label: "Borradores" },
@@ -111,6 +116,11 @@ export default async function AdminLugaresPage({
                   <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_TONE[v.status]}`}>
                     {STATUS_LABEL[v.status]}
                   </span>
+                  {hasPendingSuggestion(v) && (
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+                      Sugerencia
+                    </span>
+                  )}
                   {catById.get(v.categoryId) ? (
                     <span className="text-xs text-muted-foreground">
                       {catById.get(v.categoryId)!.name}
