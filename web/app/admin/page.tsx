@@ -35,9 +35,13 @@ export default async function AdminHomePage() {
   const eventsToReview = (stats.events["pending"] ?? 0);
 
   return (
-    <main className="container py-10">
-      <h1 className="text-2xl font-bold">Hola, {profile.displayName ?? "admin"}</h1>
-      <p className="mt-1 text-muted-foreground">Panel de administración de Haku.</p>
+    <main className="mx-auto max-w-5xl px-4 py-10">
+      <h1 className="text-brand text-3xl" style={{ color: "var(--terra)" }}>
+        Hola, {profile.displayName ?? "admin"}
+      </h1>
+      <p className="mt-1 text-sm" style={{ color: "var(--fg-50)" }}>
+        Panel de administración de Haku.
+      </p>
 
       {/* Stats */}
       <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -68,9 +72,7 @@ export default async function AdminHomePage() {
 
       {/* Acciones rápidas */}
       <section className="mt-10">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Acciones rápidas
-        </h2>
+        <h2 className="text-section mb-4">Acciones rápidas</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <ActionCard
             href="/admin/eventos"
@@ -111,13 +113,16 @@ function StatCard({
   alert?: string | undefined;
 }) {
   return (
-    <div className="rounded-lg border bg-card p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-2 text-3xl font-extrabold tabular-nums">{value}</p>
-      {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
-      {alert && (
-        <p className="mt-2 text-xs font-semibold text-primary">{alert}</p>
-      )}
+    <div
+      className="rounded-[12px] border p-5"
+      style={{ borderColor: "var(--line)", background: "var(--card-bg)" }}
+    >
+      <p className="text-section">{label}</p>
+      <p className="mt-2 text-3xl font-extrabold tabular-nums" style={{ color: "var(--fg)" }}>
+        {value}
+      </p>
+      {sub && <p className="mt-1 text-xs" style={{ color: "var(--fg-50)" }}>{sub}</p>}
+      {alert && <p className="mt-2 text-xs font-semibold" style={{ color: "var(--terra)" }}>{alert}</p>}
     </div>
   );
 }
@@ -136,12 +141,14 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className={`block rounded-lg border p-5 transition hover:border-primary/40 ${
-        urgent ? "border-primary/30 bg-primary/5" : "bg-card"
-      }`}
+      className="block rounded-[12px] border p-5 transition active:opacity-80"
+      style={{
+        borderColor: urgent ? "var(--terra)" : "var(--line)",
+        background: urgent ? "var(--terra-wash)" : "var(--card-bg)",
+      }}
     >
-      <h3 className="font-semibold">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
+      <h3 className="text-brand text-lg" style={{ color: "var(--fg)" }}>{title}</h3>
+      <p className="mt-1 text-sm" style={{ color: "var(--fg-50)" }}>{desc}</p>
     </Link>
   );
 }

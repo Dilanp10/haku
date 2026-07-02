@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import {
   getVenueBySlug,
   listCategories,
@@ -45,13 +47,21 @@ export default async function EditVenuePage({
   const initialHours = hoursData ?? [];
 
   return (
-    <main className="container py-10">
-      <h1 className="text-2xl font-bold">Editar: {venue.name}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        El <code>slug</code> no es editable. Cambia el estado a
-        {" "}<span className="font-medium">Archivado</span> para ocultarlo del sitio público.
+    <main className="mx-auto max-w-2xl px-4 py-8">
+      <Link
+        href="/admin/lugares"
+        className="inline-flex items-center gap-1 text-data transition-opacity hover:opacity-70"
+        style={{ color: "var(--fg-50)" }}
+      >
+        <ChevronLeft className="h-3.5 w-3.5" /> Volver
+      </Link>
+      <h1 className="mt-4 text-brand text-3xl" style={{ color: "var(--terra)" }}>
+        Editar: {venue.name}
+      </h1>
+      <p className="mt-1 text-sm" style={{ color: "var(--fg-50)" }}>
+        El <code>slug</code> no es editable. Cambiá el estado a Archivado para ocultarlo del sitio.
       </p>
-      <div className="mt-8 max-w-2xl">
+      <div className="mt-8">
         <EditVenueForm
           venue={venue}
           categories={categories}
