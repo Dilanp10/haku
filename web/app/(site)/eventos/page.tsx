@@ -87,7 +87,7 @@ export default async function EventosPage({
   if (sp.categoria) activeFilters["categoria"] = sp.categoria;
 
   return (
-    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
+    <main id="main" className="mx-auto max-w-2xl md:max-w-5xl px-4 py-8 pb-bottom">
       <header className="mb-6">
         <p className="text-section mb-1">Catamarca</p>
         <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
@@ -158,7 +158,7 @@ export default async function EventosPage({
           )}
         </div>
       ) : (
-        <div>
+        <div className="md:grid md:grid-cols-2 md:gap-x-8">
           {events.map((e) => {
             const d = distances.get(e.id);
             return (

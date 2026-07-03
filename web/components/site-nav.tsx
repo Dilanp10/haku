@@ -3,10 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const NAV_LINKS = [
+const NAV_LINKS: { href: string; label: string; exact?: boolean }[] = [
+  { href: "/", label: "Inicio", exact: true },
   { href: "/lugares", label: "Lugares" },
   { href: "/eventos", label: "Eventos" },
-] as const;
+  { href: "/mapa", label: "Mapa" },
+  { href: "/buscar", label: "Buscar" },
+  { href: "/mas", label: "Más" },
+];
 
 export function SiteNav() {
   const pathname = usePathname();
@@ -36,12 +40,12 @@ export function SiteNav() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-1" aria-label="Navegación principal">
-          {NAV_LINKS.map(({ href, label }) => {
-            const active = pathname.startsWith(href);
+          {NAV_LINKS.map(({ href, label, exact }) => {
+            const active = exact ? pathname === href : pathname.startsWith(href);
             return (
               <Link
                 key={href}
-                href={href}
+                href={href as never}
                 aria-current={active ? "page" : undefined}
                 className="rounded-button px-3 py-1.5 text-sm transition"
                 style={{

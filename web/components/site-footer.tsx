@@ -2,29 +2,42 @@ import Link from "next/link";
 
 const YEAR = new Date().getFullYear();
 
+const LINKS = [
+  { href: "/lugares", label: "Lugares" },
+  { href: "/eventos", label: "Eventos" },
+  { href: "/mapa", label: "Mapa" },
+  { href: "/buscar", label: "Buscar" },
+  { href: "/mas", label: "Más" },
+] as const;
+
 export function SiteFooter() {
   return (
-    <footer className="border-t bg-muted/30 text-sm text-muted-foreground">
+    <footer style={{ borderTop: "1px solid var(--line)", background: "var(--bg-deep)" }}>
       <div className="container flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
-        <div className="flex items-center gap-2">
-          <span
-            className="flex h-6 w-6 items-center justify-center rounded-[5px] bg-primary text-[11px] font-extrabold text-primary-foreground"
-            aria-hidden="true"
-          >
-            H
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-brand text-lg" style={{ color: "var(--terra)" }}>
+            Haku
           </span>
-          <span className="font-semibold text-foreground">Haku</span>
-          <span>·</span>
-          <span>Descubrí Catamarca</span>
+          <span style={{ color: "var(--fg-30)" }}>·</span>
+          <span style={{ color: "var(--fg-50)" }}>Descubrí Catamarca</span>
         </div>
 
-        <nav className="flex flex-wrap justify-center gap-x-5 gap-y-1" aria-label="Links del pie">
-          <Link href="/lugares" className="hover:text-foreground transition-colors">Lugares</Link>
-          <Link href="/eventos" className="hover:text-foreground transition-colors">Eventos</Link>
-          <Link href="/mapa" className="hover:text-foreground transition-colors">Mapa</Link>
+        <nav className="flex flex-wrap justify-center gap-x-5 gap-y-1 text-sm" aria-label="Links del pie">
+          {LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="transition-opacity hover:opacity-70"
+              style={{ color: "var(--fg-70)" }}
+            >
+              {l.label}
+            </Link>
+          ))}
         </nav>
 
-        <p className="text-xs">© {YEAR} Haku</p>
+        <p className="text-data" style={{ color: "var(--fg-30)" }}>
+          © {YEAR} Haku
+        </p>
       </div>
     </footer>
   );

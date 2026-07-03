@@ -118,7 +118,7 @@ export default async function HomePage({
     !!sp.q;
 
   return (
-    <main id="main" className="mx-auto max-w-2xl px-4 sm:px-6 pb-bottom">
+    <main id="main" className="mx-auto max-w-2xl md:max-w-5xl px-4 sm:px-6 pb-bottom">
       <header className="pt-8 pb-2">
         <p className="text-section mb-2">Catamarca · Ahora</p>
         <h1
@@ -153,7 +153,7 @@ export default async function HomePage({
 
       <section className="pt-2">
         {venues.length > 0 ? (
-          <div>
+          <div className="md:grid md:grid-cols-2 md:gap-x-8">
             {venues.map((v, i) => {
               const open = statuses.open.get(v.id);
               const known = statuses.knownIds.has(v.id);
@@ -202,7 +202,7 @@ export default async function HomePage({
               Ver todos
             </Link>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 md:grid md:grid-cols-2 md:gap-x-8">
             {events.map((e) => (
               <EventCard key={e.id} event={e} />
             ))}

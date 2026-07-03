@@ -122,7 +122,7 @@ export default async function VenuesPage({
     !!sp.q;
 
   return (
-    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
+    <main id="main" className="mx-auto max-w-2xl md:max-w-5xl px-4 py-8 pb-bottom">
       <header className="mb-6">
         <p className="text-section mb-1">Catamarca</p>
         <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
@@ -154,7 +154,7 @@ export default async function VenuesPage({
             </Link>
           </div>
         ) : (
-          <div>
+          <div className="md:grid md:grid-cols-2 md:gap-x-8">
             {venues.map((v, i) => {
               const open = statuses.open.get(v.id);
               const known = statuses.knownIds.has(v.id);

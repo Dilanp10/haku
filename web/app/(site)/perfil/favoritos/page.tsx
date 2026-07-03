@@ -42,7 +42,7 @@ export default async function FavoritosPage() {
   const venues = saves.map((s) => s.venues).filter((v): v is VenueRow => v !== null);
 
   return (
-    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
+    <main id="main" className="mx-auto max-w-2xl md:max-w-5xl px-4 py-8 pb-bottom">
       <header className="mb-6 flex items-center gap-3">
         <Heart className="h-5 w-5" style={{ color: "var(--rust)" }} fill="currentColor" />
         <h1 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>
@@ -66,7 +66,7 @@ export default async function FavoritosPage() {
           </Link>
         </div>
       ) : (
-        <ul>
+        <ul className="md:grid md:grid-cols-2 md:gap-x-8">
           {venues.map((venue) => (
             <li key={venue.id} className="row-sep">
               <Link

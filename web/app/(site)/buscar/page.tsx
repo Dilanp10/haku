@@ -50,7 +50,7 @@ export default async function BuscarPage({
   const total = venues.length + events.length;
 
   return (
-    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
+    <main id="main" className="mx-auto max-w-2xl md:max-w-5xl px-4 py-8 pb-bottom">
       <header className="mb-6">
         <p className="text-section mb-1">Catamarca</p>
         <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
@@ -114,7 +114,7 @@ export default async function BuscarPage({
               </Link>
             )}
           </div>
-          <div className="mt-1">
+          <div className="mt-1 md:grid md:grid-cols-2 md:gap-x-8">
             {venues.map((v, i) => {
               const open = statuses?.open.get(v.id);
               const known = statuses?.knownIds.has(v.id) ?? false;
@@ -149,7 +149,7 @@ export default async function BuscarPage({
               Ver en eventos <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          <div className="mt-1">
+          <div className="mt-1 md:grid md:grid-cols-2 md:gap-x-8">
             {events.map((e) => (
               <EventCard key={e.id} event={e} />
             ))}
