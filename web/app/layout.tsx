@@ -3,6 +3,7 @@ import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { env } from "@/lib/env";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SplashScreen } from "@/components/splash-screen";
 
 const SITE_NAME = "Haku";
 const SITE_DESCRIPTION =
@@ -90,6 +91,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen antialiased">
         <ThemeProvider>
+          <SplashScreen />
           <a
             href="#main"
             className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:border focus:bg-card focus:px-3 focus:py-1.5 focus:text-sm focus:shadow-sm"
