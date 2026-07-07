@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   listVenues,
   listCategories,
@@ -8,14 +7,9 @@ import {
   type Category,
 } from "@haku/core";
 import type { PriceRange } from "@haku/shared";
-import {
-  listUpcomingEvents,
-  createSupabaseEventRepository,
-} from "@haku/events";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getVenueStatuses } from "@/lib/venue-open-now";
 import { VenueCard } from "@/components/venue-card";
-import { EventCard } from "@/components/event-card";
 import { VenuesFilters } from "@/components/venues-filters";
 import { LocateMeInline } from "@/components/locate-me-inline";
 
@@ -63,11 +57,10 @@ export default async function HomePage({
 
   const supabase = await createServerSupabase();
   const coreRepo = createSupabaseCoreRepository(supabase);
-  const eventsRepo = createSupabaseEventRepository(supabase);
 
   const pageSize = userLocation ? 50 : 20;
 
-  const [filteredRes, totalRes, categoriesRes, foodTypesRes, eventsRes, statuses] =
+  const [filteredRes, totalRes, categoriesRes, foodTypesRes, statuses] =
     await Promise.all([
       listVenues(coreRepo, {
         ...(categorySlugs.length ? { categorySlugs } : {}),
@@ -81,7 +74,6 @@ export default async function HomePage({
       listVenues(coreRepo, { pagination: { page: 1, pageSize: 1 } }),
       listCategories(coreRepo),
       listFoodTypes(coreRepo),
-      listUpcomingEvents(eventsRepo, { limit: 4 }),
       getVenueStatuses(supabase),
     ]);
 
@@ -92,7 +84,6 @@ export default async function HomePage({
   const categories = categoriesRes.ok ? categoriesRes.value : [];
   const foodTypes = foodTypesRes.ok ? foodTypesRes.value : [];
   const catById = new Map<string, Category>(categories.map((c) => [c.id, c]));
-  const events = eventsRes.ok ? eventsRes.value : [];
 
   // Ordenar por distancia cuando hay ubicación
   const distances = new Map<string, number>();
@@ -182,33 +173,6 @@ export default async function HomePage({
         )}
       </section>
 
-      {events.length > 0 && (
-        <section className="pt-10">
-          <div
-            className="flex items-end justify-between gap-3 pb-2 border-b"
-            style={{ borderColor: "var(--line)" }}
-          >
-            <div>
-              <p className="text-section">Catamarca</p>
-              <h2 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>
-                Próximos eventos
-              </h2>
-            </div>
-            <Link
-              href="/eventos"
-              className="shrink-0 text-xs font-medium hover:underline"
-              style={{ color: "var(--terra)" }}
-            >
-              Ver todos
-            </Link>
-          </div>
-          <div className="mt-2 md:grid md:grid-cols-2 md:gap-x-8">
-            {events.map((e) => (
-              <EventCard key={e.id} event={e} />
-            ))}
-          </div>
-        </section>
-      )}
     </main>
   );
 }
