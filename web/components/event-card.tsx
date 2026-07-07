@@ -23,7 +23,7 @@ export function EventCard({ event, distanceKm }: { event: Event; distanceKm?: nu
   return (
     <div className="group relative flex items-center gap-4 py-4 row-sep animate-fade-in-up">
       <Link
-        href={{ pathname: "/eventos/[slug]", query: { slug: event.slug } } as const}
+        href={`/eventos/${event.slug}`}
         aria-label={event.title}
         className="absolute inset-0 z-10 transition-opacity active:opacity-70"
       />

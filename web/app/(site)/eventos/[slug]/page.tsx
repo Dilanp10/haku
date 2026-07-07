@@ -7,7 +7,7 @@ import {
   createSupabaseEventRepository,
 } from "@haku/events";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { VenueMap } from "@/components/venue-map";
+import { VenueMapClient } from "@/components/venue-map-client";
 
 export const revalidate = 600;
 
@@ -150,7 +150,7 @@ export default async function EventDetailPage({ params }: Props) {
               className="overflow-hidden rounded-[12px] border"
               style={{ borderColor: "var(--line)" }}
             >
-              <VenueMap
+              <VenueMapClient
                 markers={markers}
                 center={event.location}
                 className="h-[250px] w-full"

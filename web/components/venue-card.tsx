@@ -27,7 +27,7 @@ export function VenueCard({
   return (
     <div className="group relative flex items-start gap-4 py-4 row-sep animate-fade-in-up">
       <Link
-        href={{ pathname: "/lugares/[slug]", query: { slug: venue.slug } } as const}
+        href={`/lugares/${venue.slug}`}
         aria-label={venue.name}
         className="absolute inset-0 z-10 transition-opacity active:opacity-70"
       />

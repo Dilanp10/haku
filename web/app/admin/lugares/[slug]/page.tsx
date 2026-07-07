@@ -10,7 +10,7 @@ import {
 } from "@haku/core";
 import { requireProfile } from "@/lib/auth";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { VenueMap } from "@/components/venue-map";
+import { VenueMapClient } from "@/components/venue-map-client";
 import { QuickStatusBtn } from "../quick-status-btn";
 import { SuggestionReview } from "../suggestion-review";
 import { GeocodeBtn } from "../geocode-btn";
@@ -191,7 +191,7 @@ export default async function AdminVenueDetailPage({ params }: Props) {
                 Cómo llegar
               </h2>
               <div className="overflow-hidden rounded-lg border">
-                <VenueMap
+                <VenueMapClient
                   markers={markers}
                   center={venue.location}
                   className="h-[300px] w-full"

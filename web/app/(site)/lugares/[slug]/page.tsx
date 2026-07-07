@@ -10,7 +10,7 @@ import {
 } from "@haku/core";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
-import { VenueMap } from "@/components/venue-map";
+import { VenueMapClient } from "@/components/venue-map-client";
 import { ViewCounter } from "@/components/view-counter";
 import { SaveButton } from "./save-button";
 import { RatingDisplay } from "./rating-display";
@@ -220,7 +220,7 @@ export default async function VenueDetailPage({ params }: Props) {
           <section>
             <h2 className="text-section mb-2">Cómo llegar</h2>
             <div className="overflow-hidden rounded-[12px] border" style={{ borderColor: "var(--line)" }}>
-              <VenueMap
+              <VenueMapClient
                 markers={markers}
                 center={venue.location}
                 className="h-[250px] w-full"
