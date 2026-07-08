@@ -1,7 +1,8 @@
-import Link from "next/link";
 import Image from "next/image";
 import type { Venue, Category } from "@haku/core";
 import { CardSaveButton } from "@/components/card-save-button";
+import { TransitionLink } from "@/components/transition-link";
+import { categoryVisual } from "@/lib/category-visuals";
 
 interface Props {
   venue: Venue;
@@ -23,10 +24,20 @@ export function VenueCard({
   distanceKm,
 }: Props) {
   const meta = [category?.name, venue.address].filter(Boolean).join(" · ");
+  const visual = categoryVisual(category?.slug);
 
   return (
-    <div className="group relative flex items-start gap-4 py-4 row-sep animate-fade-in-up">
-      <Link
+    <div
+      className={`group relative flex items-start gap-4 py-4 row-sep animate-fade-in-up ${
+        openNow ? "pl-3 border-l-2" : ""
+      }`}
+      style={
+        openNow
+          ? { borderLeftColor: "var(--moss)", background: "rgba(138,162,101,0.07)" }
+          : undefined
+      }
+    >
+      <TransitionLink
         href={`/lugares/${venue.slug}`}
         aria-label={venue.name}
         className="absolute inset-0 z-10 transition-opacity active:opacity-70"
@@ -43,14 +54,21 @@ export function VenueCard({
             fill
             sizes="64px"
             className="object-cover"
+            style={{ viewTransitionName: `venue-image-${venue.id}` } as React.CSSProperties}
             {...(priority ? { priority: true } : {})}
           />
         ) : (
           <div
-            className="flex h-full w-full items-center justify-center text-xl text-brand"
-            style={{ color: "var(--fg-30)" }}
+            className="flex h-full w-full items-center justify-center text-2xl"
+            style={
+              {
+                background: visual.bg,
+                viewTransitionName: `venue-image-${venue.id}`,
+              } as React.CSSProperties
+            }
+            aria-hidden
           >
-            {venue.name.charAt(0)}
+            {visual.emoji}
           </div>
         )}
       </div>

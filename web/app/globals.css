@@ -126,6 +126,35 @@
   to   { transform: translateY(0);    opacity: 1; }
 }
 
+/* View Transitions (spec 031, O5) — solo si el navegador soporta la API */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 200ms;
+    animation-timing-function: ease;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Skeletons (spec 031, O1) */
+@keyframes haku-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+.skeleton-pulse {
+  animation: haku-skeleton-pulse 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-pulse {
+    animation: none;
+  }
+}
+
 /* Leaflet themed */
 .leaflet-popup-content-wrapper {
   background-color: var(--card-bg) !important;

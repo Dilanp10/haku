@@ -5,9 +5,11 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Phone, Globe, Instagram, MapPin, Navigation } from "lucide-react";
 import {
   getVenueBySlug,
+  listCategories,
   listFoodTypes,
   createSupabaseCoreRepository,
 } from "@haku/core";
+import { categoryVisual } from "@/lib/category-visuals";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
 import { VenueMapClient } from "@/components/venue-map-client";
@@ -47,14 +49,19 @@ export default async function VenueDetailPage({ params }: Props) {
   const supabase = await createServerSupabase();
   const repo = createSupabaseCoreRepository(supabase);
 
-  const [venueRes, foodTypesRes, profile] = await Promise.all([
+  const [venueRes, categoriesRes, foodTypesRes, profile] = await Promise.all([
     getVenueBySlug(repo, { slug }),
+    listCategories(repo),
     listFoodTypes(repo),
     getCurrentProfile(),
   ]);
 
   if (!venueRes.ok || !venueRes.value) notFound();
   const venue = venueRes.value;
+  const category = categoriesRes.ok
+    ? categoriesRes.value.find((c) => c.id === venue.categoryId)
+    : undefined;
+  const visual = categoryVisual(category?.slug);
 
   const [statsRes, hoursRes] = await Promise.all([
     supabase
@@ -78,55 +85,86 @@ export default async function VenueDetailPage({ params }: Props) {
     : [];
 
   return (
-    <main id="main" className="mx-auto max-w-2xl px-4 py-8 pb-bottom">
-      <Link
-        href="/lugares"
-        className="inline-flex items-center gap-1 text-data transition-opacity hover:opacity-70"
-        style={{ color: "var(--fg-50)" }}
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Todos los lugares
-      </Link>
+    <main id="main" className="mx-auto max-w-2xl pb-bottom">
+      {/* Héroe full-bleed en mobile, contenido con radios en ≥ md (spec 031 O4) */}
+      <header className="relative md:mt-6">
+        <div
+          className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[16/6] md:rounded-[12px]"
+          style={
+            venue.coverImageUrl ? { background: "var(--card-2)" } : { background: visual.bg }
+          }
+        >
+          {venue.coverImageUrl ? (
+            <Image
+              src={venue.coverImageUrl}
+              alt={venue.name}
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 80vw"
+              className="object-cover"
+              style={{ viewTransitionName: `venue-image-${venue.id}` } as React.CSSProperties}
+            />
+          ) : (
+            <div
+              className="flex h-full w-full items-center justify-center text-7xl"
+              aria-hidden
+              style={{ viewTransitionName: `venue-image-${venue.id}` } as React.CSSProperties}
+            >
+              {visual.emoji}
+            </div>
+          )}
 
-      <header className="mt-4">
-        <p className="text-section mb-1">Catamarca</p>
-        <div className="flex items-center gap-2">
-          <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
-            {venue.name}
-          </h1>
-          <SaveButton venueId={venue.id} slug={slug} />
-        </div>
-        <div className="mt-1 flex items-center gap-3">
-          <RatingDisplay
-            averageRating={stats?.average_rating ?? null}
-            ratingCount={stats?.rating_count ?? 0}
-          />
-          <RatingPicker venueId={venue.id} slug={slug} hasSession={!!profile} />
-        </div>
-        {venue.address && (
-          <p
-            className="mt-1 flex items-center gap-1 text-sm"
-            style={{ color: "var(--fg-50)" }}
+          {/* Gradiente + nombre superpuesto */}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pt-16 pb-4 px-4">
+            {category && (
+              <p className="text-section" style={{ color: "rgba(255,255,255,0.75)" }}>
+                {category.name}
+              </p>
+            )}
+            <h1 className="text-brand text-3xl leading-tight text-white drop-shadow-sm">
+              {venue.name}
+            </h1>
+          </div>
+
+          {/* Volver + guardar superpuestos (área táctil ≥44px) */}
+          <Link
+            href="/lugares"
+            aria-label="Todos los lugares"
+            className="absolute left-3 top-3 z-10 flex size-11 items-center justify-center rounded-full backdrop-blur transition-opacity active:opacity-70"
+            style={{ background: "rgba(0,0,0,0.4)", color: "#fff" }}
           >
-            <MapPin className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--terra)" }} />
-            {venue.address}
-          </p>
-        )}
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div
+            className="absolute right-3 top-3 z-10 flex size-11 items-center justify-center rounded-full backdrop-blur"
+            style={{ background: "rgba(0,0,0,0.4)", color: "#fff" }}
+          >
+            <SaveButton venueId={venue.id} slug={slug} variant="overlay" />
+          </div>
+        </div>
+
+        {/* Rating + dirección debajo del héroe */}
+        <div className="px-4 pt-3">
+          <div className="flex items-center gap-3">
+            <RatingDisplay
+              averageRating={stats?.average_rating ?? null}
+              ratingCount={stats?.rating_count ?? 0}
+            />
+            <RatingPicker venueId={venue.id} slug={slug} hasSession={!!profile} />
+          </div>
+          {venue.address && (
+            <p
+              className="mt-1 flex items-center gap-1 text-sm"
+              style={{ color: "var(--fg-50)" }}
+            >
+              <MapPin className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--terra)" }} />
+              {venue.address}
+            </p>
+          )}
+        </div>
       </header>
 
-      {venue.coverImageUrl && (
-        <div className="relative mt-6 aspect-[16/7] overflow-hidden rounded-[12px] border" style={{ borderColor: "var(--line)" }}>
-          <Image
-            src={venue.coverImageUrl}
-            alt={venue.name}
-            fill
-            priority
-            sizes="(max-width: 1024px) 100vw, 80vw"
-            className="object-cover"
-          />
-        </div>
-      )}
-
-      <div className="mt-8 space-y-6">
+      <div className="mt-8 space-y-6 px-4">
         {venue.description && (
           <section>
             <p className="text-[15px] leading-relaxed" style={{ color: "var(--fg-70)" }}>

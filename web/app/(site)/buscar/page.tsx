@@ -10,6 +10,7 @@ import {
 import { listUpcomingEvents, createSupabaseEventRepository } from "@haku/events";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getVenueStatuses } from "@/lib/venue-open-now";
+import { sortVenuesByOpenFirst } from "@/lib/sort-venues";
 import { SearchInput } from "@/components/search-input";
 import { VenueCard } from "@/components/venue-card";
 import { EventCard } from "@/components/event-card";
@@ -41,7 +42,11 @@ export default async function BuscarPage({
       ])
     : [null, null, null, null];
 
-  const venues = venuesRes?.ok ? venuesRes.value.items : [];
+  // Abiertos primero (spec 031 O3)
+  const venues = sortVenuesByOpenFirst(
+    venuesRes?.ok ? venuesRes.value.items : [],
+    (id) => statuses?.open.has(id) ?? false,
+  );
   const venuesTotal = venuesRes?.ok ? venuesRes.value.total : 0;
   const catById = new Map<string, Category>(
     (categoriesRes?.ok ? categoriesRes.value : []).map((c) => [c.id, c]),

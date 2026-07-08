@@ -11,6 +11,7 @@ import {
 import type { PriceRange } from "@haku/shared";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getVenueStatuses } from "@/lib/venue-open-now";
+import { sortVenuesByOpenFirst } from "@/lib/sort-venues";
 import { VenueCard } from "@/components/venue-card";
 import { VenuesFilters } from "@/components/venues-filters";
 import { LocateMeInline } from "@/components/locate-me-inline";
@@ -106,12 +107,13 @@ export default async function VenuesPage({
     for (const v of venues) {
       if (v.location) distances.set(v.id, computeDistanceKm(userLocation, v.location));
     }
-    venues = [...venues].sort((a, b) => {
-      const da = distances.get(a.id) ?? Infinity;
-      const db = distances.get(b.id) ?? Infinity;
-      return da - db;
-    });
   }
+  // Abiertos primero; distancia como criterio secundario (spec 031 O3)
+  venues = sortVenuesByOpenFirst(
+    venues,
+    (id) => statuses.open.has(id),
+    userLocation ? (id) => distances.get(id) : undefined,
+  );
 
   const hasFilters =
     isOpenNow ||

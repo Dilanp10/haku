@@ -249,6 +249,18 @@ Ver [`specs/009-scraper-sources/`](specs/009-scraper-sources/spec.md).
 - [x] `web/app/admin/lugares/nuevo/page.tsx`: RSC `force-dynamic`, carga categorías + food types, renderiza `<NewVenueForm>`.
 - [x] `web/app/admin/lugares/page.tsx`: link "Nuevo lugar" ya existía — sin cambios requeridos.
 
+## Fase 30 — Rediseño visual pulido (spec 031) ✅
+- [x] `web/lib/category-visuals.ts` + tests: mapeo único slug→{emoji,bg,fg} paleta Tierra (consolida el `CATEGORY_EMOJI` de venues-filters).
+- [x] `web/lib/sort-venues.ts` + tests: `sortVenuesByOpenFirst` (abiertos primero, distancia dentro de cada grupo).
+- [x] `web/components/skeletons.tsx` + `loading.tsx` en `/`, `/lugares`, `/buscar`, `/eventos` y ambos detalles; pulso `skeleton-pulse` con `prefers-reduced-motion`.
+- [x] `VenueCard`: placeholder por categoría (sin foto) + acento moss para abiertos + `view-transition-name` en el thumb.
+- [x] Sort abierto-primero en home, `/lugares`, `/buscar` y favoritos (que migró de fila custom a `VenueCard` + `getVenueStatuses`).
+- [x] Detalle de lugar: héroe full-bleed mobile / contenido en ≥md, nombre sobre gradiente, back + `SaveButton variant="overlay"` superpuestos.
+- [x] `web/components/transition-link.tsx`: View Transitions API nativa como progressive enhancement + CSS `@supports`.
+- [x] `@haku/web` ganó vitest (11 tests).
+
 ## Pendientes
 - [ ] Despliegue por Skaffold a un cluster real.
 - [ ] Conectar una fuente Catamarca real (activar un source en DB + ajustar selectores).
+- [ ] Consolidar los `CATEGORY_EMOJI` duplicados de `admin/lugares` y `admin/lugares/sugerencias` en `category-visuals.ts` (quedaron fuera de spec 031 por N4).
+- [ ] Migrar imágenes de venues del storage del proyecto viejo (`sanpcejzzmytsefaamzx`/morficata) al proyecto actual.

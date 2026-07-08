@@ -1,9 +1,13 @@
 import Link from "next/link";
-import Image from "next/image";
 import { redirect } from "next/navigation";
-import { Heart, MapPin } from "lucide-react";
+import { Heart } from "lucide-react";
+import type { Venue, Category } from "@haku/core";
+import { listCategories, createSupabaseCoreRepository } from "@haku/core";
 import { getCurrentProfile } from "@/lib/auth";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { getVenueStatuses } from "@/lib/venue-open-now";
+import { sortVenuesByOpenFirst } from "@/lib/sort-venues";
+import { VenueCard } from "@/components/venue-card";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +21,10 @@ interface VenueRow {
   slug: string;
   name: string;
   description: string | null;
+  category_id: string;
   address: string | null;
   cover_image_url: string | null;
+  neighborhood: string | null;
 }
 
 interface SaveRow {
@@ -27,19 +33,56 @@ interface SaveRow {
   venues: VenueRow | null;
 }
 
+/** Mapea la fila mínima de favoritos a la forma que consume VenueCard. */
+function toCardVenue(row: VenueRow): Venue {
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    description: row.description,
+    categoryId: row.category_id,
+    address: row.address,
+    location: null,
+    coverImageUrl: row.cover_image_url,
+    neighborhood: row.neighborhood,
+    foodTypeIds: [],
+    status: "published",
+    viewCount: 0,
+    createdAt: "",
+    updatedAt: "",
+  };
+}
+
 export default async function FavoritosPage() {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/login?from=/perfil/favoritos");
 
   const supabase = await createServerSupabase();
+  const coreRepo = createSupabaseCoreRepository(supabase);
 
-  const { data } = await supabase
-    .from("venue_saves")
-    .select("venue_id, created_at, venues(id, slug, name, description, address, cover_image_url)")
-    .order("created_at", { ascending: false });
+  const [{ data }, categoriesRes, statuses] = await Promise.all([
+    supabase
+      .from("venue_saves")
+      .select(
+        "venue_id, created_at, venues(id, slug, name, description, category_id, address, cover_image_url, neighborhood)",
+      )
+      .order("created_at", { ascending: false }),
+    listCategories(coreRepo),
+    getVenueStatuses(supabase),
+  ]);
 
   const saves = (data ?? []) as unknown as SaveRow[];
-  const venues = saves.map((s) => s.venues).filter((v): v is VenueRow => v !== null);
+  const categories = categoriesRes.ok ? categoriesRes.value : [];
+  const catById = new Map<string, Category>(categories.map((c) => [c.id, c]));
+
+  // Abiertos primero (spec 031 O3)
+  const venues = sortVenuesByOpenFirst(
+    saves
+      .map((s) => s.venues)
+      .filter((v): v is VenueRow => v !== null)
+      .map(toCardVenue),
+    (id) => statuses.open.has(id),
+  );
 
   return (
     <main id="main" className="mx-auto max-w-2xl md:max-w-5xl px-4 py-8 pb-bottom">
@@ -66,57 +109,23 @@ export default async function FavoritosPage() {
           </Link>
         </div>
       ) : (
-        <ul className="md:grid md:grid-cols-2 md:gap-x-8">
-          {venues.map((venue) => (
-            <li key={venue.id} className="row-sep">
-              <Link
-                href={`/lugares/${venue.slug}`}
-                className="flex items-center gap-4 py-4 transition-opacity active:opacity-70"
-              >
-                <div
-                  className="relative shrink-0 size-16 rounded-[10px] overflow-hidden"
-                  style={{ background: "var(--card-2)" }}
-                >
-                  {venue.cover_image_url ? (
-                    <Image
-                      src={venue.cover_image_url}
-                      alt=""
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div
-                      className="flex h-full w-full items-center justify-center text-xl text-brand"
-                      style={{ color: "var(--fg-30)" }}
-                    >
-                      {venue.name.charAt(0)}
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3
-                    className="text-brand text-[17px] leading-tight truncate"
-                    style={{ color: "var(--fg)" }}
-                  >
-                    {venue.name}
-                  </h3>
-                  {venue.address && (
-                    <p className="mt-0.5 flex items-center gap-1 text-xs truncate" style={{ color: "var(--fg-50)" }}>
-                      <MapPin className="h-3 w-3 shrink-0" />
-                      {venue.address}
-                    </p>
-                  )}
-                  {venue.description && (
-                    <p className="text-[13px] mt-1 line-clamp-1" style={{ color: "var(--fg-70)" }}>
-                      {venue.description}
-                    </p>
-                  )}
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="md:grid md:grid-cols-2 md:gap-x-8">
+          {venues.map((venue, i) => {
+            const open = statuses.open.get(venue.id);
+            const known = statuses.knownIds.has(venue.id);
+            return (
+              <VenueCard
+                key={venue.id}
+                venue={venue}
+                category={catById.get(venue.categoryId)}
+                priority={i < 2}
+                openNow={!!open}
+                {...(open?.closesAt ? { closesAt: open.closesAt } : {})}
+                closed={!open && known}
+              />
+            );
+          })}
+        </div>
       )}
     </main>
   );

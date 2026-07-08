@@ -7,9 +7,11 @@ import { toggleFavoriteAction } from "./actions";
 interface SaveButtonProps {
   venueId: string;
   slug: string;
+  /** "overlay": para usar superpuesto sobre foto (héroe); corazón blanco. */
+  variant?: "default" | "overlay";
 }
 
-export function SaveButton({ venueId, slug }: SaveButtonProps) {
+export function SaveButton({ venueId, slug, variant = "default" }: SaveButtonProps) {
   const [saved, setSaved] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -51,7 +53,12 @@ export function SaveButton({ venueId, slug }: SaveButtonProps) {
         aria-label={saved ? "Quitar de favoritos" : "Guardar favorito"}
         className="rounded-full p-1.5 transition-opacity active:opacity-70"
         style={{
-          color: isLoading || isPending ? "var(--fg-30)" : saved ? "var(--rust)" : "var(--fg-30)",
+          color:
+            saved && !isLoading && !isPending
+              ? "var(--rust)"
+              : variant === "overlay"
+                ? "rgba(255,255,255,0.9)"
+                : "var(--fg-30)",
           cursor: isLoading || isPending ? "default" : "pointer",
         }}
       >

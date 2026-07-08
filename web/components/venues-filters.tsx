@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SlidersHorizontal, X, Search, Heart } from "lucide-react";
 import type { Category, FoodType } from "@haku/core";
+import { categoryEmoji } from "@/lib/category-visuals";
 
 interface Props {
   categories: Category[];
@@ -36,17 +37,6 @@ const PRICES = [
   { key: "$$", label: "$$" },
   { key: "$$$", label: "$$$" },
 ] as const;
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  cafeteria: "☕",
-  restaurante: "🍽",
-  bar: "🍺",
-  heladeria: "🍦",
-  panaderia: "🥐",
-  pizzeria: "🍕",
-  parrilla: "🥩",
-  cerveceria: "🍻",
-};
 
 function parseList(v: string | null): string[] {
   if (!v) return [];
@@ -165,7 +155,7 @@ export function VenuesFilters({
               key={c.id}
               active={cats.includes(c.slug)}
               onClick={() => toggle(cats, setCats, c.slug)}
-              emoji={CATEGORY_EMOJI[c.slug] ?? "•"}
+              emoji={categoryEmoji(c.slug)}
               label={c.name}
             />
           ))}
@@ -242,7 +232,7 @@ export function VenuesFilters({
             key={c.id}
             active={cats.includes(c.slug)}
             onClick={() => toggle(cats, setCats, c.slug)}
-            emoji={CATEGORY_EMOJI[c.slug] ?? "•"}
+            emoji={categoryEmoji(c.slug)}
             label={c.name}
           />
         ))}

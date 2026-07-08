@@ -9,6 +9,7 @@ import {
 import type { PriceRange } from "@haku/shared";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getVenueStatuses } from "@/lib/venue-open-now";
+import { sortVenuesByOpenFirst } from "@/lib/sort-venues";
 import { VenueCard } from "@/components/venue-card";
 import { VenuesFilters } from "@/components/venues-filters";
 import { LocateMeInline } from "@/components/locate-me-inline";
@@ -85,7 +86,7 @@ export default async function HomePage({
   const foodTypes = foodTypesRes.ok ? foodTypesRes.value : [];
   const catById = new Map<string, Category>(categories.map((c) => [c.id, c]));
 
-  // Ordenar por distancia cuando hay ubicación
+  // Abiertos primero; con ubicación, distancia dentro de cada grupo (spec 031 O3)
   const distances = new Map<string, number>();
   if (userLocation) {
     for (const v of venues) {
@@ -93,12 +94,12 @@ export default async function HomePage({
         distances.set(v.id, computeDistanceKm(userLocation, v.location));
       }
     }
-    venues = [...venues].sort((a, b) => {
-      const da = distances.get(a.id) ?? Infinity;
-      const db = distances.get(b.id) ?? Infinity;
-      return da - db;
-    });
   }
+  venues = sortVenuesByOpenFirst(
+    venues,
+    (id) => statuses.open.has(id),
+    userLocation ? (id) => distances.get(id) : undefined,
+  );
 
   const hasFilters =
     isOpenNow ||
