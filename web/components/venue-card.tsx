@@ -28,14 +28,8 @@ export function VenueCard({
 
   return (
     <div
-      className={`group relative flex items-start gap-4 py-4 row-sep animate-fade-in-up ${
-        openNow ? "pl-3 border-l-2" : ""
-      }`}
-      style={
-        openNow
-          ? { borderLeftColor: "var(--moss)", background: "rgba(138,162,101,0.07)" }
-          : undefined
-      }
+      className="group relative flex items-start gap-4 py-4 row-sep animate-fade-in-up"
+      style={openNow ? { background: "rgba(138,162,101,0.07)" } : undefined}
     >
       <TransitionLink
         href={`/lugares/${venue.slug}`}
