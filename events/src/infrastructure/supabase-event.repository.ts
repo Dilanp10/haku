@@ -82,11 +82,13 @@ export function createSupabaseEventRepository(
 
     async listUpcoming(q: ListUpcomingQuery): Promise<Event[]> {
       const fromIso = q.from ?? new Date().toISOString();
+      // Próximos O en curso: empieza en el futuro, o ya empezó pero no terminó
+      // (un festival multi-día sigue visible hasta su ends_at).
       let query = client
         .from("events")
         .select("*")
         .eq("status", "published")
-        .gte("starts_at", fromIso)
+        .or(`starts_at.gte.${fromIso},ends_at.gte.${fromIso}`)
         .order("starts_at", { ascending: true })
         .limit(q.limit);
       if (q.category) query = query.eq("category", q.category);
@@ -99,12 +101,13 @@ export function createSupabaseEventRepository(
     },
 
     async listEventCategories(): Promise<string[]> {
+      const nowIso = new Date().toISOString();
       const res = await client
         .from("events")
         .select("category")
         .eq("status", "published")
         .not("category", "is", null)
-        .gte("starts_at", new Date().toISOString());
+        .or(`starts_at.gte.${nowIso},ends_at.gte.${nowIso}`);
       if (res.error) throw res.error;
       const rows = (res.data ?? []) as { category: string | null }[];
       const seen = new Set<string>();
