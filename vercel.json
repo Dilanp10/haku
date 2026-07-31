@@ -7,6 +7,10 @@
     {
       "path": "/api/events/ingest",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/keep-alive",
+      "schedule": "0 6 */4 * *"
     }
   ]
 }
