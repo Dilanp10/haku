@@ -8,19 +8,9 @@ import {
 } from "@haku/core";
 import { requireProfile } from "@/lib/auth";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { categoryEmoji } from "@/lib/category-visuals";
 
 export const dynamic = "force-dynamic";
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  cafeteria: "☕",
-  restaurante: "🍽️",
-  bar: "🍺",
-  heladeria: "🍦",
-  panaderia: "🥐",
-  pizzeria: "🍕",
-  parrilla: "🥩",
-  cerveceria: "🍻",
-};
 
 export default async function AdminSugerenciasPage() {
   await requireProfile("admin");
@@ -83,7 +73,7 @@ export default async function AdminSugerenciasPage() {
                         {v.name}
                       </p>
                       <p className="mt-0.5 text-sm" style={{ color: "var(--fg-50)" }}>
-                        {cat ? `${CATEGORY_EMOJI[cat.slug] ?? "•"} ${cat.name}` : "— sin categoría —"}
+                        {cat ? `${categoryEmoji(cat.slug)} ${cat.name}` : "— sin categoría —"}
                         {where ? ` · ${where}` : ""}
                       </p>
                     </div>

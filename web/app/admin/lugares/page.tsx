@@ -10,6 +10,7 @@ import {
 import { requireProfile } from "@/lib/auth";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { QuickStatusBtn } from "./quick-status-btn";
+import { categoryEmoji } from "@/lib/category-visuals";
 
 export const dynamic = "force-dynamic";
 
@@ -17,17 +18,6 @@ const STATUS_LABEL: Record<Venue["status"], string> = {
   draft: "Borrador",
   published: "Activo",
   archived: "Archivado",
-};
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  cafeteria: "☕",
-  restaurante: "🍽️",
-  bar: "🍺",
-  heladeria: "🍦",
-  panaderia: "🥐",
-  pizzeria: "🍕",
-  parrilla: "🥩",
-  cerveceria: "🍻",
 };
 
 type StatusFilter = "draft" | "published" | "archived" | undefined;
@@ -181,7 +171,7 @@ export default async function AdminLugaresPage({
                   <div className="flex items-center gap-1.5 text-sm" style={{ color: "var(--fg-70)" }}>
                     {cat ? (
                       <>
-                        <span>{CATEGORY_EMOJI[cat.slug] ?? "•"}</span>
+                        <span>{categoryEmoji(cat.slug)}</span>
                         <span>{cat.name}</span>
                       </>
                     ) : (

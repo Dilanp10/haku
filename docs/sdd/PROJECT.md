@@ -15,7 +15,7 @@ Monolito modular de cortes verticales (pnpm workspaces): `shared` ← `core` / `
 
 - [M01 — shared](./M01-shared/SDD.md): COMPLETED
 - [M02 — auth](./M02-auth/SDD.md): COMPLETED
-- [M03 — core (lugares)](./M03-core/SDD.md): IN_PROGRESS (TASK-014 a 017 pendientes)
+- [M03 — core (lugares)](./M03-core/SDD.md): IN_PROGRESS (TASK-014, 015 y 017 pendientes)
 - [M04 — events](./M04-events/SDD.md): IN_PROGRESS (TASK-008 a 011 pendientes)
 - [M05 — web (PWA y UI)](./M05-web/SDD.md): IN_PROGRESS (solo quedan TASK-010 y 011, opcionales)
 - [M06 — infra (deploy y Supabase)](./M06-infra/SDD.md): IN_PROGRESS (TASK-005: verificar despliegue real)

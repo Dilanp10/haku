@@ -124,11 +124,24 @@ Descripción:
 Correr `pnpm --filter @haku/core test:integration` con `supabase start` y confirmar AC1–AC6 de la feature 010 (los tests ya existen).
 
 ## TASK-016 — Consolidar `CATEGORY_EMOJI` duplicado
-Status: PENDING
+Status: COMPLETED
 Satisfies: NFR-002
 
 Descripción:
 Unificar el mapa duplicado en `web/app/admin/lugares/page.tsx` y `web/app/admin/lugares/sugerencias/page.tsx` en `category-visuals.ts`.
+
+Completed:
+- Se eliminaron los dos mapas `CATEGORY_EMOJI` y ambas páginas usan `categoryEmoji` de `web/lib/category-visuals.ts` (misma salida y mismo fallback `•`).
+
+Files:
+- web/app/admin/lugares/page.tsx
+- web/app/admin/lugares/sugerencias/page.tsx
+
+Tests:
+- `pnpm --filter @haku/web typecheck` y `test` (11 tests) en verde; `category-visuals.test.ts` cubre el helper.
+
+SDD requirements satisfied:
+- NFR-002
 
 ## TASK-017 — Migrar imágenes de venues del proyecto viejo
 Status: PENDING
