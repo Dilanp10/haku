@@ -66,11 +66,23 @@ Descripción:
 Ejecutar el T4 de la feature 018 y sus AC1–AC6 (ingesta manual → pending → publicar → visible en `/eventos`). Incluye las AC3/AC4 de la 011 (email con clave inválida o sin variables devuelve `200`).
 
 ## TASK-009 — Integración del adapter: cierre de checks
-Status: PENDING
+Status: COMPLETED
 Satisfies: NFR-005
 
 Descripción:
 Correr `pnpm --filter @haku/events test:integration` con `supabase start` y confirmar AC1–AC6 de la feature 010.
+
+Completed:
+- 2026-09-29: los 11 tests del suite de integración de `events` pasan contra Supabase local.
+
+Files:
+- (sin cambios de código; se corrió la suite existente)
+
+Tests:
+- `pnpm --filter @haku/events test:integration` (11 tests)
+
+SDD requirements satisfied:
+- NFR-005
 
 ## TASK-010 — Índice SQL `(status, starts_at)`
 Status: PENDING

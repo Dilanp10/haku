@@ -117,11 +117,24 @@ Descripción:
 Ejecutar las AC que quedaron sin marcar en las features 014 (AC1–AC4, AC9), 015 (AC1–AC5, AC7), 016 (AC1–AC6) y 017 (AC1–AC7); correr `pnpm -r typecheck` y `pnpm -r test`.
 
 ## TASK-015 — Integración del adapter: cierre de checks
-Status: PENDING
+Status: COMPLETED
 Satisfies: NFR-005
 
 Descripción:
 Correr `pnpm --filter @haku/core test:integration` con `supabase start` y confirmar AC1–AC6 de la feature 010 (los tests ya existen).
+
+Completed:
+- 2026-09-29: los 9 tests del suite de integración de `core` pasan contra Supabase local (puertos 55321-55323).
+- Se corrigió una aserción incorrecta en `retorna venues published` que asumía que `listVenues()` sin filtro solo devuelve `published`; el use-case delega ese filtro a la RLS y el test corre con service_role.
+
+Files:
+- core/src/infrastructure/supabase-core.repository.integration.test.ts
+
+Tests:
+- `pnpm --filter @haku/core test:integration` (9 tests)
+
+SDD requirements satisfied:
+- NFR-005
 
 ## TASK-016 — Consolidar `CATEGORY_EMOJI` duplicado
 Status: COMPLETED
