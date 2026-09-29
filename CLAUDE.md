@@ -1,7 +1,7 @@
 # CLAUDE.md — Guía para agentes en el repo Haku
 
 Documento operativo para cualquier agente (Claude Code u otro) que trabaje aquí.
-La fuente de verdad de la arquitectura es [`SPEC.md`](./SPEC.md) y la
+La fuente de verdad de la arquitectura es [`docs/sdd/ARCHITECTURE.md`](./docs/sdd/ARCHITECTURE.md) y la
 [`constitución`](./.specify/memory/constitution.md). Léelos antes de tocar código.
 
 ## Qué es Haku
@@ -17,10 +17,10 @@ Monolito modular de cortes verticales, metodología SDD.
 - `web/`    `@haku/web`    — Next.js, composition root (única capa que conoce a todos).
 - `supabase/` — migraciones SQL + seed + políticas RLS.
 - `deploy/`, `Dockerfile`, `docker-compose.yml`, `skaffold.yaml` — contenedores/Cloud Code.
-- Cada módulo tiene su contrato en `<modulo>/spec/SPEC.md`.
+- Cada módulo tiene su diseño en `docs/sdd/M0X-<modulo>/SDD.md`; el estado está en `docs/sdd/PROJECT.md`.
 
 ## Reglas que NO se rompen
-1. **Specs primero.** No implementes un módulo sin su `SPEC.md` aprobado.
+1. **SDD primero.** Leé `docs/sdd/PROJECT.md`; no implementes nada sin el `SDD.md` del módulo en `Status: Approved`. Metodología: skill `sdd-modular-dev`.
 2. **Frontera modular.** Importa solo `@haku/<modulo>` (API pública). Nunca `.../src/...`.
 3. **Entre dominios no hay imports directos.** core/auth/events colaboran en `web` o vía `shared`.
 4. **Dominio puro.** Nada de Supabase/Next dentro de `domain/` o `use-cases/`. IO por ports.
@@ -37,10 +37,11 @@ supabase start          # stack local de Supabase (Docker)
 pnpm db:reset           # aplicar migraciones + seed
 ```
 
-## Flujo de trabajo para un módulo nuevo o feature
-1. Escribir/actualizar `<modulo>/spec/SPEC.md` (contrato, modelo de datos, ports, RLS).
-2. Definir los `ports` (interfaces) en `application/ports/`.
-3. Escribir los `use-cases` puros con tests (vitest) usando fakes de los ports.
-4. Implementar los adapters Supabase en `infrastructure/`.
-5. Exponer la API pública en `index.ts`.
-6. Conectar en `web` (RSC/Server Action/route handler) + migración Supabase con RLS.
+## Flujo de trabajo (skill `sdd-modular-dev`)
+1. Leer `docs/sdd/PROJECT.md` y elegir el módulo (M01–M06) o proponer uno nuevo.
+2. Escribir/actualizar `docs/sdd/M0X-*/SDD.md` (Draft) y esperar la aprobación explícita.
+3. Crear las tasks en `TASKS.md` (chicas, cada una ligada a un `FR-`/`NFR-`).
+4. Implementar por task: ports → use-cases con tests (fakes) → adapters Supabase → `index.ts` → conexión en `web` + migración con RLS.
+5. Actualizar el estado de la task y de `PROJECT.md`; cerrar el módulo solo con criterios de aceptación cumplidos.
+
+`docs/sdd/_historial/` (spec-kit anterior) es solo lectura. Las skills `speckit-*` y `.specify/scripts` se eliminaron: no hay otra metodología vigente.

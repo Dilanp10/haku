@@ -4,8 +4,9 @@ Principios no negociables del proyecto. Toda PR y todo agente deben respetarlos.
 Inspirado en la disciplina SDD de `tuamigofiel`.
 
 ## I. Spec-Driven Development (specs primero)
-Ningún módulo o feature se implementa antes de tener su `SPEC.md` aprobado. El orden
-es siempre: **Spec → Plan → Tareas → Implementación**. El código sin spec se rechaza.
+Ningún módulo o feature se implementa antes de tener su `SDD.md` (en `docs/sdd/M0X-*/`)
+aprobado. El orden es siempre: **SDD → Aprobación → Tasks → Implementación → Tests**. El
+código sin SDD aprobado se rechaza. Metodología: skill `sdd-modular-dev`.
 
 ## II. Frontera modular estricta
 Cada dominio es una carpeta en la raíz y un paquete `@haku/*`. Un módulo solo puede

@@ -1,6 +1,6 @@
 # Arquitectura
 
-Resumen ejecutable; el contrato vinculante es [`SPEC.md`](../SPEC.md).
+Resumen ejecutable; el contrato vinculante es [`docs/sdd/ARCHITECTURE.md`](./sdd/ARCHITECTURE.md).
 
 ## Estilo
 Monolito modular de **cortes verticales**. Cada dominio (carpeta en raíz, paquete

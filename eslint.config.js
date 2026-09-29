@@ -39,7 +39,7 @@ export default tseslint.config(
             {
               group: ["@haku/*/src", "@haku/*/src/*", "@haku/*/dist", "@haku/*/dist/*"],
               message:
-                "Importá solo la API pública del módulo (`@haku/<modulo>`), nunca rutas internas. Ver SPEC.md §3.",
+                "Importá solo la API pública del módulo (`@haku/<modulo>`), nunca rutas internas. Ver docs/sdd/ARCHITECTURE.md §3.",
             },
           ],
         },

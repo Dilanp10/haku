@@ -13,7 +13,7 @@ Next.js 15 (App Router) · TypeScript strict · Supabase (Postgres + Auth + Stor
 
 ## Arquitectura (monolito modular de cortes verticales)
 Cada dominio es una carpeta en la raíz y un paquete `@haku/*`, autocontenido, que expone
-solo su `index.ts`. Detalle en [`SPEC.md`](./SPEC.md).
+solo su `index.ts`. Detalle en [`docs/sdd/ARCHITECTURE.md`](./docs/sdd/ARCHITECTURE.md).
 
 | Paquete | Carpeta | Responsabilidad |
 |---|---|---|
@@ -23,7 +23,7 @@ solo su `index.ts`. Detalle en [`SPEC.md`](./SPEC.md).
 | `@haku/events` | [`events/`](./events) | Ingesta/scraping de eventos (aislado) |
 | `@haku/web` | [`web/`](./web) | Next.js App Router — composition root |
 
-Cada módulo tiene su contrato en `<modulo>/spec/SPEC.md`.
+Cada módulo tiene su diseño en `docs/sdd/M0X-<modulo>/SDD.md`.
 
 ## Requisitos
 | Herramienta | Versión |
@@ -42,18 +42,13 @@ pnpm db:reset                         # migraciones + seed
 pnpm dev                              # http://localhost:3000
 ```
 
-## Desarrollo guiado por specs (SDD, Spec-Kit)
-Dos niveles de spec:
-- **Módulo** (durable): `<modulo>/spec/SPEC.md` — contrato de arquitectura.
-- **Feature** (efímero): `specs/NNN-<slug>/{spec,plan,tasks}.md` + `checklists/`.
+## Desarrollo guiado por SDD (skill `sdd-modular-dev`)
+Todo el diseño y el estado viven en [`docs/sdd/`](./docs/sdd/PROJECT.md):
+- **Módulo**: `docs/sdd/M0X-<nombre>/SDD.md` (diseño) y `TASKS.md` (tasks verificables).
+- **Estado**: [`docs/sdd/PROJECT.md`](./docs/sdd/PROJECT.md).
+- **Historial** (spec-kit anterior, solo lectura): `docs/sdd/_historial/`.
 
-Para una feature nueva:
-```bash
-.specify/scripts/bash/create-new-feature.sh "Nombre"
-# o (Windows): pwsh .specify/scripts/powershell/create-new-feature.ps1 "Nombre"
-```
-Luego, ciclo Spec-Kit con las skills `.claude/skills/speckit-*`:
-**specify → clarify → plan → tasks → implement**.
+Ciclo por módulo: SDD (Draft) → aprobación → tasks → implementación → tests → cierre.
 Reglas completas en [`CLAUDE.md`](./CLAUDE.md) y la
 [constitución](./.specify/memory/constitution.md).
 
@@ -62,6 +57,5 @@ Reglas completas en [`CLAUDE.md`](./CLAUDE.md) y la
 - Kubernetes / Cloud Code: `skaffold dev` (manifiestos en [`deploy/k8s`](./deploy/k8s)).
 
 ## Estado
-Fase 0 — **Fundación SDD completa**: monorepo, specs maestro y por módulo, scaffolding
-base, Supabase (migraciones + RLS + seed) y contenedores. Sin lógica de negocio aún
-(specs primero). Ver [`BACKLOG.md`](./BACKLOG.md).
+App en producción con 6 módulos documentados (M01–M06). Estado y tasks pendientes en
+[`docs/sdd/PROJECT.md`](./docs/sdd/PROJECT.md).

@@ -2,10 +2,10 @@
 
 > Documento-contrato de la arquitectura. Define **qué** es Haku y **cómo interactúan
 > sus módulos**. No describe la implementación interna de cada módulo (eso vive en
-> `<modulo>/spec/SPEC.md`). Es la fuente de verdad de las fronteras del sistema.
+> `docs/sdd/M0X-<modulo>/SDD.md`). Es la fuente de verdad de las fronteras del sistema.
 >
 > Metodología: **Spec-Driven Development (SDD)**. Ningún módulo se implementa antes
-> de que su `SPEC.md` esté aprobado. Ver `.specify/memory/constitution.md`.
+> de que su `SDD.md` esté aprobado. Ver `.specify/memory/constitution.md`.
 
 ## 1. Visión
 
@@ -69,7 +69,7 @@ cualquiera ─X─> web                   (PROHIBIDO: web es el tope)
 
 ```
 <modulo>/
-├── spec/SPEC.md                 # contrato del módulo (SDD: se escribe PRIMERO)
+├── (contrato en docs/sdd/M0X-<modulo>/SDD.md, se escribe PRIMERO)
 └── src/
     ├── domain/                  # entidades + lógica pura (sin IO, sin Supabase)
     ├── application/
@@ -82,7 +82,7 @@ cualquiera ─X─> web                   (PROHIBIDO: web es el tope)
 ## 4. Contratos entre módulos
 
 Los módulos se comunican por **interfaces TypeScript exportadas** desde su `index.ts`.
-El detalle de cada contrato vive en `<modulo>/spec/SPEC.md`; aquí solo la frontera.
+El detalle de cada contrato vive en `docs/sdd/M0X-<modulo>/SDD.md`; aquí solo la frontera.
 
 ### 4.1 `@haku/shared` (base común)
 Expone: `Result<T,E>` y helpers, jerarquía de errores de dominio, esquemas Zod
@@ -108,7 +108,7 @@ Expone DOS caras claramente separadas:
 
 El **aislamiento** es un requisito duro: Events tiene sus propias tablas (`event_*`),
 **sin FK a las tablas de core**. Si una salida de eventos falla, descubrimiento
-(core) sigue operativo, y viceversa. Ver `events/spec/SPEC.md`.
+(core) sigue operativo, y viceversa. Ver `docs/sdd/M04-events/SDD.md`.
 
 ## 5. Modelo de datos (alto nivel; detalle en cada SPEC de módulo)
 
@@ -144,41 +144,18 @@ Cron / POST /api/events/ingest (token) → @haku/events.runIngestion()
 Un admin luego publica los eventos (status='published') para que web los muestre vía ISR.
 ```
 
-## 7. Jerarquía de specs (dos niveles)
+## 7. Metodología: SDD por módulo (skill `sdd-modular-dev`)
 
-Haku separa **contrato del módulo** (durable) de **especificación de feature**
-(efímero, por entrega). Inspirado en Spec-Kit (`tuamigofiel`).
+Desde 2026-09-29 la única fuente de estado y diseño es [`docs/sdd/`](./PROJECT.md):
 
-### 7.1 SPECs de módulo (arquitectura)
-`<modulo>/spec/SPEC.md` describe qué expone un módulo a perpetuidad: responsabilidad,
-modelo de dominio, ports, RLS, no-objetivos. Cambian raramente.
-- [`shared/spec/SPEC.md`](shared/spec/SPEC.md)
-- [`core/spec/SPEC.md`](core/spec/SPEC.md)
-- [`auth/spec/SPEC.md`](auth/spec/SPEC.md)
-- [`events/spec/SPEC.md`](events/spec/SPEC.md)
-
-### 7.2 SPECs de feature (entregables, SDD)
-`specs/NNN-<slug>/` contiene los artefactos del ciclo de una feature concreta:
-`spec.md` → `plan.md` → `tasks.md` → `checklists/acceptance.md` + opcional
-`contracts/`, `quickstart.md`. Se generan con:
-```bash
-.specify/scripts/bash/create-new-feature.sh "Nombre de la feature"
-# o en Windows:
-pwsh .specify/scripts/powershell/create-new-feature.ps1 "Nombre"
 ```
-Estado actual:
-- [`001-project-bootstrap/`](specs/001-project-bootstrap/spec.md) ✅
-- [`002-auth-login-logout/`](specs/002-auth-login-logout/spec.md) ✅
-- [`003-venue-discovery/`](specs/003-venue-discovery/spec.md) ✅
-- [`004-events-ingestion/`](specs/004-events-ingestion/spec.md) ⏳ (planeado)
+docs/sdd/
+├── PROJECT.md              # estado de cada módulo (leer primero)
+├── ARCHITECTURE.md         # este documento
+├── M0X-nombre/SDD.md       # diseño del módulo (Draft → Approved)
+├── M0X-nombre/TASKS.md     # tasks verificables del módulo
+└── _historial/             # spec-kit anterior (specs/, BACKLOG.md, SPEC.md por módulo): solo lectura
+```
 
-### 7.3 Workflow
-1. `speckit-specify` → escribe `spec.md`.
-2. `speckit-clarify` → resuelve cada `?` del spec con el usuario.
-3. `speckit-plan` → escribe `plan.md`.
-4. `speckit-tasks` → escribe `tasks.md`.
-5. `speckit-implement` → ejecuta tarea por tarea hasta verde.
-
-Las skills viven en `.claude/skills/speckit-*/SKILL.md`.
-
-Ver `BACKLOG.md` para el detalle priorizado.
+Flujo por módulo: SDD (Draft) → aprobación explícita → TASKS → implementación → tests →
+cierre. Un cambio sobre un SDD aprobado lo devuelve a Draft hasta re-aprobar.

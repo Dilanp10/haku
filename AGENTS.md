@@ -3,8 +3,8 @@
 Reglas para agentes automáticos. Complementa [`CLAUDE.md`](./CLAUDE.md).
 
 ## Antes de escribir código
-- Lee `SPEC.md` (maestro), la `constitución` y el `spec/SPEC.md` del módulo afectado.
-- Si no existe spec del módulo/feature, **escríbelo y pídelo aprobar primero** (SDD).
+- Lee `docs/sdd/PROJECT.md`, `docs/sdd/ARCHITECTURE.md`, la `constitución` y el `SDD.md` del módulo afectado.
+- Si el SDD del módulo no está `Approved`, **escríbelo/actualízalo y pídelo aprobar primero** (skill `sdd-modular-dev`).
 
 ## Límites duros
 - No copies código de los repos de referencia. From scratch.
