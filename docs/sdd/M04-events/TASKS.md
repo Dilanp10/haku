@@ -85,11 +85,23 @@ SDD requirements satisfied:
 - NFR-005
 
 ## TASK-010 — Índice SQL `(status, starts_at)`
-Status: PENDING
+Status: COMPLETED
 Satisfies: NFR-004
 
 Descripción:
 Opcional: agregar el índice cuando haya tráfico que lo justifique (T10 de la feature 004).
+
+Completed:
+- 2026-09-29: nueva migración `0012_events_status_starts_at_idx.sql` que crea `events_status_starts_at_idx (status, starts_at)` y borra el `events_status_idx` (redundante como prefijo del compuesto). `EXPLAIN` sobre `listUpcoming` confirma que el planner usa el índice nuevo.
+
+Files:
+- supabase/migrations/0012_events_status_starts_at_idx.sql
+
+Tests:
+- `pnpm --filter @haku/events test:integration` (11) y `pnpm --filter @haku/core test:integration` (9) en verde tras aplicar la migración.
+
+SDD requirements satisfied:
+- NFR-004
 
 ## TASK-011 — Scrapers de fuentes reales de Catamarca
 Status: PENDING
