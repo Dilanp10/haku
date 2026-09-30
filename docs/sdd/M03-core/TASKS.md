@@ -157,8 +157,11 @@ SDD requirements satisfied:
 - NFR-002
 
 ## TASK-017 — Migrar imágenes de venues del proyecto viejo
-Status: PENDING
+Status: BLOCKED
 Satisfies: FR-004
 
 Descripción:
 Copiar las imágenes del storage del proyecto viejo (`sanpcejzzmytsefaamzx`, morficata) al proyecto Supabase actual y actualizar `cover_image_url`.
+
+Blocked:
+- 2026-09-29: falta la URL y el `service_role` del proyecto Supabase viejo. Cuando el usuario los provea se reanuda.

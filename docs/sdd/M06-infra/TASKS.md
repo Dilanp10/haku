@@ -32,9 +32,21 @@ Satisfies: FR-005
 Descripción:
 `.github/workflows/supabase-keepalive.yml` para evitar la pausa del plan gratuito.
 
-## TASK-005 — Verificar el despliegue en un cluster real
-Status: PENDING
+## TASK-005 — Dejar Vercel como despliegue oficial
+Status: COMPLETED
 Satisfies: FR-004
 
 Descripción:
-Ejecutar el T5 de la feature 019 (requiere cluster real) y confirmar AC1–AC6. Alternativa a evaluar con vos: dar por bueno el despliegue actual en Vercel y ajustar el requisito.
+Cerrar la decisión de despliegue eligiendo Vercel como el pipeline oficial y ajustando el SDD (FR-004, §6, §7, §11, §12 y §13).
+
+Completed:
+- 2026-09-29: el usuario confirmó Vercel como el pipeline oficial. Se actualizó el SDD; `skaffold.yaml`, `Dockerfile` y `deploy/` quedan como referencia.
+
+Files:
+- docs/sdd/M06-infra/SDD.md
+
+Tests:
+- No aplica (decisión de proceso). Deploy en Vercel activo y `GET /api/health` operativo.
+
+SDD requirements satisfied:
+- FR-004, NFR-003
