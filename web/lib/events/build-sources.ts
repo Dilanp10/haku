@@ -2,6 +2,7 @@ import {
   createHtmlSource,
   createICalSource,
   createDemoSource,
+  createSfvcAgendaSource,
   DEMO_SOURCE_KEY,
   type EventSourcePort,
 } from "@haku/events";
@@ -37,6 +38,27 @@ export function buildSources(rows: SourceRow[], userAgent: string): EventSourceP
       }
       if (r.type === "ical") {
         return createICalSource({ key: r.key, url: r.url, userAgent });
+      }
+      if (r.type === "api") {
+        const cfg = (r.config ?? {}) as Record<string, unknown>;
+        if (cfg.adapter === "sfvc-agenda") {
+          const host = typeof cfg.host === "string" ? cfg.host : r.url;
+          const meiliKey = typeof cfg.meiliKey === "string" ? cfg.meiliKey : "";
+          const indexUid = typeof cfg.indexUid === "string" ? cfg.indexUid : "idx_agenda";
+          const urlPrefix = typeof cfg.urlPrefix === "string" ? cfg.urlPrefix : undefined;
+          const limit = typeof cfg.limit === "number" ? cfg.limit : undefined;
+          if (!host || !meiliKey) return null;
+          return createSfvcAgendaSource({
+            key: r.key,
+            host,
+            meiliKey,
+            indexUid,
+            ...(urlPrefix !== undefined ? { urlPrefix } : {}),
+            ...(limit !== undefined ? { limit } : {}),
+            userAgent,
+          });
+        }
+        return null;
       }
       return null;
     })

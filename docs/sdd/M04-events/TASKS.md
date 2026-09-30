@@ -104,8 +104,29 @@ SDD requirements satisfied:
 - NFR-004
 
 ## TASK-011 — Scrapers de fuentes reales de Catamarca
-Status: PENDING
+Status: COMPLETED
 Satisfies: FR-003
 
 Descripción:
 Activar una fuente real y ajustar selectores. No bloquea producción.
+
+Completed:
+- 2026-09-30: se agregó la fuente real `sfvc-agenda` (Municipalidad de San Fernando del Valle), que consume el Meilisearch público que usa el propio sitio `sfvc.tur.ar/agenda` (bearer key de solo lectura). Es una API estructurada, no scraping HTML, así que no depende de selectores CSS.
+- Investigación descartó otras fuentes: `visitcatamarca.com` (Wix con clases ofuscadas), `quehacemos.com.ar/festivales/catamarca` (sin datos + CSS-in-JS), agendas de diarios (notas, no calendarios). Redes sociales (Facebook / Instagram / TikTok) no permiten scraping por ToS y sus APIs oficiales requieren app aprobada por Meta.
+- Nuevo adapter `sfvc-agenda` en `events/src/infrastructure/sources/sfvc-agenda.source.ts` con 6 tests unitarios. `web/lib/events/build-sources.ts` reconoce `type='api'` + `config.adapter='sfvc-agenda'`. Fila `event_sources` sembrada tanto en `supabase/seed.sql` como en el proyecto Supabase remoto (`nwvrexqckxjlfjxzctfj`).
+- Smoke local: el adapter trae 50 eventos reales de Catamarca (títulos, fechas, lugares, categorías, 37 con imagen). Sin coordenadas porque el Meilisearch no las publica.
+
+Files:
+- events/src/infrastructure/sources/sfvc-agenda.source.ts
+- events/src/infrastructure/sources/sfvc-agenda.source.test.ts
+- events/src/index.ts
+- web/lib/events/build-sources.ts
+- supabase/seed.sql
+
+Tests:
+- `pnpm --filter @haku/events typecheck` y `test` (24 tests, +6 del nuevo adapter) en verde.
+- `pnpm --filter @haku/web typecheck` en verde.
+- Smoke con `tsx` contra el Meilisearch real: 50 eventos.
+
+SDD requirements satisfied:
+- FR-003

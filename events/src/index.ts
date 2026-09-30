@@ -60,3 +60,7 @@ export {
 } from "./infrastructure/sources/html.source";
 export { createICalSource } from "./infrastructure/sources/ical.source";
 export { createDemoSource, DEMO_SOURCE_KEY } from "./infrastructure/sources/demo.source";
+export {
+  createSfvcAgendaSource,
+  type SfvcAgendaSourceConfig,
+} from "./infrastructure/sources/sfvc-agenda.source";

@@ -54,6 +54,21 @@ insert into public.event_sources (key, name, url, type, config, active) values
     'ical',
     '{}',
     false
+  ),
+  (
+    'sfvc-agenda',
+    'Municipalidad SFV Catamarca — Agenda (Meilisearch público)',
+    'https://buscar.apps.sfvc.tur.ar',
+    'api',
+    '{
+      "adapter": "sfvc-agenda",
+      "host": "https://buscar.apps.sfvc.tur.ar",
+      "meiliKey": "3c77362732302c84d33b8699fb238db72808302b9ae6e508a91ee2029fae262e",
+      "indexUid": "idx_agenda",
+      "urlPrefix": "https://sfvc.tur.ar",
+      "limit": 100
+    }',
+    true
   )
 on conflict (key) do nothing;
 
