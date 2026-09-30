@@ -59,11 +59,27 @@ Descripción:
 `/admin/eventos/nuevo`.
 
 ## TASK-008 — Smoke test end-to-end de la ingesta
-Status: PENDING
+Status: COMPLETED
 Satisfies: FR-008, FR-009
 
 Descripción:
 Ejecutar el T4 de la feature 018 y sus AC1–AC6 (ingesta manual → pending → publicar → visible en `/eventos`). Incluye las AC3/AC4 de la 011 (email con clave inválida o sin variables devuelve `200`).
+
+Completed:
+- 2026-09-30: smoke test en producción (haku20.vercel.app) contra la fuente real `sfvc-agenda`.
+- `POST /api/events/ingest?source=sfvc-agenda` → `{fetched:57, inserted:56, updated:0, skipped:1, errors:[]}`.
+- Verificado en Supabase (`nwvrexqckxjlfjxzctfj`): 56 eventos `pending`, `event_sources.last_run_at` actualizado.
+- Publicado uno (pending → published): aparece en `/eventos` y su página de detalle responde 200.
+- El `EVENTS_INGEST_TOKEN` de producción se rotó para esta prueba (no se podía leer el anterior); el nuevo quedó activo en Vercel.
+
+Files:
+- (verificación end-to-end; sin cambios de código)
+
+Tests:
+- Ingest real 56 insertados; publicación y render públicos verificados.
+
+SDD requirements satisfied:
+- FR-008
 
 ## TASK-009 — Integración del adapter: cierre de checks
 Status: COMPLETED
