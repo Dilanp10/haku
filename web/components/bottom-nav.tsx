@@ -2,40 +2,44 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, CalendarDays, Map, Menu } from "lucide-react";
+import { Map, CalendarDays, Heart, Menu } from "lucide-react";
 
 type Tab = {
   href: string;
   label: string;
-  icon: typeof Home;
+  icon: typeof Map;
   isActive: (path: string) => boolean;
 };
 
 const TABS: Tab[] = [
   {
     href: "/",
-    label: "Inicio",
-    icon: Home,
-    isActive: (p) => p === "/" || p.startsWith("/lugares/") || p === "/buscar",
+    label: "Explorar",
+    icon: Map,
+    isActive: (p) =>
+      p === "/" || p.startsWith("/lugares/") || p === "/buscar" || p === "/mapa" || p === "/lugares/cerca",
   },
   {
     href: "/eventos",
-    label: "Eventos",
+    label: "Agenda",
     icon: CalendarDays,
     isActive: (p) => p === "/eventos" || p.startsWith("/eventos/"),
   },
   {
-    href: "/mapa",
-    label: "Mapa",
-    icon: Map,
-    isActive: (p) => p === "/mapa" || p === "/lugares/cerca" || p === "/eventos/cerca",
+    href: "/perfil/favoritos",
+    label: "Guardados",
+    icon: Heart,
+    isActive: (p) => p === "/perfil/favoritos",
   },
   {
     href: "/mas",
     label: "Más",
     icon: Menu,
     isActive: (p) =>
-      p === "/mas" || p.startsWith("/perfil") || p.startsWith("/login") || p.startsWith("/lugares/sugerir"),
+      p === "/mas" ||
+      (p.startsWith("/perfil") && p !== "/perfil/favoritos") ||
+      p.startsWith("/login") ||
+      p.startsWith("/lugares/sugerir"),
   },
 ];
 
@@ -48,9 +52,9 @@ export function BottomNav() {
       aria-label="Navegación principal"
       className="fixed bottom-0 inset-x-0 z-40 safe-pb md:hidden"
       style={{
-        background: "var(--bg-deep)",
+        background: "var(--bg)",
         borderTop: "1px solid var(--line)",
-        height: "var(--bottom-nav-height, 80px)",
+        height: "var(--bottom-nav-height, 72px)",
       }}
     >
       <ul className="mx-auto flex h-full max-w-2xl items-stretch">
@@ -61,25 +65,20 @@ export function BottomNav() {
             <li key={t.href} className="flex-1">
               <Link
                 href={t.href as never}
-                className="relative flex flex-col items-center justify-center h-full gap-1 transition-opacity"
-                style={{ color: active ? "var(--accent)" : "var(--fg-30)" }}
+                className="relative flex flex-col items-center justify-center h-full gap-1"
+                style={{ color: active ? "var(--fg)" : "var(--fg-30)" }}
                 aria-current={active ? "page" : undefined}
               >
-                {active && (
-                  <span
-                    aria-hidden
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                    style={{ background: "var(--accent)", marginTop: "-1px" }}
-                  />
-                )}
                 <Icon
-                  size={20}
+                  size={21}
                   strokeWidth={active ? 2 : 1.6}
-                  style={{ color: active ? "var(--accent)" : "var(--fg-30)" }}
                 />
                 <span
-                  className="text-[11px] text-brand"
-                  style={{ color: active ? "var(--accent)" : "var(--fg-50)" }}
+                  className="text-[11px]"
+                  style={{
+                    fontWeight: active ? 700 : 600,
+                    color: active ? "var(--fg)" : "var(--fg-50)",
+                  }}
                 >
                   {t.label}
                 </span>

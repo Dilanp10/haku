@@ -107,7 +107,7 @@ Solo si analytics muestra navegadores que exijan PNG.
 # Rediseño Mono/Noche (aprobado 2026-10-01)
 
 ## TASK-100 — Tokens de color Mono/Noche y tipografía Geist
-Status: TODO
+Status: COMPLETED
 Satisfies: FR-010, FR-011
 
 Descripción:
@@ -119,7 +119,7 @@ Files:
 - `web/tailwind.config.ts`
 
 ## TASK-101 — Navegación: BottomNav 4 tabs + rutas
-Status: TODO
+Status: COMPLETED
 Satisfies: FR-015
 
 Descripción:
