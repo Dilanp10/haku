@@ -130,7 +130,7 @@ Files:
 - `web/app/(site)/mapa/page.tsx`
 
 ## TASK-102 — Explorar: mapa fullscreen como home
-Status: TODO
+Status: COMPLETED
 Satisfies: FR-012, FR-013, NFR-006
 Depends: TASK-100
 
@@ -145,7 +145,7 @@ Files:
 - `web/components/place-row.tsx` (nuevo)
 
 ## TASK-103 — Tiles CARTO Positron / Dark Matter
-Status: TODO
+Status: COMPLETED
 Satisfies: FR-012 (D1)
 Depends: TASK-102
 
