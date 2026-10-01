@@ -17,7 +17,7 @@ Monolito modular de cortes verticales (pnpm workspaces): `shared` ← `core` / `
 - [M02 — auth](./M02-auth/SDD.md): COMPLETED
 - [M03 — core (lugares)](./M03-core/SDD.md): IN_PROGRESS (TASK-014 pendiente — verificación manual; TASK-017 CANCELLED — proyecto viejo ya no existe)
 - [M04 — events](./M04-events/SDD.md): COMPLETED
-- [M05 — web (PWA y UI)](./M05-web/SDD.md): IN_PROGRESS (solo quedan TASK-010 y 011, opcionales)
+- [M05 — web (PWA y UI)](./M05-web/SDD.md): IN_PROGRESS (rediseño Mono/Noche aprobado el 2026-10-01)
 - [M06 — infra (deploy y Supabase)](./M06-infra/SDD.md): COMPLETED
 
 Los 6 SDD fueron aprobados el 2026-09-29. Los `TASKS.md` de esta migración son un
