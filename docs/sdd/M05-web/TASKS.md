@@ -192,7 +192,7 @@ Files:
 - `web/components/desktop-side-panel.tsx` (nuevo)
 
 ## TASK-107 — Animaciones con prefers-reduced-motion
-Status: TODO
+Status: COMPLETED
 Satisfies: FR-016
 Depends: TASK-102, TASK-104
 
@@ -204,7 +204,7 @@ Files:
 - Componentes de TASK-102 y TASK-104
 
 ## TASK-108 — Splash, skeletons y placeholders actualizados
-Status: TODO
+Status: COMPLETED
 Satisfies: FR-006, FR-008
 Depends: TASK-100
 
