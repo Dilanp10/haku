@@ -87,7 +87,7 @@ export default async function FavoritosPage() {
   return (
     <main id="main" className="mx-auto max-w-2xl md:max-w-5xl px-4 py-8 pb-bottom">
       <header className="mb-6 flex items-center gap-3">
-        <Heart className="h-5 w-5" style={{ color: "var(--rust)" }} fill="currentColor" />
+        <Heart className="h-5 w-5" style={{ color: "var(--danger)" }} fill="currentColor" />
         <h1 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>
           Mis favoritos
         </h1>
@@ -103,7 +103,7 @@ export default async function FavoritosPage() {
           <Link
             href="/lugares"
             className="rounded-[10px] px-4 py-2 text-sm font-medium transition active:opacity-80"
-            style={{ background: "var(--terra)", color: "#fff" }}
+            style={{ background: "var(--accent)", color: "#fff" }}
           >
             Descubrí lugares
           </Link>

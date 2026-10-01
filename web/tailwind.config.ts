@@ -7,7 +7,6 @@ const config: Config = {
     container: { center: true, padding: "1rem", screens: { "2xl": "1280px" } },
     extend: {
       colors: {
-        // Theme-aware tokens (vars CSS directos sin HSL)
         background: "var(--bg)",
         "background-deep": "var(--bg-deep)",
         foreground: "var(--fg)",
@@ -22,33 +21,24 @@ const config: Config = {
         },
         border: "var(--line-2)",
         input: "var(--line-2)",
-        ring: "var(--terra)",
+        ring: "var(--accent)",
         line: "var(--line)",
         "line-2": "var(--line-2)",
 
-        // Brand palette Tierra
-        terra: {
-          DEFAULT: "#D67849",
-          deep: "#A85A30",
-          soft: "#E89B6F",
-          wash: "rgba(214,120,73,0.12)",
+        accent: {
+          DEFAULT: "var(--accent)",
+          wash: "var(--accent-wash)",
         },
-        ochre: "#C99347",
-        moss: "#8AA265",
-        rust: "#C0664E",
-
-        // Shadcn primary mapeado a terra (compat con componentes existentes)
         primary: {
-          DEFAULT: "#D67849",
-          foreground: "#FFFFFF",
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
         },
 
-        // Aliases semánticos
-        success: "#8AA265",
-        danger: "#C0664E",
+        success: "var(--success)",
+        "success-fg": "var(--success-fg)",
+        danger: "var(--danger)",
       },
       fontFamily: {
-        serif: ["var(--font-serif)", "Georgia", "serif"],
         sans: ["var(--font-sans)", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },

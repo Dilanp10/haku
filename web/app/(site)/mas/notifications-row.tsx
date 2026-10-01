@@ -79,7 +79,7 @@ export function NotificationsRow() {
   return (
     <li className="flex items-center justify-between py-4">
       <div className="flex items-center gap-3">
-        <Bell size={20} style={{ color: "var(--terra)" }} />
+        <Bell size={20} style={{ color: "var(--accent)" }} />
         <span className="text-brand text-base" style={{ color: "var(--fg)" }}>
           Notificaciones
         </span>
@@ -95,7 +95,7 @@ export function NotificationsRow() {
           disabled={busy}
           className="rounded-full px-3 py-1 text-xs font-medium transition active:opacity-80 disabled:opacity-50"
           style={{
-            background: state === "subscribed" ? "var(--moss)" : "var(--terra)",
+            background: state === "subscribed" ? "var(--success)" : "var(--accent)",
             color: "#fff",
           }}
         >

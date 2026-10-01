@@ -135,7 +135,7 @@ export default function HakuMap({ points }: { points: MapPoint[] }) {
                 <Link
                   href={`/${p.kind === "event" ? "eventos" : "lugares"}/${p.slug}` as never}
                   className="block mt-2 font-medium text-sm"
-                  style={{ color: "var(--terra)" }}
+                  style={{ color: "var(--accent)" }}
                 >
                   Ver ficha →
                 </Link>

@@ -15,7 +15,7 @@ export function SiteFooter() {
     <footer style={{ borderTop: "1px solid var(--line)", background: "var(--bg-deep)" }}>
       <div className="container flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-brand text-lg" style={{ color: "var(--terra)" }}>
+          <span className="text-brand text-lg" style={{ color: "var(--accent)" }}>
             Haku
           </span>
           <span style={{ color: "var(--fg-30)" }}>·</span>

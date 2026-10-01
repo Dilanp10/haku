@@ -5,50 +5,75 @@
 @layer base {
   :root {
     color-scheme: light;
-    --bottom-nav-height: 80px;
+    --bottom-nav-height: 72px;
 
-    /* Tierra LIGHT (default) — warm cream */
-    --bg:       #F4EDE1;
-    --bg-deep:  #EDE2D0;
-    --card-bg:  #FAF6EE;
-    --card-2:   #F0E8D8;
-    --muted-bg: #F0E8D8;
-    --line:     rgba(27,22,18,0.08);
-    --line-2:   rgba(27,22,18,0.14);
+    /* Mono LIGHT — blanco, negro, coral */
+    --bg:       #FFFFFF;
+    --bg-deep:  #F7F7F8;
+    --card-bg:  #FFFFFF;
+    --card-2:   #F0F0F1;
+    --muted-bg: #F0F0F1;
+    --line:     rgba(11,11,12,0.06);
+    --line-2:   rgba(11,11,12,0.10);
 
-    --fg:       #1B1612;
-    --fg-70:    rgba(27,22,18,0.70);
-    --fg-50:    rgba(27,22,18,0.50);
-    --fg-30:    rgba(27,22,18,0.30);
+    --fg:       #0B0B0C;
+    --fg-70:    #6B6B70;
+    --fg-50:    #8E8E93;
+    --fg-30:    #B5B5BA;
 
-    /* Brand palette Tierra */
-    --terra:      #D67849;
-    --terra-deep: #A85A30;
-    --terra-soft: #E89B6F;
-    --terra-wash: rgba(214,120,73,0.12);
-    --ochre:      #C99347;
-    --moss:       #8AA265;
-    --rust:       #C0664E;
+    --accent:   #FF5A36;
+    --accent-wash: rgba(255,90,54,0.10);
+    --success:  #16A34A;
+    --success-fg: #15803D;
+    --success-wash: rgba(22,163,74,0.15);
+    --danger:   #DC2626;
+    --danger-wash: rgba(220,38,38,0.15);
 
-    /* Shadcn tokens mapeados a Tierra (compat con componentes existentes) */
+    /* Shadcn tokens */
     --background: var(--bg);
     --foreground: var(--fg);
     --card: var(--card-bg);
     --card-foreground: var(--fg);
-    --primary: var(--terra);
+    --primary: var(--fg);
     --primary-foreground: #FFFFFF;
     --muted: var(--muted-bg);
     --muted-foreground: var(--fg-70);
     --border: var(--line-2);
     --input: var(--line-2);
-    --ring: var(--terra);
-    --radius: 12px;
+    --ring: var(--accent);
+    --radius: 14px;
   }
 
   .dark {
     color-scheme: dark;
 
-    /* Tierra DARK — warm dark */
+    /* Noche DARK — casi negro, menta */
+    --bg:       #0B0B0C;
+    --bg-deep:  #141415;
+    --card-bg:  #18191B;
+    --card-2:   #222224;
+    --muted-bg: #222224;
+    --line:     rgba(255,255,255,0.08);
+    --line-2:   rgba(255,255,255,0.12);
+
+    --fg:       #F5F5F7;
+    --fg-70:    #A1A1A6;
+    --fg-50:    #6B6B70;
+    --fg-30:    #3A3A3D;
+
+    --accent:   #34D399;
+    --accent-wash: rgba(52,211,153,0.12);
+    --success:  #34D399;
+    --success-fg: #34D399;
+    --success-wash: rgba(52,211,153,0.15);
+    --danger-wash: rgba(220,38,38,0.15);
+
+    --primary: var(--fg);
+    --primary-foreground: var(--bg);
+  }
+
+  /* Tierra tokens — solo para /admin (D2) */
+  .admin-tierra {
     --bg:       #1B1612;
     --bg-deep:  #14100D;
     --card-bg:  #25201A;
@@ -56,11 +81,18 @@
     --muted-bg: #2E2820;
     --line:     rgba(244,237,225,0.08);
     --line-2:   rgba(244,237,225,0.14);
-
     --fg:       #F4EDE1;
     --fg-70:    rgba(244,237,225,0.70);
     --fg-50:    rgba(244,237,225,0.50);
     --fg-30:    rgba(244,237,225,0.30);
+    --accent:   #D67849;
+    --accent-wash: rgba(214,120,73,0.12);
+    --success:  #8AA265;
+    --success-fg: #8AA265;
+    --danger:   #C0664E;
+    --primary: #D67849;
+    --primary-foreground: #FFFFFF;
+    --ring: #D67849;
   }
 
   * {
@@ -87,8 +119,8 @@
 
 @layer utilities {
   .text-brand {
-    font-family: var(--font-serif), Georgia, serif;
-    font-style: italic;
+    font-weight: 800;
+    letter-spacing: -0.03em;
   }
   .text-data {
     font-family: var(--font-mono), ui-monospace, monospace;
@@ -96,12 +128,11 @@
     letter-spacing: 0.04em;
   }
   .text-section {
-    font-family: var(--font-mono), ui-monospace, monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ochre);
-    font-weight: 500;
+    color: var(--fg-50);
   }
   .row-sep {
     border-bottom: 1px solid var(--line);
@@ -173,7 +204,7 @@
   font-family: inherit !important;
 }
 .leaflet-popup-content a {
-  color: var(--terra) !important;
+  color: var(--accent) !important;
 }
 .leaflet-popup-close-button {
   color: var(--fg-50) !important;
@@ -193,7 +224,7 @@
   color: var(--fg-50) !important;
 }
 .leaflet-control-attribution a {
-  color: var(--terra) !important;
+  color: var(--accent) !important;
 }
 .haku-pin {
   background: transparent;

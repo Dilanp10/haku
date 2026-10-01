@@ -69,13 +69,13 @@ export function OpeningHours({ hours }: OpeningHoursProps) {
           className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
           style={
             status.open
-              ? { background: "rgba(138,162,101,0.15)", color: "var(--moss)" }
-              : { background: "rgba(192,102,78,0.15)", color: "var(--rust)" }
+              ? { background: "color-mix(in srgb, var(--success) 15%, transparent)", color: "var(--success-fg)" }
+              : { background: "color-mix(in srgb, var(--danger) 15%, transparent)", color: "var(--danger)" }
           }
         >
           <span
             className="h-1.5 w-1.5 rounded-full"
-            style={{ background: status.open ? "var(--moss)" : "var(--rust)" }}
+            style={{ background: status.open ? "var(--success)" : "var(--danger)" }}
           />
           {status.open
             ? `Abierto · Cierra a las ${status.closesAt}`

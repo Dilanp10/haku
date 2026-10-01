@@ -157,7 +157,7 @@ export default async function VenueDetailPage({ params }: Props) {
               className="mt-1 flex items-center gap-1 text-sm"
               style={{ color: "var(--fg-50)" }}
             >
-              <MapPin className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--terra)" }} />
+              <MapPin className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--accent)" }} />
               {venue.address}
             </p>
           )}
@@ -194,7 +194,7 @@ export default async function VenueDetailPage({ params }: Props) {
         <div className="flex flex-wrap gap-3">
           {venue.priceRange && (
             <InfoCard label="Precio">
-              <span className="text-brand text-lg" style={{ color: "var(--terra)" }}>
+              <span className="text-brand text-lg" style={{ color: "var(--accent)" }}>
                 {venue.priceRange}
               </span>
             </InfoCard>
@@ -229,7 +229,7 @@ export default async function VenueDetailPage({ params }: Props) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 transition-opacity hover:opacity-70"
-                    style={{ color: "var(--terra)" }}
+                    style={{ color: "var(--accent)" }}
                   >
                     <Globe className="h-4 w-4" style={{ color: "var(--fg-50)" }} />
                     Sitio web
@@ -243,7 +243,7 @@ export default async function VenueDetailPage({ params }: Props) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 transition-opacity hover:opacity-70"
-                    style={{ color: "var(--terra)" }}
+                    style={{ color: "var(--accent)" }}
                   >
                     <Instagram className="h-4 w-4" style={{ color: "var(--fg-50)" }} />
                     @{venue.instagram.replace(/^@/, "")}
@@ -269,7 +269,7 @@ export default async function VenueDetailPage({ params }: Props) {
               target="_blank"
               rel="noopener noreferrer"
               className="mt-3 inline-flex items-center gap-2 rounded-[10px] border px-4 py-2 text-sm font-medium transition active:opacity-80"
-              style={{ borderColor: "var(--line-2)", color: "var(--terra)" }}
+              style={{ borderColor: "var(--line-2)", color: "var(--accent)" }}
             >
               <Navigation className="h-4 w-4" /> Abrir en Google Maps
             </a>

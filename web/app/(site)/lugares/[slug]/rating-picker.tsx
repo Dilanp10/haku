@@ -77,7 +77,7 @@ export function RatingPicker({ venueId, slug, hasSession }: RatingPickerProps) {
                   : isPending
                   ? "var(--fg-30)"
                   : star <= activeRating
-                  ? "var(--ochre)"
+                  ? "var(--accent)"
                   : "var(--fg-30)",
               cursor: !hasSession || !loaded || isPending ? "default" : "pointer",
             }}
@@ -91,7 +91,7 @@ export function RatingPicker({ venueId, slug, hasSession }: RatingPickerProps) {
         ))}
       </span>
       {error && (
-        <span className="text-xs" style={{ color: "var(--rust)" }}>{error}</span>
+        <span className="text-xs" style={{ color: "var(--danger)" }}>{error}</span>
       )}
     </span>
   );

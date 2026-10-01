@@ -297,19 +297,19 @@ function TextChip({
       onClick={onClick}
       className="shrink-0 inline-flex items-center gap-1.5 pb-1 transition"
       style={{
-        color: active ? "var(--terra)" : "var(--fg-50)",
-        borderBottom: active ? "2px solid var(--terra)" : "2px solid transparent",
+        color: active ? "var(--accent)" : "var(--fg-50)",
+        borderBottom: active ? "2px solid var(--accent)" : "2px solid transparent",
       }}
     >
       {dot && (
         <span className="relative inline-flex h-2 w-2">
           <span
             className="absolute inset-0 rounded-full opacity-75 animate-ping"
-            style={{ background: "var(--moss)" }}
+            style={{ background: "var(--success)" }}
           />
           <span
             className="relative inline-flex h-2 w-2 rounded-full"
-            style={{ background: "var(--moss)" }}
+            style={{ background: "var(--success)" }}
           />
         </span>
       )}
@@ -317,14 +317,14 @@ function TextChip({
       {icon}
       <span
         className="text-brand text-[15px] italic whitespace-nowrap"
-        style={{ color: active ? "var(--terra)" : "var(--fg-70)" }}
+        style={{ color: active ? "var(--accent)" : "var(--fg-70)" }}
       >
         {label}
       </span>
       {badge !== undefined && (
         <span
           className="ml-0.5 rounded-full px-1.5 text-[10px] font-semibold leading-tight"
-          style={{ background: "var(--terra)", color: "#fff" }}
+          style={{ background: "var(--accent)", color: "#fff" }}
         >
           {badge}
         </span>
@@ -391,7 +391,7 @@ function InlineFiltersPanel(p: PanelProps) {
       style={{ borderColor: "var(--line)", background: "var(--card-bg)" }}
     >
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-section" style={{ color: "var(--terra)" }}>
+        <p className="text-section" style={{ color: "var(--accent)" }}>
           Filtros
         </p>
         <button
@@ -423,8 +423,8 @@ function InlineFiltersPanel(p: PanelProps) {
               <span
                 className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition"
                 style={{
-                  background: active ? "var(--terra)" : "var(--bg)",
-                  borderColor: active ? "var(--terra)" : "var(--line-2)",
+                  background: active ? "var(--accent)" : "var(--bg)",
+                  borderColor: active ? "var(--accent)" : "var(--line-2)",
                 }}
               >
                 {active && (
@@ -455,7 +455,7 @@ function InlineFiltersPanel(p: PanelProps) {
       {/* Food types (secundario) */}
       {p.foodTypes.length > 0 && (
         <div className="mt-4">
-          <p className="text-section mb-2" style={{ color: "var(--terra)" }}>
+          <p className="text-section mb-2" style={{ color: "var(--accent)" }}>
             Qué encontrás
           </p>
           <div className="flex flex-wrap gap-2">
@@ -470,8 +470,8 @@ function InlineFiltersPanel(p: PanelProps) {
                   style={
                     active
                       ? {
-                          background: "var(--terra)",
-                          borderColor: "var(--terra)",
+                          background: "var(--accent)",
+                          borderColor: "var(--accent)",
                           color: "#fff",
                         }
                       : {
@@ -491,7 +491,7 @@ function InlineFiltersPanel(p: PanelProps) {
 
       {/* Precio */}
       <div className="mt-4">
-        <p className="text-section mb-2" style={{ color: "var(--terra)" }}>
+        <p className="text-section mb-2" style={{ color: "var(--accent)" }}>
           Precio
         </p>
         <div className="flex gap-2">
@@ -506,8 +506,8 @@ function InlineFiltersPanel(p: PanelProps) {
                 style={
                   active
                     ? {
-                        background: "var(--terra)",
-                        borderColor: "var(--terra)",
+                        background: "var(--accent)",
+                        borderColor: "var(--accent)",
                         color: "#fff",
                       }
                     : {

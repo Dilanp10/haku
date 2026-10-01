@@ -38,7 +38,7 @@ export function InstallPrompt() {
       style={{ background: "var(--card-bg)", border: "1px solid var(--line-2)" }}
     >
       <div className="flex items-center gap-3">
-        <Download size={20} style={{ color: "var(--terra)" }} className="shrink-0" />
+        <Download size={20} style={{ color: "var(--accent)" }} className="shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="text-brand text-sm" style={{ color: "var(--fg)" }}>
             Instalá Haku
@@ -51,7 +51,7 @@ export function InstallPrompt() {
           type="button"
           onClick={handleInstall}
           className="shrink-0 rounded-button px-3 py-1.5 text-xs font-medium text-white"
-          style={{ background: "var(--terra)" }}
+          style={{ background: "var(--accent)" }}
         >
           Instalar
         </button>

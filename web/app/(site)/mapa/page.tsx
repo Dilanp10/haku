@@ -96,13 +96,13 @@ export default async function MapaPage() {
         <div className="pointer-events-auto">
           <p className="text-section">Mapa.</p>
           <p className="font-mono text-[11px] mt-0.5">
-            <span style={{ color: "var(--moss)" }}>● {openCount} abierto{openCount === 1 ? "" : "s"}</span>
+            <span style={{ color: "var(--success-fg)" }}>● {openCount} abierto{openCount === 1 ? "" : "s"}</span>
             <span style={{ color: "var(--fg-30)" }}> · </span>
-            <span style={{ color: "var(--rust)" }}>● {closedCount} cerrado{closedCount === 1 ? "" : "s"}</span>
+            <span style={{ color: "var(--danger)" }}>● {closedCount} cerrado{closedCount === 1 ? "" : "s"}</span>
             {events.length > 0 && (
               <>
                 <span style={{ color: "var(--fg-30)" }}> · </span>
-                <span style={{ color: "var(--moss)" }}>{events.length} evento{events.length === 1 ? "" : "s"}</span>
+                <span style={{ color: "var(--success-fg)" }}>{events.length} evento{events.length === 1 ? "" : "s"}</span>
               </>
             )}
           </p>

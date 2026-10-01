@@ -55,7 +55,7 @@ export function SaveButton({ venueId, slug, variant = "default" }: SaveButtonPro
         style={{
           color:
             saved && !isLoading && !isPending
-              ? "var(--rust)"
+              ? "var(--danger)"
               : variant === "overlay"
                 ? "rgba(255,255,255,0.9)"
                 : "var(--fg-30)",
@@ -69,7 +69,7 @@ export function SaveButton({ venueId, slug, variant = "default" }: SaveButtonPro
         />
       </button>
       {error && (
-        <span className="text-xs" style={{ color: "var(--rust)" }}>{error}</span>
+        <span className="text-xs" style={{ color: "var(--danger)" }}>{error}</span>
       )}
     </span>
   );

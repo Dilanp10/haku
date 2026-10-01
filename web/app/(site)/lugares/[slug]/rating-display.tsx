@@ -16,7 +16,7 @@ export function RatingDisplay({ averageRating, ratingCount }: RatingDisplayProps
 
   return (
     <span className="inline-flex items-center gap-1 text-sm" style={{ color: "var(--fg-50)" }}>
-      <Star className="h-3.5 w-3.5" style={{ color: "var(--ochre)" }} fill="currentColor" />
+      <Star className="h-3.5 w-3.5" style={{ color: "var(--accent)" }} fill="currentColor" />
       <span className="font-medium" style={{ color: "var(--fg)" }}>{averageRating}</span>
       <span>({ratingCount} {ratingCount === 1 ? "voto" : "votos"})</span>
     </span>

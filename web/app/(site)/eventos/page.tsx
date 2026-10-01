@@ -150,7 +150,7 @@ export default async function EventosPage({
         >
           No hay eventos{hasFilters ? " con estos filtros" : " publicados todavía"}.{" "}
           {hasFilters ? (
-            <Link href="/eventos" className="hover:underline" style={{ color: "var(--terra)" }}>
+            <Link href="/eventos" className="hover:underline" style={{ color: "var(--accent)" }}>
               Quitar filtros
             </Link>
           ) : (
@@ -208,7 +208,7 @@ function Pill({ href, active, label }: { href: string; active: boolean; label: s
       className="rounded-full border px-3 py-1 text-sm transition"
       style={
         active
-          ? { background: "var(--terra)", borderColor: "var(--terra)", color: "#fff" }
+          ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" }
           : { background: "var(--card-bg)", borderColor: "var(--line-2)", color: "var(--fg-70)" }
       }
     >

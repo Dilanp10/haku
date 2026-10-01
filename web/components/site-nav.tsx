@@ -30,7 +30,7 @@ export function SiteNav() {
         >
           <span
             className="text-brand text-[26px] leading-none"
-            style={{ color: "var(--terra)" }}
+            style={{ color: "var(--accent)" }}
           >
             Haku
           </span>
@@ -49,8 +49,8 @@ export function SiteNav() {
                 aria-current={active ? "page" : undefined}
                 className="rounded-button px-3 py-1.5 text-sm transition"
                 style={{
-                  background: active ? "var(--terra-wash)" : "transparent",
-                  color: active ? "var(--terra)" : "var(--fg-70)",
+                  background: active ? "var(--accent-wash)" : "transparent",
+                  color: active ? "var(--accent)" : "var(--fg-70)",
                 }}
               >
                 {label}

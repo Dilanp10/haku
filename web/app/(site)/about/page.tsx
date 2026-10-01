@@ -19,7 +19,7 @@ export default function AboutPage() {
         Más
       </Link>
 
-      <h1 className="text-brand text-3xl mb-6" style={{ color: "var(--terra)" }}>
+      <h1 className="text-brand text-3xl mb-6" style={{ color: "var(--accent)" }}>
         Sobre Haku
       </h1>
 

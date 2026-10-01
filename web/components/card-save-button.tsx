@@ -45,7 +45,7 @@ export function CardSaveButton({ venueId, slug }: Props) {
       aria-label={saved ? "Quitar de favoritos" : "Guardar favorito"}
       className="rounded-full p-2 transition active:scale-90"
       style={{
-        color: saved ? "var(--terra)" : "var(--fg-30)",
+        color: saved ? "var(--accent)" : "var(--fg-30)",
       }}
     >
       <Heart

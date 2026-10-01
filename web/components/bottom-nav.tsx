@@ -62,24 +62,24 @@ export function BottomNav() {
               <Link
                 href={t.href as never}
                 className="relative flex flex-col items-center justify-center h-full gap-1 transition-opacity"
-                style={{ color: active ? "var(--terra)" : "var(--fg-30)" }}
+                style={{ color: active ? "var(--accent)" : "var(--fg-30)" }}
                 aria-current={active ? "page" : undefined}
               >
                 {active && (
                   <span
                     aria-hidden
                     className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                    style={{ background: "var(--terra)", marginTop: "-1px" }}
+                    style={{ background: "var(--accent)", marginTop: "-1px" }}
                   />
                 )}
                 <Icon
                   size={20}
                   strokeWidth={active ? 2 : 1.6}
-                  style={{ color: active ? "var(--terra)" : "var(--fg-30)" }}
+                  style={{ color: active ? "var(--accent)" : "var(--fg-30)" }}
                 />
                 <span
                   className="text-[11px] text-brand"
-                  style={{ color: active ? "var(--terra)" : "var(--fg-50)" }}
+                  style={{ color: active ? "var(--accent)" : "var(--fg-50)" }}
                 >
                   {t.label}
                 </span>

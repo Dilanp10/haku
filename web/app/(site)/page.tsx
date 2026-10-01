@@ -115,7 +115,7 @@ export default async function HomePage({
         <p className="text-section mb-2">Catamarca · Ahora</p>
         <h1
           className="text-brand leading-none"
-          style={{ fontSize: "clamp(3rem,12vw,4.5rem)", color: "var(--terra)" }}
+          style={{ fontSize: "clamp(3rem,12vw,4.5rem)", color: "var(--accent)" }}
         >
           Haku.
         </h1>
@@ -138,7 +138,7 @@ export default async function HomePage({
           {hasFilters ? `${shownCount} resultados` : `${totalVenues} lugares`}
         </p>
         <p className="text-section">
-          <span style={{ color: "var(--moss)" }}>{openCount} abiertos</span>
+          <span style={{ color: "var(--success-fg)" }}>{openCount} abiertos</span>
           <span style={{ color: "var(--fg-30)" }}> · {totalVenues} total</span>
         </p>
       </div>
