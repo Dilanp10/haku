@@ -169,7 +169,7 @@ Files:
 - `web/components/place-detail.tsx` (nuevo)
 
 ## TASK-105 — Agenda rediseñada
-Status: TODO
+Status: COMPLETED
 Satisfies: FR-015
 Depends: TASK-100
 
