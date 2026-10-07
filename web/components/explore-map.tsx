@@ -10,10 +10,10 @@ import { useRouter } from "next/navigation";
 const CATAMARCA_CENTER: [number, number] = [-28.4696, -65.7795];
 const DEFAULT_ZOOM = 14;
 
-const TILE_LIGHT = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
-const TILE_DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+// OSM tiles con filtro CSS para modo oscuro (fallback definido en SDD D1).
+const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const TILE_ATTR =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>';
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
 export interface ExplorePoint {
   slug: string;
@@ -25,21 +25,27 @@ export interface ExplorePoint {
   closesAt: string | null;
 }
 
-function pinSvg(fill: string, ring?: boolean): string {
+function pinSvg(ring?: boolean): string {
   const ringEl = ring
-    ? `<circle cx="14" cy="14" r="12" fill="none" stroke="${fill}" stroke-width="2.5" opacity="0.4"/>`
+    ? `<circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.4"/>`
     : "";
+  // El stroke usa una clase CSS para adaptarse al tema (negro en Mono, blanco en Noche sobre el pin).
   return `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 28 28">
     ${ringEl}
-    <circle cx="14" cy="14" r="10" fill="${fill}" stroke="white" stroke-width="2"/>
+    <circle cx="14" cy="14" r="10" fill="currentColor" class="haku-pin-stroke" stroke-width="2.5"/>
   </svg>`;
 }
 
 function makeIcon(open: boolean, selected: boolean): L.DivIcon {
-  const fill = open ? (selected ? "var(--accent, #FF5A36)" : "#0B0B0C") : "#B5B5BA";
+  // El color se setea vía className que mapea a var(--accent)/var(--fg)/var(--fg-30) en globals.css
+  const cls = selected
+    ? "haku-pin haku-pin-selected"
+    : open
+      ? "haku-pin haku-pin-open"
+      : "haku-pin haku-pin-closed";
   return L.divIcon({
-    html: pinSvg(selected ? "#FF5A36" : fill, selected),
-    className: "haku-pin",
+    html: pinSvg(selected),
+    className: cls,
     iconSize: selected ? [36, 36] : [28, 28],
     iconAnchor: selected ? [18, 18] : [14, 14],
   });
@@ -48,17 +54,16 @@ function makeIcon(open: boolean, selected: boolean): L.DivIcon {
 function ThemeSync() {
   const map = useMap();
   const { resolvedTheme } = useTheme();
-  const [layer, setLayer] = useState<L.TileLayer | null>(null);
 
   useEffect(() => {
-    if (layer) map.removeLayer(layer);
-    const url = resolvedTheme === "dark" ? TILE_DARK : TILE_LIGHT;
-    const newLayer = L.tileLayer(url, { attribution: TILE_ATTR }).addTo(map);
-    setLayer(newLayer);
-    return () => {
-      map.removeLayer(newLayer);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const container = map.getContainer();
+    const tilePane = container.querySelector(".leaflet-tile-pane") as HTMLElement | null;
+    if (tilePane) {
+      tilePane.style.filter =
+        resolvedTheme === "dark"
+          ? "invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9) saturate(0.8)"
+          : "";
+    }
   }, [resolvedTheme, map]);
 
   return null;
@@ -116,6 +121,7 @@ export default function ExploreMap({ points, selectedSlug, onSelectSlug }: Explo
       className="h-full w-full"
       style={{ background: "var(--bg)" }}
     >
+      <TileLayer url={TILE_URL} attribution={TILE_ATTR} />
       <ThemeSync />
       {selected && <FlyTo lat={selected.lat} lng={selected.lng} />}
 

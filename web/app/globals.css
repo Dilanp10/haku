@@ -219,6 +219,10 @@
   background-color: var(--bg) !important;
   font-family: inherit;
 }
+/* Workaround: Leaflet deja los tiles en opacity:0 cuando el pane tiene filter CSS. */
+.leaflet-tile-loaded {
+  opacity: 1 !important;
+}
 .leaflet-control-attribution {
   background-color: var(--card-bg) !important;
   color: var(--fg-50) !important;
@@ -230,6 +234,10 @@
   background: transparent;
   border: none;
 }
+.haku-pin-open     { color: var(--fg); }
+.haku-pin-closed   { color: var(--fg-30); }
+.haku-pin-selected { color: var(--accent); }
+.haku-pin-stroke   { stroke: var(--bg); }
 
 /* Explore animations (FR-016) */
 @keyframes haku-pin-drop {
