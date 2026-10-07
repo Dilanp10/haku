@@ -8,8 +8,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#D67849",
-  "background_color": "#F4EDE1",
+  "theme_color": "#FF5A36",
+  "background_color": "#FFFFFF",
   "categories": ["travel", "food", "lifestyle", "local"],
   "icons": [
     { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },

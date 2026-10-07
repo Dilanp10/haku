@@ -42,10 +42,10 @@ function buildIcon(color: string): L.DivIcon {
   });
 }
 
-const iconOpen = buildIcon("#8AA265");   // moss (verde)
-const iconClosed = buildIcon("#C0664E"); // rust (rojo)
-const iconUnknown = buildIcon("#D67849"); // terra
-const iconEvent = buildIcon("#8AA265");   // moss
+const iconOpen = buildIcon("#16A34A");
+const iconClosed = buildIcon("#DC2626");
+const iconUnknown = buildIcon("#6B7280");
+const iconEvent = buildIcon("#0EA5E9");
 
 function iconForPoint(p: MapPoint): L.DivIcon {
   if (p.kind === "event") return iconEvent;
@@ -111,9 +111,9 @@ export default function HakuMap({ points }: { points: MapPoint[] }) {
                     <span
                       aria-hidden
                       className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
-                      style={{ background: isOpen ? "#8AA265" : "#C0664E" }}
+                      style={{ background: isOpen ? "#16A34A" : "#DC2626" }}
                     />
-                    <span style={{ color: isOpen ? "#8AA265" : "#C0664E" }}>
+                    <span style={{ color: isOpen ? "#16A34A" : "#DC2626" }}>
                       {isOpen
                         ? p.closesAt
                           ? `Abierto · cierra a las ${p.closesAt}`
@@ -127,9 +127,9 @@ export default function HakuMap({ points }: { points: MapPoint[] }) {
                     <span
                       aria-hidden
                       className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
-                      style={{ background: "#8AA265" }}
+                      style={{ background: "#0EA5E9" }}
                     />
-                    <span style={{ color: "#8AA265" }}>Evento</span>
+                    <span style={{ color: "#0EA5E9" }}>Evento</span>
                   </div>
                 )}
                 <Link
@@ -150,8 +150,8 @@ export default function HakuMap({ points }: { points: MapPoint[] }) {
           center={[coords.lat, coords.lng]}
           radius={8}
           pathOptions={{
-            color: "#E07B4C",
-            fillColor: "#E07B4C",
+            color: "#3B82F6",
+            fillColor: "#3B82F6",
             fillOpacity: 0.4,
             weight: 2,
           }}
