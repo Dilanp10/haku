@@ -66,7 +66,7 @@ export function BottomNav() {
               <Link
                 href={t.href as never}
                 className="relative flex flex-col items-center justify-center h-full gap-1"
-                style={{ color: active ? "var(--fg)" : "var(--fg-30)" }}
+                style={{ color: active ? "var(--fg)" : "var(--fg-50)" }}
                 aria-current={active ? "page" : undefined}
               >
                 <Icon

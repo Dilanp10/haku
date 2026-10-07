@@ -10,7 +10,7 @@ export function ThemeToggle() {
 
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return <div className="w-8 h-8" />;
+  if (!mounted) return <div className="size-11" />;
 
   const isDark = resolvedTheme === "dark";
 
@@ -19,7 +19,7 @@ export function ThemeToggle() {
       type="button"
       aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="flex items-center justify-center w-8 h-8 rounded-full transition-colors"
+      className="flex items-center justify-center size-11 rounded-full transition-colors"
       style={{ color: "var(--fg-50)" }}
     >
       {isDark ? <Sun size={18} /> : <Moon size={18} />}

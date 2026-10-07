@@ -51,7 +51,7 @@ export function SaveButton({ venueId, slug, variant = "default" }: SaveButtonPro
         onClick={handleToggle}
         disabled={isLoading || isPending}
         aria-label={saved ? "Quitar de favoritos" : "Guardar favorito"}
-        className="rounded-full p-1.5 transition-opacity active:opacity-70"
+        className="flex size-11 items-center justify-center rounded-full transition-opacity active:opacity-70"
         style={{
           color:
             saved && !isLoading && !isPending

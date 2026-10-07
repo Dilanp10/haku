@@ -69,7 +69,7 @@ export function RatingPicker({ venueId, slug, hasSession }: RatingPickerProps) {
             onMouseEnter={() => hasSession && setHovered(star)}
             onMouseLeave={() => setHovered(null)}
             aria-label={`${star} estrella${star !== 1 ? "s" : ""}`}
-            className="transition-colors"
+            className="flex size-11 items-center justify-center transition-colors"
             style={{
               color:
                 !hasSession || !loaded

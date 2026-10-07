@@ -18,7 +18,7 @@
 
     --fg:       #0B0B0C;
     --fg-70:    #6B6B70;
-    --fg-50:    #8E8E93;
+    --fg-50:    #6E6E73;
     --fg-30:    #B5B5BA;
 
     --accent:   #FF5A36;
@@ -58,7 +58,7 @@
 
     --fg:       #F5F5F7;
     --fg-70:    #A1A1A6;
-    --fg-50:    #6B6B70;
+    --fg-50:    #8E8E93;
     --fg-30:    #3A3A3D;
 
     --accent:   #34D399;
@@ -251,9 +251,17 @@
 .leaflet-marker-icon.haku-pin:nth-child(3n)  { animation-delay: 0.10s; }
 .leaflet-marker-icon.haku-pin:nth-child(5n)  { animation-delay: 0.15s; }
 
+@keyframes haku-cover-zoom {
+  from { transform: scale(1); }
+  to   { transform: scale(1.06); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .haku-pin,
   .leaflet-marker-icon.haku-pin {
+    animation: none !important;
+  }
+  .haku-cover-zoom {
     animation: none !important;
   }
 }
