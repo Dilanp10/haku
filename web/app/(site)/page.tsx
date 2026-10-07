@@ -83,6 +83,8 @@ export default async function HomePage() {
       className="relative"
       style={{ height: "calc(100dvh - var(--bottom-nav-height, 72px))" }}
     >
+      {/* On desktop, override to use full height minus top nav */}
+      <style>{`@media (min-width: 768px) { #main { height: calc(100dvh - 57px) !important; } }`}</style>
       <ExploreView points={points} rows={rows} />
     </main>
   );

@@ -4,11 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV_LINKS: { href: string; label: string; exact?: boolean }[] = [
-  { href: "/", label: "Inicio", exact: true },
-  { href: "/lugares", label: "Lugares" },
-  { href: "/eventos", label: "Eventos" },
-  { href: "/mapa", label: "Mapa" },
-  { href: "/buscar", label: "Buscar" },
+  { href: "/", label: "Explorar", exact: true },
+  { href: "/eventos", label: "Agenda" },
+  { href: "/perfil/favoritos", label: "Guardados" },
   { href: "/mas", label: "Más" },
 ];
 

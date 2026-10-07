@@ -9,9 +9,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <div className="flex min-h-screen flex-col">
       <SiteNav />
       <div className="flex-1 pb-bottom md:pb-0">{children}</div>
-      <div className="hidden md:block">
-        <SiteFooter />
-      </div>
       <BottomNav />
       <RegisterSW />
       <InstallPrompt />
