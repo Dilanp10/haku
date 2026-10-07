@@ -157,16 +157,27 @@ Files:
 - `web/lib/map-tiles.ts` (nuevo)
 
 ## TASK-104 — Ficha de lugar rediseñada
-Status: TODO
+Status: COMPLETED
 Satisfies: FR-014
 Depends: TASK-100
 
 Descripción:
 Portada con zoom lento (CSS), estado con barra de progreso del horario, botones "Cómo llegar" (Google/Apple Maps), guardar, llamar. Mini mapa. "Cerca, también abierto".
 
+Completed:
+- Portada con animación `haku-cover-zoom` (20s ease-out, respeta prefers-reduced-motion)
+- Badge de estado abierto/cerrado con hora de cierre
+- Barra de progreso del horario de hoy (se actualiza cada minuto, roja al 75%)
+- Botones de acción: "Cómo llegar" (acento, Google Maps) y "Llamar" (outline)
+- Mini mapa con `VenueMapClient`
+- "Cerca, también abierto" usando `searchVenuesNearby` (2km, max 4)
+- Monograma para venues cercanos sin foto
+- Se eliminó `place-detail.tsx` (no necesario, todo en page.tsx + hours-progress-bar.tsx)
+
 Files:
 - `web/app/(site)/lugares/[slug]/page.tsx`
-- `web/components/place-detail.tsx` (nuevo)
+- `web/app/(site)/lugares/[slug]/hours-progress-bar.tsx` (nuevo)
+- `web/app/globals.css` (keyframes haku-cover-zoom)
 
 ## TASK-105 — Agenda rediseñada
 Status: COMPLETED
@@ -180,16 +191,24 @@ Files:
 - `web/app/(site)/eventos/page.tsx`
 
 ## TASK-106 — Layout desktop: mapa + panel lateral
-Status: TODO
+Status: COMPLETED
 Satisfies: FR-007
 Depends: TASK-102, TASK-105
 
 Descripción:
 Pantallas ≥ 768px: mapa 70% + panel lateral 30% con lista o agenda. Sin BottomNav en desktop.
 
+Completed:
+- ExploreView renderiza side panel (30%) + mapa (70%) en ≥md, bottom sheet en mobile
+- SiteNav desktop links actualizados a Explorar/Agenda/Guardados/Más
+- SiteFooter eliminado del layout (no aplica con mapa fullscreen)
+- Home usa 100dvh en desktop (sin bottom nav padding)
+
 Files:
+- `web/components/explore-map-client.tsx`
+- `web/components/site-nav.tsx`
 - `web/app/(site)/layout.tsx`
-- `web/components/desktop-side-panel.tsx` (nuevo)
+- `web/app/(site)/page.tsx`
 
 ## TASK-107 — Animaciones con prefers-reduced-motion
 Status: COMPLETED
@@ -216,16 +235,42 @@ Files:
 - `web/components/skeletons.tsx`
 
 ## TASK-109 — Accesibilidad AA en ambos temas
-Status: TODO
+Status: COMPLETED
 Satisfies: NFR-005
 Depends: TASK-100 a TASK-108
 
 Descripción:
 Contraste ≥ 4.5:1 en Mono y Noche. Targets táctiles ≥ 44px. Todos los controles son `button`/`a` reales.
 
+Completed:
+- fg-50 ajustado: Mono #6E6E73 (~5.1:1), Noche #8E8E93 (~5.5:1) — ambos pasan AA
+- Touch targets ≥ 44px en: theme-toggle, save-button, rating-picker, card-save-button
+- Inactive bottom-nav icons cambiados de fg-30 a fg-50 para contraste 3:1+
+- Auditoría confirmó que todos los controles interactivos usan button/a reales
+
+Files:
+- `web/app/globals.css` (tokens fg-50)
+- `web/components/theme-toggle.tsx`
+- `web/components/bottom-nav.tsx`
+- `web/components/card-save-button.tsx`
+- `web/app/(site)/lugares/[slug]/save-button.tsx`
+- `web/app/(site)/lugares/[slug]/rating-picker.tsx`
+
 ## TASK-110 — Limpieza de tokens y componentes Tierra (app pública)
-Status: TODO
+Status: COMPLETED
 Depends: TASK-109
 
 Descripción:
 Eliminar variables CSS, utilidades y componentes que ya no se usan en la app pública. Verificar imports. Admin conserva Tierra.
+
+Completed:
+- manifest.webmanifest: theme_color → #FF5A36, background_color → #FFFFFF
+- category-visuals.ts: paleta Tierra reemplazada por colores neutros (coral/amber/emerald/sky/violet)
+- haku-map.tsx: pines y popup con #16A34A/#DC2626/#6B7280/#0EA5E9 en lugar de moss/rust/terra
+- haku-map.tsx: user location marker de #E07B4C a #3B82F6
+- Solo quedan referencias Tierra en /admin (correcto por D2)
+
+Files:
+- `web/public/manifest.webmanifest`
+- `web/lib/category-visuals.ts`
+- `web/components/haku-map.tsx`
