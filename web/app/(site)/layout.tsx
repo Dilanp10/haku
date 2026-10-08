@@ -1,5 +1,4 @@
 import { SiteNav } from "@/components/site-nav";
-import { SiteFooter } from "@/components/site-footer";
 import { BottomNav } from "@/components/bottom-nav";
 import { RegisterSW } from "@/components/register-sw";
 import { InstallPrompt } from "@/components/install-prompt";

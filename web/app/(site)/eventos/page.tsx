@@ -25,8 +25,6 @@ interface SearchParams {
   categoria?: string;
 }
 
-const DAYS_SHORT = ["D", "L", "M", "M", "J", "V", "S"];
-
 function catamarcaNow(): Date {
   return new Date(
     new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Catamarca" }),
