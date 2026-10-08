@@ -73,12 +73,12 @@ export default async function EventDetailPage({ params }: Props) {
         </h1>
         <div className="mt-2 flex flex-wrap items-center gap-4 text-sm" style={{ color: "var(--fg-50)" }}>
           <span className="inline-flex items-center gap-1">
-            <CalendarDays className="h-4 w-4" style={{ color: "var(--accent)" }} />
+            <CalendarDays className="h-4 w-4" style={{ color: "var(--terra)" }} />
             {fmt.format(new Date(event.startsAt))}
           </span>
           {event.venueName && (
             <span className="inline-flex items-center gap-1">
-              <MapPin className="h-4 w-4" style={{ color: "var(--accent)" }} />
+              <MapPin className="h-4 w-4" style={{ color: "var(--terra)" }} />
               {event.venueName}
               {event.address && ` — ${event.address}`}
             </span>
@@ -137,7 +137,7 @@ export default async function EventDetailPage({ params }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 rounded-[10px] px-4 py-2.5 text-sm font-medium transition active:opacity-80"
-            style={{ background: "var(--accent)", color: "#fff" }}
+            style={{ background: "var(--terra)", color: "#fff" }}
           >
             Más información <ExternalLink className="h-4 w-4" />
           </a>
@@ -161,7 +161,7 @@ export default async function EventDetailPage({ params }: Props) {
               target="_blank"
               rel="noopener noreferrer"
               className="mt-3 inline-flex items-center gap-2 rounded-[10px] border px-4 py-2 text-sm font-medium transition active:opacity-80"
-              style={{ borderColor: "var(--line-2)", color: "var(--accent)" }}
+              style={{ borderColor: "var(--line-2)", color: "var(--terra)" }}
             >
               <Navigation className="h-4 w-4" /> Abrir en Google Maps
             </a>

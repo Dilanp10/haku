@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { env } from "@/lib/env";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -9,13 +9,21 @@ const SITE_NAME = "Haku";
 const SITE_DESCRIPTION =
   "Descubrí lugares, gastronomía y eventos de Catamarca. ¿Vamos?";
 
-const geist = Geist({
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
@@ -64,8 +72,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
-    { media: "(prefers-color-scheme: dark)", color: "#0B0B0C" },
+    { media: "(prefers-color-scheme: light)", color: "#F4EDE1" },
+    { media: "(prefers-color-scheme: dark)", color: "#1B1612" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -79,7 +87,7 @@ export default function RootLayout({
     <html
       lang="es-AR"
       suppressHydrationWarning
-      className={`${geist.variable} ${geistMono.variable}`}
+      className={`${instrumentSerif.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen antialiased">
         <ThemeProvider>

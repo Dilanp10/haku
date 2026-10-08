@@ -26,9 +26,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!hasAtLeast(profile.role, "admin")) {
     return (
-      <div className="dark admin-tierra min-h-screen" style={{ background: "var(--bg)", color: "var(--fg)" }}>
+      <div className="dark min-h-screen" style={{ background: "var(--bg)", color: "var(--fg)" }}>
         <main className="mx-auto max-w-2xl px-4 py-16">
-          <h1 className="text-2xl font-bold" style={{ color: "var(--fg)" }}>
+          <h1 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>
             Acceso denegado
           </h1>
           <p className="mt-2 text-sm" style={{ color: "var(--fg-50)" }}>
@@ -48,7 +48,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="dark admin-tierra min-h-screen" style={{ background: "var(--bg)", color: "var(--fg)" }}>
+    <div className="dark min-h-screen" style={{ background: "var(--bg)", color: "var(--fg)" }}>
       <header
         className="sticky top-0 z-40 backdrop-blur"
         style={{

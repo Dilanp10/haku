@@ -51,11 +51,11 @@ export function SaveButton({ venueId, slug, variant = "default" }: SaveButtonPro
         onClick={handleToggle}
         disabled={isLoading || isPending}
         aria-label={saved ? "Quitar de favoritos" : "Guardar favorito"}
-        className="flex size-11 items-center justify-center rounded-full transition-opacity active:opacity-70"
+        className="rounded-full p-1.5 transition-opacity active:opacity-70"
         style={{
           color:
             saved && !isLoading && !isPending
-              ? "var(--danger)"
+              ? "var(--rust)"
               : variant === "overlay"
                 ? "rgba(255,255,255,0.9)"
                 : "var(--fg-30)",
@@ -69,7 +69,7 @@ export function SaveButton({ venueId, slug, variant = "default" }: SaveButtonPro
         />
       </button>
       {error && (
-        <span className="text-xs" style={{ color: "var(--danger)" }}>{error}</span>
+        <span className="text-xs" style={{ color: "var(--rust)" }}>{error}</span>
       )}
     </span>
   );

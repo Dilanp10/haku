@@ -92,10 +92,10 @@ export default async function BuscarPage({
         >
           Sin resultados para &ldquo;{query}&rdquo;.
           <div className="mt-4 flex flex-wrap justify-center gap-3">
-            <Link href="/lugares" className="text-sm hover:underline" style={{ color: "var(--accent)" }}>
+            <Link href="/lugares" className="text-sm hover:underline" style={{ color: "var(--terra)" }}>
               Ver todos los lugares
             </Link>
-            <Link href="/eventos" className="text-sm hover:underline" style={{ color: "var(--accent)" }}>
+            <Link href="/eventos" className="text-sm hover:underline" style={{ color: "var(--terra)" }}>
               Ver todos los eventos
             </Link>
           </div>
@@ -113,7 +113,7 @@ export default async function BuscarPage({
               <Link
                 href={`/lugares?q=${encodeURIComponent(query)}`}
                 className="inline-flex items-center gap-1 text-xs font-medium hover:underline"
-                style={{ color: "var(--accent)" }}
+                style={{ color: "var(--terra)" }}
               >
                 Ver los {venuesTotal} <ArrowRight className="h-3 w-3" />
               </Link>
@@ -149,7 +149,7 @@ export default async function BuscarPage({
             <Link
               href={`/eventos?q=${encodeURIComponent(query)}`}
               className="inline-flex items-center gap-1 text-xs font-medium hover:underline"
-              style={{ color: "var(--accent)" }}
+              style={{ color: "var(--terra)" }}
             >
               Ver en eventos <ArrowRight className="h-3 w-3" />
             </Link>

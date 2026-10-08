@@ -33,7 +33,7 @@ export function ThemeToggleRow() {
               onClick={() => setTheme(o.value)}
               className="flex items-center gap-1 rounded-pill px-2.5 py-1 text-xs transition-colors"
               style={{
-                background: active ? "var(--accent)" : "transparent",
+                background: active ? "var(--terra)" : "transparent",
                 color: active ? "#fff" : "var(--fg-50)",
               }}
             >

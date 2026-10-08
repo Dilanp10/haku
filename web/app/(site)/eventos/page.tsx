@@ -1,19 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import {
   listUpcomingEvents,
   createSupabaseEventRepository,
   type Event,
 } from "@haku/events";
+import { distanceKm as computeDistanceKm } from "@haku/core";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { EventCard } from "@/components/event-card";
+import { SearchInput } from "@/components/search-input";
+import { LocateMeInline } from "@/components/locate-me-inline";
 
 export const metadata: Metadata = {
-  title: "Agenda",
+  title: "Eventos",
   description: "Próximos eventos en Catamarca: peñas, ferias, conciertos y más.",
   alternates: { canonical: "/eventos" },
   openGraph: {
-    title: "Agenda · Haku",
+    title: "Eventos · Haku",
     description: "Qué está pasando en Catamarca. Próximas fechas, actualizadas automáticamente.",
     url: "/eventos",
   },
@@ -22,63 +26,13 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 interface SearchParams {
+  q?: string;
   categoria?: string;
+  lat?: string;
+  lng?: string;
 }
 
-function catamarcaNow(): Date {
-  return new Date(
-    new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Catamarca" }),
-  );
-}
-
-function isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-
-function formatDayLabel(d: Date, now: Date): string {
-  const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-  const weekDays = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-  if (isSameDay(d, now)) return "Hoy";
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  if (isSameDay(d, tomorrow)) return "Mañana";
-  return `${weekDays[d.getDay()]} ${d.getDate()} de ${months[d.getMonth()]}`;
-}
-
-function formatTime(e: Event): string {
-  if (!e.startsAt) return "Todo el día";
-  try {
-    const d = new Date(e.startsAt);
-    if (isNaN(d.getTime())) return "Todo el día";
-    const h = d.getHours().toString().padStart(2, "0");
-    const m = d.getMinutes().toString().padStart(2, "0");
-    if (h === "00" && m === "00") return "Todo el día";
-    return `${h}:${m}`;
-  } catch {
-    return "Todo el día";
-  }
-}
-
-function isNextEvent(e: Event, now: Date): boolean {
-  if (!e.startsAt) return false;
-  const d = new Date(e.startsAt);
-  return d.getTime() > now.getTime();
-}
-
-function groupByDay(events: Event[]): Map<string, Event[]> {
-  const map = new Map<string, Event[]>();
-  for (const e of events) {
-    const dateStr = e.startsAt
-      ? new Date(e.startsAt).toISOString().slice(0, 10)
-      : "unknown";
-    const list = map.get(dateStr) ?? [];
-    list.push(e);
-    map.set(dateStr, list);
-  }
-  return map;
-}
-
-export default async function AgendaPage({
+export default async function EventosPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
@@ -86,162 +40,179 @@ export default async function AgendaPage({
   const sp = await searchParams;
   const supabase = await createServerSupabase();
   const repo = createSupabaseEventRepository(supabase);
-  const now = catamarcaNow();
+
+  const lat = sp.lat !== undefined ? Number(sp.lat) : NaN;
+  const lng = sp.lng !== undefined ? Number(sp.lng) : NaN;
+  const userLocation =
+    Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
 
   const [eventsRes, categories] = await Promise.all([
     listUpcomingEvents(repo, {
-      limit: 50,
+      limit: userLocation ? 60 : 30,
+      ...(sp.q ? { search: sp.q } : {}),
       ...(sp.categoria ? { category: sp.categoria } : {}),
     }),
     repo.listEventCategories(),
   ]);
 
-  const events: Event[] = eventsRes.ok ? eventsRes.value : [];
-  const grouped = groupByDay(events);
+  if (!eventsRes.ok) {
+    return (
+      <main className="mx-auto max-w-2xl px-4 py-10">
+        <h1 className="text-brand text-2xl" style={{ color: "var(--fg)" }}>
+          No pudimos cargar los eventos
+        </h1>
+        <p className="mt-2 text-sm" style={{ color: "var(--fg-50)" }}>
+          {eventsRes.error.message}
+        </p>
+      </main>
+    );
+  }
 
-  let foundNext = false;
+  let events: Event[] = eventsRes.value;
+  const distances = new Map<string, number>();
+  if (userLocation) {
+    for (const e of events) {
+      if (e.location) distances.set(e.id, computeDistanceKm(userLocation, e.location));
+    }
+    events = [...events].sort((a, b) => {
+      const da = distances.get(a.id) ?? Infinity;
+      const db = distances.get(b.id) ?? Infinity;
+      return da - db;
+    });
+  }
+
+  const hasFilters = !!(sp.q || sp.categoria);
+  const activeFilters: Record<string, string> = {};
+  if (sp.q) activeFilters["q"] = sp.q;
+  if (sp.categoria) activeFilters["categoria"] = sp.categoria;
 
   return (
-    <main id="main" className="mx-auto max-w-2xl px-4 pb-bottom">
-      <header className="pt-6 pb-0">
-        <h1 className="text-[32px] font-extrabold tracking-tight" style={{ letterSpacing: "-0.03em" }}>
-          Agenda
+    <main id="main" className="mx-auto max-w-2xl md:max-w-5xl px-4 py-8 pb-bottom">
+      <header className="mb-6">
+        <p className="text-section mb-1">Catamarca</p>
+        <h1 className="text-brand text-3xl" style={{ color: "var(--fg)" }}>
+          Eventos
         </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--fg-50)" }}>
-          Lo que pasa en Catamarca
+          {events.length} {events.length === 1 ? "evento" : "eventos"}
+          {hasFilters ? " con estos filtros" : " próximos"}.
         </p>
       </header>
 
-      {/* Category tabs */}
-      {categories.length > 0 && (
-        <nav
-          aria-label="Categorías"
-          className="mt-5 flex gap-5 overflow-x-auto scrollbar-none"
-          style={{ borderBottom: "1px solid var(--line)" }}
-        >
-          <CategoryTab href="/eventos" label="Todo" active={!sp.categoria} />
-          {categories.map((c) => (
-            <CategoryTab
-              key={c}
-              href={`/eventos?categoria=${encodeURIComponent(c)}`}
-              label={c}
-              active={sp.categoria === c}
+      {/* Filtros */}
+      <aside
+        className="mb-6 space-y-4 rounded-[12px] border p-4"
+        style={{ borderColor: "var(--line)", background: "var(--card-bg)" }}
+      >
+        <div className="flex items-center justify-between">
+          <span
+            className="flex items-center gap-1.5 text-data uppercase"
+            style={{ color: "var(--fg-50)" }}
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" /> Filtros
+          </span>
+          {hasFilters && (
+            <Link
+              href="/eventos"
+              className="inline-flex items-center gap-1 text-xs transition-opacity hover:opacity-70"
+              style={{ color: "var(--fg-50)" }}
+            >
+              <X className="h-3 w-3" /> Limpiar todo
+            </Link>
+          )}
+        </div>
+
+        <SearchInput
+          value={sp.q}
+          placeholder="Buscar por título…"
+          action="/eventos"
+          preserveParams={{ ...activeFilters, q: "" }}
+        />
+
+        {categories.length > 0 && (
+          <div>
+            <p className="mb-2 text-data" style={{ color: "var(--fg-50)" }}>Categoría</p>
+            <EventCategoryPills
+              categories={categories}
+              active={sp.categoria}
+              activeFilters={activeFilters}
             />
-          ))}
-        </nav>
-      )}
+          </div>
+        )}
+      </aside>
+
+      <LocateMeInline />
 
       {events.length === 0 ? (
         <div
-          className="mt-8 rounded-2xl border p-10 text-center text-sm"
+          className="mt-4 rounded-[12px] border p-10 text-center text-sm"
           style={{ borderColor: "var(--line)", background: "var(--card-bg)", color: "var(--fg-50)" }}
         >
-          No hay eventos próximos.
+          No hay eventos{hasFilters ? " con estos filtros" : " publicados todavía"}.{" "}
+          {hasFilters ? (
+            <Link href="/eventos" className="hover:underline" style={{ color: "var(--terra)" }}>
+              Quitar filtros
+            </Link>
+          ) : (
+            "Volvé pronto."
+          )}
         </div>
       ) : (
-        <div className="mt-4">
-          {Array.from(grouped.entries()).map(([dateStr, dayEvents]) => {
-            const dayDate = dateStr !== "unknown" ? new Date(dateStr + "T12:00:00") : now;
+        <div className="md:grid md:grid-cols-2 md:gap-x-8">
+          {events.map((e) => {
+            const d = distances.get(e.id);
             return (
-              <section key={dateStr} className="mb-2">
-                <p
-                  className="px-1 py-3 text-xs font-bold uppercase tracking-widest"
-                  style={{ color: "var(--fg-50)" }}
-                >
-                  {formatDayLabel(dayDate, now)}
-                </p>
-                <div>
-                  {dayEvents.map((e) => {
-                    const time = formatTime(e);
-                    const isNext = !foundNext && isNextEvent(e, now);
-                    if (isNext) foundNext = true;
-                    return (
-                      <Link
-                        key={e.id}
-                        href={`/eventos/${e.slug}` as never}
-                        className="grid items-start gap-2 rounded-2xl px-2 py-4 transition-colors hover:bg-[var(--card-2)]"
-                        style={{
-                          gridTemplateColumns: "72px minmax(0, 1fr) 18px",
-                          borderBottom: "1px solid var(--line)",
-                        }}
-                      >
-                        <span className="flex flex-col gap-1.5">
-                          <span className="text-base font-extrabold tabular-nums">
-                            {time === "Todo el día" ? (
-                              <span className="text-[13px] font-semibold" style={{ color: "var(--fg-50)" }}>
-                                Todo el día
-                              </span>
-                            ) : (
-                              time
-                            )}
-                          </span>
-                          {isNext && (
-                            <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: "var(--accent)" }}>
-                              <span className="relative h-[7px] w-[7px]">
-                                <span
-                                  className="absolute inset-0 animate-ping rounded-full"
-                                  style={{ background: "var(--accent)", opacity: 0.4 }}
-                                />
-                                <span
-                                  className="absolute inset-0 rounded-full"
-                                  style={{ background: "var(--accent)" }}
-                                />
-                              </span>
-                              Próximo
-                            </span>
-                          )}
-                        </span>
-                        <span>
-                          <span className="block text-base font-bold leading-snug">
-                            {e.title}
-                          </span>
-                          <span className="mt-1 block text-sm" style={{ color: "var(--fg-50)" }}>
-                            {[e.venueName, e.category].filter(Boolean).join(" · ")}
-                          </span>
-                        </span>
-                        <ChevronRight size={18} style={{ color: "var(--fg-30)", marginTop: 2 }} />
-                      </Link>
-                    );
-                  })}
-                </div>
-              </section>
+              <EventCard
+                key={e.id}
+                event={e}
+                {...(d !== undefined ? { distanceKm: d } : {})}
+              />
             );
           })}
         </div>
       )}
-
-      <p className="mt-4 pb-4 text-xs" style={{ color: "var(--fg-50)" }}>
-        Fuente: agenda de Turismo de San Fernando del Valle
-      </p>
     </main>
   );
 }
 
-function CategoryTab({
-  href,
-  label,
+function EventCategoryPills({
+  categories,
   active,
+  activeFilters,
 }: {
-  href: string;
-  label: string;
-  active: boolean;
+  categories: string[];
+  active?: string | undefined;
+  activeFilters: Record<string, string>;
 }) {
+  const buildHref = (cat?: string) => {
+    const qs = new URLSearchParams({ ...activeFilters, categoria: "" });
+    if (cat) qs.set("categoria", cat);
+    const str = qs.toString().replace(/categoria=&?/, "").replace(/&$/, "");
+    return str ? `/eventos?${str}` : "/eventos";
+  };
+
+  return (
+    <nav aria-label="Categorías de eventos" className="flex flex-wrap gap-2">
+      <Pill href={buildHref()} active={!active} label="Todos" />
+      {categories.map((c) => (
+        <Pill key={c} href={buildHref(c)} active={active === c} label={c} />
+      ))}
+    </nav>
+  );
+}
+
+function Pill({ href, active, label }: { href: string; active: boolean; label: string }) {
   return (
     <Link
       href={href}
-      className="relative shrink-0 pb-3 text-sm transition-colors"
-      style={{
-        fontWeight: active ? 700 : 600,
-        color: active ? "var(--fg)" : "var(--fg-50)",
-      }}
+      className="rounded-full border px-3 py-1 text-sm transition"
+      style={
+        active
+          ? { background: "var(--terra)", borderColor: "var(--terra)", color: "#fff" }
+          : { background: "var(--card-bg)", borderColor: "var(--line-2)", color: "var(--fg-70)" }
+      }
     >
       {label}
-      {active && (
-        <span
-          className="absolute bottom-[-1px] left-0 right-0 h-[2px]"
-          style={{ background: "var(--fg)" }}
-        />
-      )}
     </Link>
   );
 }

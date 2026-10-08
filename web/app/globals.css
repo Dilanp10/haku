@@ -5,75 +5,50 @@
 @layer base {
   :root {
     color-scheme: light;
-    --bottom-nav-height: 72px;
+    --bottom-nav-height: 80px;
 
-    /* Mono LIGHT — blanco, negro, coral */
-    --bg:       #FFFFFF;
-    --bg-deep:  #F7F7F8;
-    --card-bg:  #FFFFFF;
-    --card-2:   #F0F0F1;
-    --muted-bg: #F0F0F1;
-    --line:     rgba(11,11,12,0.06);
-    --line-2:   rgba(11,11,12,0.10);
+    /* Tierra LIGHT (default) — warm cream */
+    --bg:       #F4EDE1;
+    --bg-deep:  #EDE2D0;
+    --card-bg:  #FAF6EE;
+    --card-2:   #F0E8D8;
+    --muted-bg: #F0E8D8;
+    --line:     rgba(27,22,18,0.08);
+    --line-2:   rgba(27,22,18,0.14);
 
-    --fg:       #0B0B0C;
-    --fg-70:    #6B6B70;
-    --fg-50:    #6E6E73;
-    --fg-30:    #B5B5BA;
+    --fg:       #1B1612;
+    --fg-70:    rgba(27,22,18,0.70);
+    --fg-50:    rgba(27,22,18,0.50);
+    --fg-30:    rgba(27,22,18,0.30);
 
-    --accent:   #FF5A36;
-    --accent-wash: rgba(255,90,54,0.10);
-    --success:  #16A34A;
-    --success-fg: #15803D;
-    --success-wash: rgba(22,163,74,0.15);
-    --danger:   #DC2626;
-    --danger-wash: rgba(220,38,38,0.15);
+    /* Brand palette Tierra */
+    --terra:      #D67849;
+    --terra-deep: #A85A30;
+    --terra-soft: #E89B6F;
+    --terra-wash: rgba(214,120,73,0.12);
+    --ochre:      #C99347;
+    --moss:       #8AA265;
+    --rust:       #C0664E;
 
-    /* Shadcn tokens */
+    /* Shadcn tokens mapeados a Tierra (compat con componentes existentes) */
     --background: var(--bg);
     --foreground: var(--fg);
     --card: var(--card-bg);
     --card-foreground: var(--fg);
-    --primary: var(--fg);
+    --primary: var(--terra);
     --primary-foreground: #FFFFFF;
     --muted: var(--muted-bg);
     --muted-foreground: var(--fg-70);
     --border: var(--line-2);
     --input: var(--line-2);
-    --ring: var(--accent);
-    --radius: 14px;
+    --ring: var(--terra);
+    --radius: 12px;
   }
 
   .dark {
     color-scheme: dark;
 
-    /* Noche DARK — casi negro, menta */
-    --bg:       #0B0B0C;
-    --bg-deep:  #141415;
-    --card-bg:  #18191B;
-    --card-2:   #222224;
-    --muted-bg: #222224;
-    --line:     rgba(255,255,255,0.08);
-    --line-2:   rgba(255,255,255,0.12);
-
-    --fg:       #F5F5F7;
-    --fg-70:    #A1A1A6;
-    --fg-50:    #8E8E93;
-    --fg-30:    #3A3A3D;
-
-    --accent:   #34D399;
-    --accent-wash: rgba(52,211,153,0.12);
-    --success:  #34D399;
-    --success-fg: #34D399;
-    --success-wash: rgba(52,211,153,0.15);
-    --danger-wash: rgba(220,38,38,0.15);
-
-    --primary: var(--fg);
-    --primary-foreground: var(--bg);
-  }
-
-  /* Tierra tokens — solo para /admin (D2) */
-  .admin-tierra {
+    /* Tierra DARK — warm dark */
     --bg:       #1B1612;
     --bg-deep:  #14100D;
     --card-bg:  #25201A;
@@ -81,18 +56,11 @@
     --muted-bg: #2E2820;
     --line:     rgba(244,237,225,0.08);
     --line-2:   rgba(244,237,225,0.14);
+
     --fg:       #F4EDE1;
     --fg-70:    rgba(244,237,225,0.70);
     --fg-50:    rgba(244,237,225,0.50);
     --fg-30:    rgba(244,237,225,0.30);
-    --accent:   #D67849;
-    --accent-wash: rgba(214,120,73,0.12);
-    --success:  #8AA265;
-    --success-fg: #8AA265;
-    --danger:   #C0664E;
-    --primary: #D67849;
-    --primary-foreground: #FFFFFF;
-    --ring: #D67849;
   }
 
   * {
@@ -119,8 +87,8 @@
 
 @layer utilities {
   .text-brand {
-    font-weight: 800;
-    letter-spacing: -0.03em;
+    font-family: var(--font-serif), Georgia, serif;
+    font-style: italic;
   }
   .text-data {
     font-family: var(--font-mono), ui-monospace, monospace;
@@ -128,11 +96,12 @@
     letter-spacing: 0.04em;
   }
   .text-section {
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--fg-50);
+    color: var(--ochre);
+    font-weight: 500;
   }
   .row-sep {
     border-bottom: 1px solid var(--line);
@@ -204,7 +173,7 @@
   font-family: inherit !important;
 }
 .leaflet-popup-content a {
-  color: var(--accent) !important;
+  color: var(--terra) !important;
 }
 .leaflet-popup-close-button {
   color: var(--fg-50) !important;
@@ -219,57 +188,14 @@
   background-color: var(--bg) !important;
   font-family: inherit;
 }
-/* Workaround: Leaflet deja los tiles en opacity:0 cuando el pane tiene filter CSS. */
-.leaflet-tile-loaded {
-  opacity: 1 !important;
-}
 .leaflet-control-attribution {
   background-color: var(--card-bg) !important;
   color: var(--fg-50) !important;
 }
 .leaflet-control-attribution a {
-  color: var(--accent) !important;
+  color: var(--terra) !important;
 }
 .haku-pin {
   background: transparent;
   border: none;
-}
-.haku-pin-open     { color: var(--fg); }
-.haku-pin-closed   { color: var(--fg-30); }
-.haku-pin-selected { color: var(--accent); }
-.haku-pin-stroke   { stroke: var(--bg); }
-
-/* Explore animations (FR-016) */
-@keyframes haku-pin-drop {
-  from { opacity: 0; transform: translateY(-12px) scale(0.8); }
-  to   { opacity: 1; transform: none; }
-}
-@keyframes haku-user-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(59,130,246,0.45); }
-  70%  { box-shadow: 0 0 0 10px rgba(59,130,246,0); }
-  100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
-}
-@keyframes haku-sheet-up {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-
-.haku-pin { animation: haku-pin-drop 0.4s cubic-bezier(0.16,1,0.3,1) both; }
-.leaflet-marker-icon.haku-pin:nth-child(2n)  { animation-delay: 0.05s; }
-.leaflet-marker-icon.haku-pin:nth-child(3n)  { animation-delay: 0.10s; }
-.leaflet-marker-icon.haku-pin:nth-child(5n)  { animation-delay: 0.15s; }
-
-@keyframes haku-cover-zoom {
-  from { transform: scale(1); }
-  to   { transform: scale(1.06); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .haku-pin,
-  .leaflet-marker-icon.haku-pin {
-    animation: none !important;
-  }
-  .haku-cover-zoom {
-    animation: none !important;
-  }
 }

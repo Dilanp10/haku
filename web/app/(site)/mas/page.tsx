@@ -44,7 +44,7 @@ export default async function MasPage() {
                 className="flex items-center gap-3 py-4 transition-opacity hover:opacity-70"
                 style={{ color: "var(--fg)" }}
               >
-                <Icon size={20} style={{ color: "var(--accent)" }} />
+                <Icon size={20} style={{ color: "var(--terra)" }} />
                 <span className="text-brand text-base">{l.label}</span>
               </Link>
             </li>

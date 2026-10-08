@@ -48,7 +48,7 @@ export function SuggestForm({ categories }: { categories: Category[] }) {
       <div className="flex flex-col items-center gap-5 py-12 text-center">
         <div
           className="flex h-16 w-16 items-center justify-center rounded-full"
-          style={{ background: "var(--success)", color: "#fff" }}
+          style={{ background: "var(--moss)", color: "#fff" }}
         >
           <CheckCircle2 className="h-8 w-8" />
         </div>
@@ -91,7 +91,7 @@ export function SuggestForm({ categories }: { categories: Category[] }) {
           <span className="text-data" style={{ color: "var(--fg-50)" }}>
             Paso {step} de {TOTAL_STEPS}
           </span>
-          <span className="text-data" style={{ color: "var(--accent)" }}>
+          <span className="text-data" style={{ color: "var(--terra)" }}>
             {Math.round((step / TOTAL_STEPS) * 100)}%
           </span>
         </div>
@@ -101,7 +101,7 @@ export function SuggestForm({ categories }: { categories: Category[] }) {
         >
           <div
             className="h-full rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${(step / TOTAL_STEPS) * 100}%`, background: "var(--accent)" }}
+            style={{ width: `${(step / TOTAL_STEPS) * 100}%`, background: "var(--terra)" }}
           />
         </div>
       </div>
@@ -149,9 +149,9 @@ export function SuggestForm({ categories }: { categories: Category[] }) {
                   className="rounded-[10px] border px-4 py-3 text-left text-sm font-medium transition active:scale-[0.97]"
                   style={{
                     borderColor:
-                      categorySlug === c.slug ? "var(--accent)" : "var(--line-2)",
+                      categorySlug === c.slug ? "var(--terra)" : "var(--line-2)",
                     background:
-                      categorySlug === c.slug ? "var(--accent)" : "var(--card-bg)",
+                      categorySlug === c.slug ? "var(--terra)" : "var(--card-bg)",
                     color: categorySlug === c.slug ? "#fff" : "var(--fg)",
                   }}
                 >
@@ -267,8 +267,8 @@ export function SuggestForm({ categories }: { categories: Category[] }) {
               <p
                 className="mt-3 rounded-[10px] border px-4 py-2 text-sm"
                 style={{
-                  borderColor: "var(--danger)",
-                  color: "var(--danger)",
+                  borderColor: "var(--rust)",
+                  color: "var(--rust)",
                   background: "var(--card-bg)",
                 }}
               >
@@ -300,7 +300,7 @@ export function SuggestForm({ categories }: { categories: Category[] }) {
             onClick={next}
             disabled={!canNext}
             className="flex items-center gap-1 rounded-[10px] px-5 py-2.5 text-sm font-medium transition active:opacity-80 disabled:opacity-40"
-            style={{ background: "var(--accent)", color: "#fff" }}
+            style={{ background: "var(--terra)", color: "#fff" }}
           >
             Siguiente <ChevronRight className="h-4 w-4" />
           </button>
@@ -336,7 +336,7 @@ export function SuggestForm({ categories }: { categories: Category[] }) {
               onClick={submitAll}
               disabled={pending}
               className="flex items-center gap-2 rounded-[10px] px-5 py-2.5 text-sm font-medium transition active:opacity-80 disabled:opacity-60"
-              style={{ background: "var(--accent)", color: "#fff" }}
+              style={{ background: "var(--terra)", color: "#fff" }}
             >
               {pending ? (
                 <>
@@ -385,14 +385,14 @@ function StepShell({
       <div className="mb-6">
         <div
           className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full"
-          style={{ background: "var(--accent)", color: "#fff" }}
+          style={{ background: "var(--terra)", color: "#fff" }}
         >
           {icon}
         </div>
         <h2 className="text-brand text-xl" style={{ color: "var(--fg)" }}>
           {title}
           {required && (
-            <span className="ml-2 text-xs font-normal" style={{ color: "var(--accent)" }}>
+            <span className="ml-2 text-xs font-normal" style={{ color: "var(--terra)" }}>
               obligatorio
             </span>
           )}
@@ -469,11 +469,11 @@ function LocationInput({
       {coords ? (
         <div
           className="flex items-center gap-3 rounded-[10px] border p-3"
-          style={{ borderColor: "var(--success)", background: "var(--card-bg)" }}
+          style={{ borderColor: "var(--moss)", background: "var(--card-bg)" }}
         >
           <div
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-            style={{ background: "var(--success)", color: "#fff" }}
+            style={{ background: "var(--moss)", color: "#fff" }}
           >
             <MapPin className="h-4 w-4" />
           </div>
@@ -502,9 +502,9 @@ function LocationInput({
           disabled={busy}
           className="flex w-full items-center gap-3 rounded-[10px] border px-4 py-3 text-sm font-medium transition active:opacity-80 disabled:opacity-60"
           style={{
-            borderColor: "var(--accent)",
-            background: "var(--accent-wash)",
-            color: "var(--accent)",
+            borderColor: "var(--terra)",
+            background: "var(--terra-wash)",
+            color: "var(--terra-deep)",
           }}
         >
           {busy ? (
@@ -517,7 +517,7 @@ function LocationInput({
       )}
 
       {err && (
-        <p className="text-xs" style={{ color: "var(--danger)" }}>
+        <p className="text-xs" style={{ color: "var(--rust)" }}>
           {err}
         </p>
       )}
@@ -594,11 +594,11 @@ function AudioRecorder({
     return (
       <div
         className="flex items-center gap-3 rounded-[10px] border p-3"
-        style={{ borderColor: "var(--accent)", background: "var(--card-bg)" }}
+        style={{ borderColor: "var(--terra)", background: "var(--card-bg)" }}
       >
         <div
           className="flex h-9 w-9 items-center justify-center rounded-full"
-          style={{ background: "var(--accent)", color: "#fff" }}
+          style={{ background: "var(--terra)", color: "#fff" }}
         >
           <Play className="h-4 w-4" />
         </div>
@@ -607,7 +607,7 @@ function AudioRecorder({
           type="button"
           onClick={remove}
           className="rounded-full p-1.5"
-          style={{ color: "var(--danger)" }}
+          style={{ color: "var(--rust)" }}
           aria-label="Eliminar audio"
         >
           <Trash2 className="h-4 w-4" />
@@ -623,8 +623,8 @@ function AudioRecorder({
         onClick={recording ? stop : start}
         className="flex w-full items-center gap-3 rounded-[10px] border px-4 py-3 text-sm font-medium transition active:opacity-80"
         style={{
-          borderColor: recording ? "var(--danger)" : "var(--line-2)",
-          background: recording ? "var(--danger)" : "var(--card-bg)",
+          borderColor: recording ? "var(--rust)" : "var(--line-2)",
+          background: recording ? "var(--rust)" : "var(--card-bg)",
           color: recording ? "#fff" : "var(--fg-70)",
         }}
       >
@@ -645,13 +645,13 @@ function AudioRecorder({
           </>
         ) : (
           <>
-            <Mic className="h-4 w-4" style={{ color: "var(--accent)" }} />
+            <Mic className="h-4 w-4" style={{ color: "var(--terra)" }} />
             <span>Grabar un audio</span>
           </>
         )}
       </button>
       {err && (
-        <p className="mt-2 text-xs" style={{ color: "var(--danger)" }}>
+        <p className="mt-2 text-xs" style={{ color: "var(--rust)" }}>
           {err}
         </p>
       )}
@@ -696,7 +696,7 @@ function PhotoPicker({
           type="button"
           onClick={remove}
           className="absolute right-2 top-2 rounded-full p-1.5 shadow"
-          style={{ background: "var(--bg)", color: "var(--danger)" }}
+          style={{ background: "var(--bg)", color: "var(--rust)" }}
           aria-label="Quitar foto"
         >
           <Trash2 className="h-4 w-4" />
@@ -717,7 +717,7 @@ function PhotoPicker({
           color: "var(--fg-50)",
         }}
       >
-        <Camera className="h-6 w-6" style={{ color: "var(--accent)" }} />
+        <Camera className="h-6 w-6" style={{ color: "var(--terra)" }} />
         <span>Elegir foto</span>
         <span className="text-xs" style={{ color: "var(--fg-30)" }}>
           jpg, png o webp · máx 5MB
@@ -808,9 +808,9 @@ function HoursPicker({
             onClick={applyToWeekdays}
             className="rounded-full border px-3 py-1 text-xs font-medium transition active:opacity-80"
             style={{
-              borderColor: "var(--accent)",
-              color: "var(--accent)",
-              background: "var(--accent-wash)",
+              borderColor: "var(--terra)",
+              color: "var(--terra)",
+              background: "var(--terra-wash)",
             }}
           >
             Copiar Lun a Mar–Vie
@@ -820,9 +820,9 @@ function HoursPicker({
             onClick={applyToAllDays}
             className="rounded-full border px-3 py-1 text-xs font-medium transition active:opacity-80"
             style={{
-              borderColor: "var(--accent)",
-              color: "var(--accent)",
-              background: "var(--accent-wash)",
+              borderColor: "var(--terra)",
+              color: "var(--terra)",
+              background: "var(--terra-wash)",
             }}
           >
             Copiar Lun a todos los días
@@ -865,7 +865,7 @@ function HoursPicker({
                       key={entry.index}
                       className="flex items-center gap-1 rounded-full border pl-2 pr-1 py-0.5"
                       style={{
-                        borderColor: "var(--success)",
+                        borderColor: "var(--moss)",
                         background: "var(--bg)",
                       }}
                     >
@@ -905,7 +905,7 @@ function HoursPicker({
                     onClick={() => addRange(day)}
                     className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition active:opacity-80"
                     style={{
-                      background: "var(--accent)",
+                      background: "var(--terra)",
                       color: "#fff",
                     }}
                     aria-label={`Agregar horario a ${label}`}

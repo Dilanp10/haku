@@ -151,7 +151,7 @@ export default async function VenuesPage({
             style={{ borderColor: "var(--line)", background: "var(--card-bg)", color: "var(--fg-50)" }}
           >
             Todavía no hay lugares con estos filtros.{" "}
-            <Link href="/lugares" className="hover:underline" style={{ color: "var(--accent)" }}>
+            <Link href="/lugares" className="hover:underline" style={{ color: "var(--terra)" }}>
               Quitar filtros
             </Link>
           </div>

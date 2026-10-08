@@ -63,7 +63,7 @@ export default async function PerfilPage() {
           <p className="text-brand text-2xl truncate" style={{ color: "var(--fg)" }}>
             {name}
           </p>
-          <p className="mt-0.5 text-data" style={{ color: "var(--accent)" }}>
+          <p className="mt-0.5 text-data" style={{ color: "var(--terra)" }}>
             {ROLE_LABEL[profile.role] ?? profile.role}
           </p>
           <p className="mt-0.5 text-xs" style={{ color: "var(--fg-50)" }}>
@@ -84,7 +84,7 @@ export default async function PerfilPage() {
         <button
           type="submit"
           className="flex w-full items-center justify-center gap-2 rounded-[10px] border px-4 py-3 text-sm font-medium transition active:opacity-80"
-          style={{ borderColor: "var(--line-2)", color: "var(--danger)" }}
+          style={{ borderColor: "var(--line-2)", color: "var(--rust)" }}
         >
           <LogOut className="h-4 w-4" /> Cerrar sesión
         </button>
@@ -109,7 +109,7 @@ function Row({
         className="flex items-center gap-3 py-4 transition-opacity hover:opacity-70"
         style={{ color: "var(--fg)" }}
       >
-        <Icon size={20} style={{ color: "var(--accent)" }} />
+        <Icon size={20} style={{ color: "var(--terra)" }} />
         <span className="text-brand text-base flex-1">{label}</span>
         <ChevronRight className="h-4 w-4" style={{ color: "var(--fg-30)" }} />
       </Link>

@@ -45,7 +45,7 @@ export function EventCard({ event, distanceKm }: { event: Event; distanceKm?: nu
       ) : (
         <div
           className="relative shrink-0 size-16 rounded-[10px] flex flex-col items-center justify-center"
-          style={{ background: "var(--accent-wash)", color: "var(--accent)" }}
+          style={{ background: "var(--terra-wash)", color: "var(--terra-deep)" }}
         >
           <span className="text-brand text-2xl leading-none">{fmtDay.format(d)}</span>
           <span className="text-data uppercase mt-0.5" style={{ fontSize: "10px" }}>
@@ -66,7 +66,7 @@ export function EventCard({ event, distanceKm }: { event: Event; distanceKm?: nu
           {distanceKm !== undefined && (
             <span
               className="text-data shrink-0"
-              style={{ color: "var(--accent)" }}
+              style={{ color: "var(--terra)" }}
             >
               {formatDistance(distanceKm)}
             </span>

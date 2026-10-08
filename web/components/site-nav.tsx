@@ -4,9 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV_LINKS: { href: string; label: string; exact?: boolean }[] = [
-  { href: "/", label: "Explorar", exact: true },
-  { href: "/eventos", label: "Agenda" },
-  { href: "/perfil/favoritos", label: "Guardados" },
+  { href: "/", label: "Inicio", exact: true },
+  { href: "/lugares", label: "Lugares" },
+  { href: "/eventos", label: "Eventos" },
+  { href: "/mapa", label: "Mapa" },
+  { href: "/buscar", label: "Buscar" },
   { href: "/mas", label: "Más" },
 ];
 
@@ -28,7 +30,7 @@ export function SiteNav() {
         >
           <span
             className="text-brand text-[26px] leading-none"
-            style={{ color: "var(--accent)" }}
+            style={{ color: "var(--terra)" }}
           >
             Haku
           </span>
@@ -47,8 +49,8 @@ export function SiteNav() {
                 aria-current={active ? "page" : undefined}
                 className="rounded-button px-3 py-1.5 text-sm transition"
                 style={{
-                  background: active ? "var(--accent-wash)" : "transparent",
-                  color: active ? "var(--accent)" : "var(--fg-70)",
+                  background: active ? "var(--terra-wash)" : "transparent",
+                  color: active ? "var(--terra)" : "var(--fg-70)",
                 }}
               >
                 {label}

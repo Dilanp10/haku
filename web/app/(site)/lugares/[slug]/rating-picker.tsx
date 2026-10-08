@@ -69,7 +69,7 @@ export function RatingPicker({ venueId, slug, hasSession }: RatingPickerProps) {
             onMouseEnter={() => hasSession && setHovered(star)}
             onMouseLeave={() => setHovered(null)}
             aria-label={`${star} estrella${star !== 1 ? "s" : ""}`}
-            className="flex size-11 items-center justify-center transition-colors"
+            className="transition-colors"
             style={{
               color:
                 !hasSession || !loaded
@@ -77,7 +77,7 @@ export function RatingPicker({ venueId, slug, hasSession }: RatingPickerProps) {
                   : isPending
                   ? "var(--fg-30)"
                   : star <= activeRating
-                  ? "var(--accent)"
+                  ? "var(--ochre)"
                   : "var(--fg-30)",
               cursor: !hasSession || !loaded || isPending ? "default" : "pointer",
             }}
@@ -91,7 +91,7 @@ export function RatingPicker({ venueId, slug, hasSession }: RatingPickerProps) {
         ))}
       </span>
       {error && (
-        <span className="text-xs" style={{ color: "var(--danger)" }}>{error}</span>
+        <span className="text-xs" style={{ color: "var(--rust)" }}>{error}</span>
       )}
     </span>
   );

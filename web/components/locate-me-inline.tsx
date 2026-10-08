@@ -84,7 +84,7 @@ export function LocateMeInline() {
         style={{
           borderColor: "var(--line)",
           background: "var(--card-bg)",
-          color: "var(--success-fg)",
+          color: "var(--moss)",
         }}
       >
         <Check className="h-3.5 w-3.5" />
@@ -116,11 +116,11 @@ export function LocateMeInline() {
         }}
       >
         {busy ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" style={{ color: "var(--accent)" }} />
+          <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" style={{ color: "var(--terra)" }} />
         ) : permissionDenied ? (
-          <Lock className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--danger)" }} />
+          <Lock className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--rust)" }} />
         ) : (
-          <MapPin className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--accent)" }} />
+          <MapPin className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--terra)" }} />
         )}
         <span className="flex-1 text-left">
           {busy
@@ -161,7 +161,7 @@ export function LocateMeInline() {
             type="button"
             onClick={() => window.location.reload()}
             className="mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition active:opacity-80"
-            style={{ background: "var(--accent)", color: "#fff" }}
+            style={{ background: "var(--terra)", color: "#fff" }}
           >
             <RotateCw className="h-3 w-3" /> Ya lo activé, recargar
           </button>

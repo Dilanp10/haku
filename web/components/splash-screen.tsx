@@ -42,7 +42,7 @@ export function SplashScreen() {
       <div className="text-center">
         <div
           className="text-brand leading-none"
-          style={{ fontSize: "clamp(3.5rem,14vw,5.5rem)", color: "var(--accent)" }}
+          style={{ fontSize: "clamp(3.5rem,14vw,5.5rem)", color: "var(--terra)" }}
         >
           Haku.
         </div>

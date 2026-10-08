@@ -43,9 +43,9 @@ export function CardSaveButton({ venueId, slug }: Props) {
       onClick={handleToggle}
       disabled={loading || isPending}
       aria-label={saved ? "Quitar de favoritos" : "Guardar favorito"}
-      className="flex size-11 items-center justify-center rounded-full transition active:scale-90"
+      className="rounded-full p-2 transition active:scale-90"
       style={{
-        color: saved ? "var(--accent)" : "var(--fg-30)",
+        color: saved ? "var(--terra)" : "var(--fg-30)",
       }}
     >
       <Heart

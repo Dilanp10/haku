@@ -77,7 +77,7 @@ export function VenueCard({
           </h3>
           <div className="flex flex-col items-end shrink-0 gap-0.5">
             {distanceKm !== undefined && (
-              <span className="text-data" style={{ color: "var(--accent)" }}>
+              <span className="text-data" style={{ color: "var(--terra)" }}>
                 {formatDistance(distanceKm)}
               </span>
             )}
@@ -100,12 +100,12 @@ export function VenueCard({
         {openNow ? (
           <p
             className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium"
-            style={{ color: "var(--success-fg)" }}
+            style={{ color: "var(--moss)" }}
           >
-            <StatusDot color="var(--success)" pulse />
+            <StatusDot color="var(--moss)" pulse />
             Abierto
             {closesAt && (
-              <span className="text-data" style={{ color: "var(--success-fg)" }}>
+              <span className="text-data" style={{ color: "var(--moss)" }}>
                 · cierra a las {closesAt}
               </span>
             )}
@@ -113,9 +113,9 @@ export function VenueCard({
         ) : closed ? (
           <p
             className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium"
-            style={{ color: "var(--danger)" }}
+            style={{ color: "var(--rust)" }}
           >
-            <StatusDot color="var(--danger)" />
+            <StatusDot color="var(--rust)" />
             Cerrado
           </p>
         ) : (
