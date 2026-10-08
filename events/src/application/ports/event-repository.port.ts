@@ -24,7 +24,7 @@ export interface EventRepository {
   upsertMany(events: Omit<Event, "id" | "ingestedAt">[]): Promise<{ inserted: number; updated: number }>;
   listUpcoming(q: ListUpcomingQuery): Promise<Event[]>;
   listEventCategories(): Promise<string[]>;
-  listAll(status: EventStatus | null, limit: number): Promise<Event[]>;
+  listAll(status: EventStatus | null, limit: number, includePast?: boolean): Promise<Event[]>;
   getBySlug(slug: string): Promise<Event | null>;
   listPending(limit: number): Promise<Event[]>;
   update(id: string, data: UpdateEventData): Promise<Event>;

@@ -45,19 +45,20 @@ const FILTER_PILLS = [
 export default async function AdminEventosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ estado?: string }>;
+  searchParams: Promise<{ estado?: string; pasados?: string }>;
 }) {
   await requireProfile("admin");
 
-  const { estado } = await searchParams;
+  const { estado, pasados } = await searchParams;
   const validStatuses: EventStatus[] = ["pending", "published", "rejected"];
   const statusFilter = validStatuses.includes(estado as EventStatus)
     ? (estado as EventStatus)
     : undefined;
+  const includePast = pasados === "1";
 
   const supabase = await createServerSupabase();
   const repo = createSupabaseEventRepository(supabase);
-  const res = await listAllEvents(repo, { status: statusFilter, limit: 200 });
+  const res = await listAllEvents(repo, { status: statusFilter, limit: 200, includePast });
 
   if (!res.ok) {
     return (
@@ -92,10 +93,12 @@ export default async function AdminEventosPage({
       </header>
 
       {/* Filtro por estado */}
-      <nav className="mb-6 flex flex-wrap gap-2" aria-label="Filtrar por estado">
+      <nav className="mb-3 flex flex-wrap gap-2" aria-label="Filtrar por estado">
         {FILTER_PILLS.map(({ label, estado: e }) => {
-          const href =
-            e === null ? "/admin/eventos" : `/admin/eventos?estado=${e}`;
+          const base = e === null ? "/admin/eventos" : `/admin/eventos?estado=${e}`;
+          const href = includePast
+            ? `${base}${e === null ? "?" : "&"}pasados=1`
+            : base;
           const active =
             e === null ? statusFilter === undefined : statusFilter === e;
           return (
@@ -113,6 +116,30 @@ export default async function AdminEventosPage({
           );
         })}
       </nav>
+
+      {/* Toggle incluir pasados */}
+      <div className="mb-6">
+        {(() => {
+          const params = new URLSearchParams();
+          if (statusFilter) params.set("estado", statusFilter);
+          if (!includePast) params.set("pasados", "1");
+          const toggleHref = `/admin/eventos${params.toString() ? `?${params}` : ""}`;
+          return (
+            <Link
+              href={toggleHref}
+              className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <span
+                className={`inline-block h-4 w-4 rounded border ${
+                  includePast ? "bg-primary border-primary" : "border-muted-foreground/40"
+                }`}
+                aria-hidden
+              />
+              Incluir eventos ya pasados
+            </Link>
+          );
+        })()}
+      </div>
 
       {events.length === 0 ? (
         <div className="rounded-lg border bg-card p-10 text-center text-muted-foreground">

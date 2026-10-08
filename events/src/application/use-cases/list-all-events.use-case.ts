@@ -6,6 +6,7 @@ import type { Event } from "../../domain/event";
 export interface ListAllEventsQuery {
   status?: EventStatus | undefined;
   limit?: number | undefined;
+  includePast?: boolean | undefined;
 }
 
 export async function listAllEvents(
@@ -14,7 +15,7 @@ export async function listAllEvents(
 ): Promise<Result<Event[]>> {
   try {
     const limit = Math.min(Math.max(query.limit ?? 100, 1), 500);
-    return ok(await repo.listAll(query.status ?? null, limit));
+    return ok(await repo.listAll(query.status ?? null, limit, query.includePast ?? false));
   } catch (cause) {
     return err(new UnexpectedError("Error listando eventos", cause));
   }

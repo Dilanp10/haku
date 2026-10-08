@@ -121,13 +121,14 @@ export function createSupabaseEventRepository(
       return res.data ? rowToEvent(res.data as unknown as EventRow) : null;
     },
 
-    async listAll(status: EventStatus | null, limit: number): Promise<Event[]> {
+    async listAll(status: EventStatus | null, limit: number, includePast = false): Promise<Event[]> {
       let query = client
         .from("events")
         .select("*")
         .order("starts_at", { ascending: false })
         .limit(limit);
       if (status !== null) query = query.eq("status", status);
+      if (!includePast) query = query.gte("starts_at", new Date().toISOString());
       const res = await query;
       if (res.error) throw res.error;
       const rows = (res.data ?? []) as unknown as EventRow[];
