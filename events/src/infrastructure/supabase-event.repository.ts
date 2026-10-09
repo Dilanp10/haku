@@ -81,14 +81,17 @@ export function createSupabaseEventRepository(
     },
 
     async listUpcoming(q: ListUpcomingQuery): Promise<Event[]> {
-      const fromIso = q.from ?? new Date().toISOString();
-      // Próximos O en curso: empieza en el futuro, o ya empezó pero no terminó
-      // (un festival multi-día sigue visible hasta su ends_at).
+      const now = q.from ? new Date(q.from) : new Date();
+      // Margen de gracia: un evento sigue visible hasta 24h después de su
+      // starts_at (los scrapers casi nunca traen ends_at, y si no fuera por
+      // esto los eventos "de hoy" desaparecerían al minuto de empezar).
+      const graceIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+      const nowIso = now.toISOString();
       let query = client
         .from("events")
         .select("*")
         .eq("status", "published")
-        .or(`starts_at.gte.${fromIso},ends_at.gte.${fromIso}`)
+        .or(`starts_at.gte.${graceIso},ends_at.gte.${nowIso}`)
         .order("starts_at", { ascending: true })
         .limit(q.limit);
       if (q.category) query = query.eq("category", q.category);
@@ -101,13 +104,15 @@ export function createSupabaseEventRepository(
     },
 
     async listEventCategories(): Promise<string[]> {
-      const nowIso = new Date().toISOString();
+      const now = new Date();
+      const graceIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+      const nowIso = now.toISOString();
       const res = await client
         .from("events")
         .select("category")
         .eq("status", "published")
         .not("category", "is", null)
-        .or(`starts_at.gte.${nowIso},ends_at.gte.${nowIso}`);
+        .or(`starts_at.gte.${graceIso},ends_at.gte.${nowIso}`);
       if (res.error) throw res.error;
       const rows = (res.data ?? []) as { category: string | null }[];
       const seen = new Set<string>();
