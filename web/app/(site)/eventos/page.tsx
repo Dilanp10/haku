@@ -11,6 +11,8 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { EventCard } from "@/components/event-card";
 import { SearchInput } from "@/components/search-input";
 import { LocateMeInline } from "@/components/locate-me-inline";
+import { EventsMiniMap } from "@/components/events-mini-map";
+import type { MapPoint } from "@/components/haku-map";
 
 export const metadata: Metadata = {
   title: "Eventos",
@@ -81,6 +83,39 @@ export default async function EventosPage({
     });
   }
 
+  // Puntos para el mini-mapa: solo eventos con coordenadas en los próximos 2 días
+  const MAP_WINDOW_DAYS = 2;
+  const windowEndMs = Date.now() + MAP_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  const mapPoints: MapPoint[] = events
+    .filter((e): e is Event & { location: { lat: number; lng: number } } => !!e.location)
+    .filter((e) => {
+      const t = new Date(e.startsAt).getTime();
+      return !isNaN(t) && t <= windowEndMs;
+    })
+    .map((e) => {
+      const dt = new Date(e.startsAt);
+      const dateLabel = isNaN(dt.getTime())
+        ? e.startsAt
+        : dt.toLocaleString("es-AR", {
+            weekday: "short",
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZone: "America/Argentina/Catamarca",
+          });
+      return {
+        slug: e.slug,
+        name: e.title,
+        lat: e.location.lat,
+        lng: e.location.lng,
+        kind: "event" as const,
+        meta: dateLabel,
+        category: e.category ?? null,
+        imageUrl: e.imageUrl ?? null,
+      };
+    });
+
   const hasFilters = !!(sp.q || sp.categoria);
   const activeFilters: Record<string, string> = {};
   if (sp.q) activeFilters["q"] = sp.q;
@@ -98,6 +133,13 @@ export default async function EventosPage({
           {hasFilters ? " con estos filtros" : " próximos"}.
         </p>
       </header>
+
+      {/* Mini-mapa de eventos */}
+      <EventsMiniMap
+        points={mapPoints}
+        totalCount={events.length}
+        windowDays={MAP_WINDOW_DAYS}
+      />
 
       {/* Filtros */}
       <aside

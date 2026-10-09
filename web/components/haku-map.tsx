@@ -22,6 +22,8 @@ export interface MapPoint {
   neighborhood?: string | null;
   status?: VenueStatus;
   closesAt?: string | null;
+  /** Para eventos: foto de portada (si existe se renderiza como miniatura circular). */
+  imageUrl?: string | null;
 }
 
 function pinSvg(color: string): string {
@@ -42,13 +44,35 @@ function buildIcon(color: string): L.DivIcon {
   });
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] ?? c
+  ));
+}
+
+/** Pin circular 40px con foto del evento o la inicial del título como fallback. */
+function buildEventIcon(name: string, imageUrl?: string | null): L.DivIcon {
+  const initial = (name.trim().charAt(0) || "·").toUpperCase();
+  const safeInitial = escapeHtml(initial);
+  const inner = imageUrl
+    ? `<img src="${escapeHtml(imageUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.replaceWith(Object.assign(document.createElement('div'),{textContent:'${safeInitial}',style:'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#D67849;color:#fff;font-weight:700;font-size:16px'}))" />`
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#D67849;color:#fff;font-weight:700;font-size:16px">${safeInitial}</div>`;
+  const html = `<div style="width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid #fff;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.35)">${inner}</div>`;
+  return L.divIcon({
+    html,
+    className: "haku-pin-event",
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
+    popupAnchor: [0, -22],
+  });
+}
+
 const iconOpen = buildIcon("#8AA265");   // moss (verde)
 const iconClosed = buildIcon("#C0664E"); // rust (rojo)
 const iconUnknown = buildIcon("#D67849"); // terra
-const iconEvent = buildIcon("#8AA265");   // moss
 
 function iconForPoint(p: MapPoint): L.DivIcon {
-  if (p.kind === "event") return iconEvent;
+  if (p.kind === "event") return buildEventIcon(p.name, p.imageUrl);
   if (p.status === "open") return iconOpen;
   if (p.status === "closed") return iconClosed;
   return iconUnknown;
