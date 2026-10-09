@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
       // Supabase local (supabase start)
       { protocol: "http", hostname: "localhost", port: "54321" },
       { protocol: "http", hostname: "127.0.0.1", port: "54321" },
+      // Fuentes de eventos (turismo SFVC + apps gobierno Catamarca)
+      { protocol: "https", hostname: "turismo.apps.cc.gob.ar" },
+      { protocol: "https", hostname: "**.cc.gob.ar" },
+      { protocol: "https", hostname: "**.catamarca.gob.ar" },
     ],
   },
 };
