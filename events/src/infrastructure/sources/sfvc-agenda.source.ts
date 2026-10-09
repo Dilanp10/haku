@@ -93,6 +93,17 @@ function resolveUrl(url: string | undefined, prefix: string | undefined): string
   return `${prefix.replace(/\/$/, "")}/${url.replace(/^\//, "")}`;
 }
 
+/**
+ * Reescribe el host interno de Docker del Directus del turismo (p.ej.
+ * `turismo_directus_prod:8055`) al host público. El upstream a veces incrusta
+ * la URL del contenedor en los assets, y así next/image rechaza el src.
+ */
+function publicizeAssetUrl(url: string): string {
+  return url.replace(/^https?:\/\/turismo_directus_prod(?::\d+)?/, "https://turismo.apps.cc.gob.ar");
+}
+
+export { publicizeAssetUrl };
+
 /** Mapea un hit del Meilisearch a un `RawEvent`. Devuelve null si le faltan campos obligatorios. */
 export function mapSfvcHit(hit: Hit, sourceKey: string, urlPrefix?: string): RawEvent | null {
   const title = hit.titulo?.trim();
@@ -122,7 +133,7 @@ export function mapSfvcHit(hit: Hit, sourceKey: string, urlPrefix?: string): Raw
   if (coords) raw.location = coords;
   const url = resolveUrl(hit.url, urlPrefix);
   if (url) raw.url = url;
-  if (hit.imagen) raw.imageUrl = hit.imagen;
+  if (hit.imagen) raw.imageUrl = publicizeAssetUrl(hit.imagen);
   const category = hit.tematicas?.[0] ?? hit.tipo;
   if (category) raw.category = category;
 
