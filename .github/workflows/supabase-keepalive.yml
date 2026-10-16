@@ -1,32 +1,86 @@
 name: Supabase keep-alive
 
-# El free tier de Supabase pausa el proyecto tras 7 días sin actividad en la
-# API. Este workflow le pega una lectura liviana TODOS los días para que nunca
-# llegue a ese límite.
+# El free tier de Supabase pausa proyectos con "low activity" durante 7 días.
+# La doc oficial pide "a few user requests to the database each day": en plural.
 #
-# Historia: el intervalo original (cada 5 días) parecía cómodo, pero los bordes
-# de mes de `*/5` en día-del-mes generan huecos de más de 7 días (p. ej. del
-# día 1 al 6). En cuanto Supabase pausó el proyecto, este workflow tampoco
-# pudo despertarlo — sólo mantiene vivo lo que ya está vivo — y las corridas
-# siguientes fallaron con "Couldn't resolve host". Diario elimina el problema.
+# Historia de los dos incidentes:
+#  1. El intervalo original (`*/5` en día-del-mes) dejaba huecos de más de 7 días
+#     en los bordes de mes. Se pasó a diario.
+#  2. Diario tampoco alcanzó: una sola lectura por día quedó por debajo del
+#     umbral de actividad y el 2026-10-14 Supabase pausó el proyecto igual.
+#     Peor: este workflow sólo pingeaba, así que una vez pausado no podía
+#     revivirlo y las corridas siguientes fallaban con "Couldn't resolve host".
+#
+# De ahí las tres correcciones: 4 corridas por día, varias lecturas por corrida,
+# y restore automático vía Management API cuando el ping falla.
 on:
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "0 */6 * * *"
   workflow_dispatch: {}
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Leer una fila de categories (mantiene el proyecto activo)
+      - name: Leer varias tablas (mantiene el proyecto activo)
+        id: ping
+        continue-on-error: true
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          status=$(curl -s -o /tmp/body.json -w "%{http_code}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/categories?select=id&limit=1" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
-          echo "HTTP status: $status"
-          cat /tmp/body.json
-          if [ "$status" -ge 400 ]; then
-            echo "::error::Supabase respondió $status — revisar si el proyecto sigue pausado/activo (restore_project desde el dashboard o vía API)."
+          fail=0
+          for tabla in categories venues events; do
+            status=$(curl -s -o /tmp/resp.json -w "%{http_code}" --max-time 20 \
+              "$URL/rest/v1/$tabla?select=id&limit=1" \
+              -H "apikey: $KEY" \
+              -H "Authorization: Bearer $KEY" || echo "000")
+            echo "$tabla -> HTTP $status"
+            case "$status" in
+              2*) ;;
+              *)  fail=1; cat /tmp/resp.json || true ;;
+            esac
+            sleep 2
+          done
+          exit $fail
+
+      - name: Restaurar el proyecto si el ping falló
+        if: steps.ping.outcome == 'failure'
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::El ping falló y no hay SUPABASE_ACCESS_TOKEN configurado para restaurar."
             exit 1
           fi
+          ref=$(echo "$URL" | sed -E 's#https://([^.]+)\.supabase\.co.*#\1#')
+          echo "Restaurando proyecto $ref…"
+          code=$(curl -s -o /tmp/restore.json -w "%{http_code}" --max-time 30 -X POST \
+            "https://api.supabase.com/v1/projects/$ref/restore" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{}' || echo "000")
+          echo "restore -> HTTP $code"
+          cat /tmp/restore.json || true
+          case "$code" in
+            2*) echo "::warning::El proyecto estaba pausado; se disparó el restore (tarda 2-5 min)." ;;
+            *)  echo "::error::No se pudo restaurar automáticamente (HTTP $code). Revisar el dashboard."; exit 1 ;;
+          esac
+
+      - name: Confirmar que volvió a responder
+        if: steps.ping.outcome == 'failure'
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          for intento in $(seq 1 20); do
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 \
+              "$URL/rest/v1/categories?select=id&limit=1" \
+              -H "apikey: $KEY" -H "Authorization: Bearer $KEY" || echo "000")
+            echo "intento $intento -> HTTP $status"
+            case "$status" in 2*) echo "Proyecto arriba."; exit 0 ;; esac
+            sleep 20
+          done
+          echo "::error::El restore se disparó pero el proyecto no respondió tras ~7 min."
+          exit 1
