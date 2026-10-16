@@ -3,16 +3,19 @@ name: Supabase keep-alive
 # El free tier de Supabase pausa proyectos con "low activity" durante 7 días.
 # La doc oficial pide "a few user requests to the database each day": en plural.
 #
-# Historia de los dos incidentes:
+# Historia de los incidentes:
 #  1. El intervalo original (`*/5` en día-del-mes) dejaba huecos de más de 7 días
 #     en los bordes de mes. Se pasó a diario.
 #  2. Diario tampoco alcanzó: una sola lectura por día quedó por debajo del
-#     umbral de actividad y el 2026-10-14 Supabase pausó el proyecto igual.
-#     Peor: este workflow sólo pingeaba, así que una vez pausado no podía
-#     revivirlo y las corridas siguientes fallaban con "Couldn't resolve host".
+#     umbral de actividad y el 2026-10-14 Supabase pausó haku igual. Peor: este
+#     workflow sólo pingeaba, así que una vez pausado no podía revivirlo y las
+#     corridas siguientes fallaban con "Couldn't resolve host".
 #
-# De ahí las tres correcciones: 4 corridas por día, varias lecturas por corrida,
-# y restore automático vía Management API cuando el ping falla.
+# De ahí: 4 corridas por día, varias lecturas por corrida, y restore automático
+# vía Management API cuando el ping falla.
+#
+# Cubre los dos proyectos de la org. superbeto-demo no tiene repo propio (vive
+# local, sin git), así que su keep-alive se hospeda acá.
 on:
   schedule:
     - cron: "0 */6 * * *"
@@ -21,24 +24,42 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: haku
+            url_secret: SUPABASE_URL
+            key_secret: SUPABASE_ANON_KEY
+            tables: categories venues events
+          - name: superbeto-demo
+            url_secret: SUPERBETO_SUPABASE_URL
+            key_secret: SUPERBETO_SUPABASE_ANON_KEY
+            tables: products sales providers
+    name: ping (${{ matrix.name }})
     steps:
       - name: Leer varias tablas (mantiene el proyecto activo)
         id: ping
         continue-on-error: true
         env:
-          URL: ${{ secrets.SUPABASE_URL }}
-          KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          URL: ${{ secrets[matrix.url_secret] }}
+          KEY: ${{ secrets[matrix.key_secret] }}
+          TABLES: ${{ matrix.tables }}
         run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error::Faltan los secrets ${{ matrix.url_secret }} / ${{ matrix.key_secret }}."
+            exit 1
+          fi
           fail=0
-          for tabla in categories venues events; do
+          for tabla in $TABLES; do
             status=$(curl -s -o /tmp/resp.json -w "%{http_code}" --max-time 20 \
-              "$URL/rest/v1/$tabla?select=id&limit=1" \
+              "$URL/rest/v1/$tabla?select=*&limit=1" \
               -H "apikey: $KEY" \
               -H "Authorization: Bearer $KEY" || echo "000")
             echo "$tabla -> HTTP $status"
             case "$status" in
               2*) ;;
-              *)  fail=1; cat /tmp/resp.json || true ;;
+              *)  fail=1; cat /tmp/resp.json || true; echo ;;
             esac
             sleep 2
           done
@@ -47,11 +68,11 @@ jobs:
       - name: Restaurar el proyecto si el ping falló
         if: steps.ping.outcome == 'failure'
         env:
-          URL: ${{ secrets.SUPABASE_URL }}
+          URL: ${{ secrets[matrix.url_secret] }}
           TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           if [ -z "$TOKEN" ]; then
-            echo "::error::El ping falló y no hay SUPABASE_ACCESS_TOKEN configurado para restaurar."
+            echo "::error::El ping falló y no hay SUPABASE_ACCESS_TOKEN para restaurar."
             exit 1
           fi
           ref=$(echo "$URL" | sed -E 's#https://([^.]+)\.supabase\.co.*#\1#')
@@ -64,23 +85,28 @@ jobs:
           echo "restore -> HTTP $code"
           cat /tmp/restore.json || true
           case "$code" in
-            2*) echo "::warning::El proyecto estaba pausado; se disparó el restore (tarda 2-5 min)." ;;
-            *)  echo "::error::No se pudo restaurar automáticamente (HTTP $code). Revisar el dashboard."; exit 1 ;;
+            2*) echo "::warning::${{ matrix.name }} estaba pausado; se disparó el restore (tarda 2-5 min)." ;;
+            *)  echo "::error::No se pudo restaurar ${{ matrix.name }} (HTTP $code). Revisar el dashboard."; exit 1 ;;
           esac
 
+      # Ojo: tras un restore, Postgres acepta conexiones antes de terminar de
+      # montar el schema; una consulta temprana puede devolver resultados
+      # vacíos en vez de fallar. Por eso se espera un 2xx real del REST.
       - name: Confirmar que volvió a responder
         if: steps.ping.outcome == 'failure'
         env:
-          URL: ${{ secrets.SUPABASE_URL }}
-          KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          URL: ${{ secrets[matrix.url_secret] }}
+          KEY: ${{ secrets[matrix.key_secret] }}
+          TABLES: ${{ matrix.tables }}
         run: |
+          primera=$(echo $TABLES | awk '{print $1}')
           for intento in $(seq 1 20); do
             status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 \
-              "$URL/rest/v1/categories?select=id&limit=1" \
+              "$URL/rest/v1/$primera?select=*&limit=1" \
               -H "apikey: $KEY" -H "Authorization: Bearer $KEY" || echo "000")
             echo "intento $intento -> HTTP $status"
-            case "$status" in 2*) echo "Proyecto arriba."; exit 0 ;; esac
+            case "$status" in 2*) echo "${{ matrix.name }} arriba."; exit 0 ;; esac
             sleep 20
           done
-          echo "::error::El restore se disparó pero el proyecto no respondió tras ~7 min."
+          echo "::error::El restore de ${{ matrix.name }} se disparó pero no respondió tras ~7 min."
           exit 1
