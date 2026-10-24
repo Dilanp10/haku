@@ -174,10 +174,15 @@ Completed:
   creciendo hasta 1.06 mientras se disuelve. Con `prefers-reduced-motion` la marca pierde
   el scale y queda solo el fade. Se mantiene el gate de `sessionStorage`: una vez por
   sesión de navegador.
-- 2026-10-23 (ajuste): de 2,5 s a 3 s. En la primera versión el fade arrancaba al 60%
-  (1,5 s) y la marca quedaba poco tiempo sólida; el problema no era tanto la duración
-  total como el reparto. El hold pasa al 70%, así que la H queda plenamente visible
-  ~1,75 s —antes ~1,1 s— y el desvanecimiento ocupa los últimos 900 ms.
+- 2026-10-23 (ajuste): de 2,5 s a 3 s, corriendo el hold del 60% al 70%.
+- 2026-10-23 (ajuste 2): seguía viéndose corto, y la causa de fondo no era la duración.
+  Con el ciclo entero en un keyframe, el reloj arrancaba en el primer pintado del HTML:
+  en una carga lenta buena parte del splash transcurría antes de que se viera algo. Ahora
+  el keyframe solo hace la entrada y la salida la dispara el cliente (clase
+  `splash-leaving`) tras `HOLD_MS`, así que el hold se cuenta desde que la app está lista
+  y no se consume en la espera. Quedan 2,8 s de marca a plena vista + 1 s de fade.
+  `haku-splash-hold` (9 s) es el failsafe si el JS nunca corre: sin él, un fallo de
+  hidratación dejaría el velo tapando la app para siempre.
 
 Files:
 - `web/components/splash-screen.tsx`
@@ -185,8 +190,11 @@ Files:
 
 Tests:
 - `pnpm typecheck`, `pnpm lint`
-- Verificación en navegador congelando la animación: velo opaco a 400, 1500 y 2100 ms;
-  0.62 a 2600 ms; 0.18 a 2900 ms. El overlay se desmonta a los 3 s.
+- Ciclo real medido en el navegador: hold opaco hasta ~2,8 s, `splash-leaving` a 2,95 s,
+  desmontado a 4,1 s. Fade de salida muestreado aparte: 0.96 → 0.84 → 0.68 → 0.47 → 0.21
+  → 0 en ~1 s.
+- Nota de verificación: con el panel del navegador oculto las animaciones se congelan y la
+  opacidad se lee siempre en 1 aunque las clases cambien. Medir con el panel visible.
 
 SDD requirements satisfied:
 - FR-006

@@ -126,26 +126,42 @@
   to   { transform: translateY(0);    opacity: 1; }
 }
 
-/* Splash: el velo se sostiene y recién se desvanece en el último tramo. */
-@keyframes haku-splash-veil {
-  0%, 70% { opacity: 1; }
+/* Splash. La salida la dispara el cliente (clase `splash-leaving`), no un keyframe:
+   así el hold se cuenta desde que la app está lista y no desde el primer pintado,
+   que en una carga lenta se comía medio splash. `haku-splash-hold` es el failsafe
+   para el caso de que el JS nunca llegue a correr. */
+@keyframes haku-splash-hold {
+  0%, 88% { opacity: 1; }
   100%    { opacity: 0; }
 }
+@keyframes haku-splash-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
 @keyframes haku-splash-mark {
-  0%   { opacity: 0; transform: scale(0.94); }
-  12%  { opacity: 1; transform: scale(1); }
-  100% { opacity: 1; transform: scale(1.06); }
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
 }
 .splash-veil {
-  animation: haku-splash-veil 3000ms ease-in forwards;
+  animation: haku-splash-hold 9000ms linear forwards;
+}
+.splash-veil.splash-leaving {
+  animation: haku-splash-out 1000ms ease-in forwards;
 }
 .splash-mark {
-  animation: haku-splash-mark 3000ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: haku-splash-mark 1100ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  transition: transform 1000ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+.splash-leaving .splash-mark {
+  transform: scale(1.08);
 }
 @media (prefers-reduced-motion: reduce) {
   .splash-mark {
-    animation-name: haku-splash-veil;
-    animation-timing-function: ease-in;
+    animation: none;
+    transition: none;
+  }
+  .splash-leaving .splash-mark {
+    transform: none;
   }
 }
 
