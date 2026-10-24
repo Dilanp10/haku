@@ -134,6 +134,34 @@ Tests:
 SDD requirements satisfied:
 - FR-004
 
+## TASK-016 — Página 404 propia
+Status: COMPLETED
+Satisfies: FR-004
+
+Descripción:
+Entrar a `/eventos/<slug-expirado>` o cualquier ruta inexistente mostraba la pantalla
+default de Next.js ("404 This page could not be found" en inglés, sin diseño). Afecta
+links viejos de WhatsApp a eventos pasados, cuando el scraper los dejó de ingestar.
+
+Completed:
+- 2026-10-24: `web/app/not-found.tsx` con la H de marca, "No encontramos esta página",
+  copia explicando que el link puede estar desactualizado, y botón terracota al home.
+  Al estar en el root, cubre todas las llamadas a `notFound()` (lugares, eventos y
+  rutas inexistentes). Las metadata específicas por sección (ej. "Evento no
+  encontrado · Haku") siguen aplicándose porque Next 15 mergea.
+
+Files:
+- `web/app/not-found.tsx` (nuevo)
+
+Tests:
+- `pnpm typecheck`
+- Verificación en navegador local con rutas inventadas: `/eventos/no-existe`,
+  `/lugares/no-existe`, `/pagina-fantasma` — las tres muestran el mismo not-found con
+  el título propio de cada sección.
+
+SDD requirements satisfied:
+- FR-004
+
 ## TASK-015 — Fix: /mapa crasheaba con eventos sin coordenadas
 Status: COMPLETED
 Satisfies: FR-001
