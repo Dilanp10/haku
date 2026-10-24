@@ -165,15 +165,19 @@ Satisfies: FR-006
 
 Descripción:
 El splash mostraba "Haku." + "vamos" durante 1 s. Pasa a la H en serif italic —la misma
-del ícono— en grande, sosteniéndose y desvaneciéndose a lo largo de 2,5 s.
+del ícono— en grande, sosteniéndose y desvaneciéndose a lo largo de 3 s.
 
 Completed:
 - 2026-10-23: el timing vive en dos keyframes de `globals.css` en vez de encadenar
-  timers. El velo se sostiene opaco hasta el 60% y recién ahí se desvanece, así que la
-  app aparece detrás en el último segundo; la marca entra con un scale corto y sigue
+  timers. El velo se sostiene opaco hasta el 70% y recién ahí se desvanece, así que la
+  app aparece detrás en el último tramo; la marca entra con un scale corto y sigue
   creciendo hasta 1.06 mientras se disuelve. Con `prefers-reduced-motion` la marca pierde
   el scale y queda solo el fade. Se mantiene el gate de `sessionStorage`: una vez por
   sesión de navegador.
+- 2026-10-23 (ajuste): de 2,5 s a 3 s. En la primera versión el fade arrancaba al 60%
+  (1,5 s) y la marca quedaba poco tiempo sólida; el problema no era tanto la duración
+  total como el reparto. El hold pasa al 70%, así que la H queda plenamente visible
+  ~1,75 s —antes ~1,1 s— y el desvanecimiento ocupa los últimos 900 ms.
 
 Files:
 - `web/components/splash-screen.tsx`
@@ -181,9 +185,8 @@ Files:
 
 Tests:
 - `pnpm typecheck`, `pnpm lint`
-- Verificación en navegador congelando la animación: a 400 ms velo opaco con la H sólida,
-  a 1900 ms velo en 0.79 con la app asomando, a 2300 ms en 0.31. El overlay se desmonta a
-  los 2,5 s.
+- Verificación en navegador congelando la animación: velo opaco a 400, 1500 y 2100 ms;
+  0.62 a 2600 ms; 0.18 a 2900 ms. El overlay se desmonta a los 3 s.
 
 SDD requirements satisfied:
 - FR-006
