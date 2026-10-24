@@ -7,6 +7,7 @@ import {
   createSupabaseEventRepository,
 } from "@haku/events";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { formatEventCategory } from "@/lib/format-category";
 import { VenueMapClient } from "@/components/venue-map-client";
 
 export const revalidate = 600;
@@ -122,10 +123,10 @@ export default async function EventDetailPage({ params }: Props) {
           {event.category && (
             <InfoCard label="Categoría">
               <span
-                className="rounded-full border px-3 py-1 text-xs capitalize"
+                className="rounded-full border px-3 py-1 text-xs"
                 style={{ borderColor: "var(--line-2)", color: "var(--fg-70)", background: "var(--card-bg)" }}
               >
-                {event.category}
+                {formatEventCategory(event.category)}
               </span>
             </InfoCard>
           )}

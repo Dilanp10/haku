@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SlidersHorizontal, X } from "lucide-react";
+import { formatEventCategory } from "@/lib/format-category";
 import {
   listUpcomingEvents,
   createSupabaseEventRepository,
@@ -237,7 +238,7 @@ function EventCategoryPills({
     <nav aria-label="Categorías de eventos" className="flex flex-wrap gap-2">
       <Pill href={buildHref()} active={!active} label="Todos" />
       {categories.map((c) => (
-        <Pill key={c} href={buildHref(c)} active={active === c} label={c} />
+        <Pill key={c} href={buildHref(c)} active={active === c} label={formatEventCategory(c)} />
       ))}
     </nav>
   );
