@@ -134,6 +134,35 @@ Tests:
 SDD requirements satisfied:
 - FR-004
 
+## TASK-015 — Fix: /mapa crasheaba con eventos sin coordenadas
+Status: COMPLETED
+Satisfies: FR-001
+
+Descripción:
+En producción, `/mapa` tiraba `TypeError: Cannot read properties of undefined
+(reading 'lat')` y mostraba la pantalla de error de Vercel. Causa: el adapter de
+`@haku/events` omite la propiedad `location` cuando `lat` o `lng` son null (en vez
+de setear `location: null`), así que `event.location` queda `undefined`. El filtro
+`.filter(e => e.location !== null)` dejaba pasar `undefined`, y después
+`e.location!.lat` crasheaba. Al 2026-10-24 había 6 de 10 eventos sin coordenadas
+disparando el error.
+
+Completed:
+- 2026-10-24: filtro cambiado a `!= null` (atrapa null y undefined) tanto para
+  venues como para events en `/mapa`. Fix mínimo donde se usa, no se tocó el
+  adapter de `@haku/events` para no cambiar su shape público.
+
+Files:
+- `web/app/(site)/mapa/page.tsx`
+
+Tests:
+- `pnpm --filter @haku/web build` + `pnpm start` + request a `/mapa`: antes del fix
+  log mostraba el `TypeError`; después del fix HTTP 200 limpio, resto de rutas
+  (/, /lugares, /eventos, /buscar, /mas) también 200.
+
+SDD requirements satisfied:
+- FR-001
+
 ## TASK-013 — Inicial del nombre como placeholder de foto
 Status: COMPLETED
 Satisfies: FR-008

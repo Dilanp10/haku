@@ -43,7 +43,7 @@ export default async function MapaPage() {
 
   const points: MapPoint[] = [
     ...venues
-      .filter((v) => v.location !== null)
+      .filter((v) => v.location != null)
       .map((v) => {
         const open = statuses.open.get(v.id);
         const known = statuses.knownIds.has(v.id);
@@ -69,7 +69,7 @@ export default async function MapaPage() {
         };
       }),
     ...events
-      .filter((e) => e.location !== null)
+      .filter((e) => e.location != null)
       .map((e) => ({
         slug: e.slug,
         name: e.title,
