@@ -102,29 +102,34 @@ Satisfies: FR-003
 Descripción:
 Solo si analytics muestra navegadores que exijan PNG.
 
-## TASK-012 — Tema claro como default de la primera visita
+## TASK-012 — Tema claro en cada entrada fresca
 Status: COMPLETED
 Satisfies: FR-004
 
 Descripción:
-La app abría siguiendo el tema del sistema, así que en un celular en modo oscuro la
-primera impresión era el Tierra dark. El claro pasa a ser el default; el oscuro queda
-como elección explícita desde Más → Tema, que conserva las tres opciones.
+La app abre siempre en claro, aunque la vez anterior se haya elegido oscuro. El toggle
+Oscuro aplica mientras se navega sin recargar (en-memoria + localStorage), pero F5 o un
+tab nuevo arrancan de nuevo en claro. El sistema del celular no manda.
 
 Completed:
-- 2026-10-23: `defaultTheme="light"` en el provider (se mantiene `enableSystem` para que
-  la opción "Sistema" del selector siga resolviendo). `themeColor` deja de depender de
-  `prefers-color-scheme`, que con el default fijo habría pintado la barra del navegador
-  oscura sobre una app clara.
+- 2026-10-23 (v1): `defaultTheme="light"` en el provider. Error de interpretación: eso
+  solo cubre la primera visita sin tema guardado; una vez que el usuario tocaba Oscuro,
+  localStorage quedaba en "dark" y la siguiente entrada abría en oscuro de nuevo.
+- 2026-10-24 (v2): el requisito era "cada vez que entre" y así quedó. Script inline en
+  `<head>` del root layout que borra `localStorage.theme` antes de que `next-themes`
+  monte, evitando flash de oscuro durante la hidratación. El toggle sigue escribiendo
+  localStorage y la elección vive durante la navegación cliente (no recarga la página),
+  pero cada carga HTTP vuelve a limpiar.
 
 Files:
 - `web/components/theme-provider.tsx`
 - `web/app/layout.tsx`
 
 Tests:
-- `pnpm typecheck`, `pnpm test`
-- Verificación en navegador con `prefers-color-scheme: dark` emulado y `localStorage`
-  limpio: la app abre en claro; el selector Claro/Oscuro/Sistema sigue respondiendo.
+- `pnpm typecheck`
+- Verificación en navegador: con `localStorage.theme = "dark"` precargado y recarga, la
+  app abre en claro (`class="light"`, `bg: #F4EDE1`); click en Más → Oscuro cambia a
+  oscuro y navegar por link interno lo preserva; F5 vuelve a claro.
 
 SDD requirements satisfied:
 - FR-004

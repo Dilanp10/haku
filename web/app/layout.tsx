@@ -86,6 +86,16 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${instrumentSerif.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        {/* Cada entrada fresca (tab nuevo, F5) arranca en claro: el dark toggle
+            solo vive mientras se navega sin recargar. Corre antes que
+            next-themes para evitar flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "try{localStorage.removeItem('theme')}catch(e){}",
+          }}
+        />
+      </head>
       <body className="min-h-screen antialiased">
         <ThemeProvider>
           <SplashScreen />
