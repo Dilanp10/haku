@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Phone, Globe, Instagram, MapPin, Navigation } from "lucide-react";
 import {
@@ -12,6 +11,7 @@ import {
 import { categoryVisual } from "@/lib/category-visuals";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
+import { CoverImage } from "@/components/cover-image";
 import { VenueMapClient } from "@/components/venue-map-client";
 import { ViewCounter } from "@/components/view-counter";
 import { SaveButton } from "./save-button";
@@ -90,29 +90,19 @@ export default async function VenueDetailPage({ params }: Props) {
       <header className="relative md:mt-6">
         <div
           className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[16/6] md:rounded-[12px]"
-          style={
-            venue.coverImageUrl ? { background: "var(--card-2)" } : { background: visual.bg }
-          }
+          style={{ background: "var(--card-2)" }}
         >
-          {venue.coverImageUrl ? (
-            <Image
-              src={venue.coverImageUrl}
-              alt={venue.name}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 80vw"
-              className="object-cover"
-              style={{ viewTransitionName: `venue-image-${venue.id}` } as React.CSSProperties}
-            />
-          ) : (
-            <div
-              className="flex h-full w-full items-center justify-center text-7xl"
-              aria-hidden
-              style={{ viewTransitionName: `venue-image-${venue.id}` } as React.CSSProperties}
-            >
-              {visual.emoji}
-            </div>
-          )}
+          <CoverImage
+            src={venue.coverImageUrl}
+            alt={venue.name}
+            name={venue.name}
+            sizes="(max-width: 1024px) 100vw, 80vw"
+            priority
+            fallbackBg={visual.bg}
+            fallbackFg={visual.fg}
+            fallbackTextClassName="text-[7rem]"
+            viewTransitionName={`venue-image-${venue.id}`}
+          />
 
           {/* Gradiente + nombre superpuesto */}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pt-16 pb-4 px-4">

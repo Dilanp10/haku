@@ -101,3 +101,60 @@ Satisfies: FR-003
 
 Descripción:
 Solo si analytics muestra navegadores que exijan PNG.
+
+## TASK-012 — Tema claro como default de la primera visita
+Status: COMPLETED
+Satisfies: FR-004
+
+Descripción:
+La app abría siguiendo el tema del sistema, así que en un celular en modo oscuro la
+primera impresión era el Tierra dark. El claro pasa a ser el default; el oscuro queda
+como elección explícita desde Más → Tema, que conserva las tres opciones.
+
+Completed:
+- 2026-10-23: `defaultTheme="light"` en el provider (se mantiene `enableSystem` para que
+  la opción "Sistema" del selector siga resolviendo). `themeColor` deja de depender de
+  `prefers-color-scheme`, que con el default fijo habría pintado la barra del navegador
+  oscura sobre una app clara.
+
+Files:
+- `web/components/theme-provider.tsx`
+- `web/app/layout.tsx`
+
+Tests:
+- `pnpm typecheck`, `pnpm test`
+- Verificación en navegador con `prefers-color-scheme: dark` emulado y `localStorage`
+  limpio: la app abre en claro; el selector Claro/Oscuro/Sistema sigue respondiendo.
+
+SDD requirements satisfied:
+- FR-004
+
+## TASK-013 — Inicial del nombre como placeholder de foto
+Status: COMPLETED
+Satisfies: FR-008
+
+Descripción:
+Reemplaza el emoji de categoría por la inicial del nombre, y cubre además el caso que
+antes quedaba descubierto: la foto existe pero falla al cargar (host caído, 404), donde
+`next/image` dejaba un hueco.
+
+Completed:
+- 2026-10-23: `CoverImage` centraliza los dos casos (sin URL y `onError`) y renderiza la
+  inicial en la serif de marca sobre el wash de la categoría. En eventos reemplaza al
+  bloque de fecha, y el héroe del detalle de evento pasa a tener placeholder (antes se
+  omitía el bloque entero).
+
+Files:
+- `web/components/cover-image.tsx` (nuevo)
+- `web/components/venue-card.tsx`
+- `web/components/event-card.tsx`
+- `web/app/(site)/lugares/[slug]/page.tsx`
+- `web/app/(site)/eventos/[slug]/page.tsx`
+
+Tests:
+- `pnpm typecheck`, `pnpm test`
+- Verificación en navegador: "Café del Centro" sin foto muestra `C`; forzando `error` en
+  la imagen de "Lo de Lalo" el thumb pasa a `L`; legible en claro y en oscuro.
+
+SDD requirements satisfied:
+- FR-008

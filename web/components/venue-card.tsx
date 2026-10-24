@@ -1,6 +1,6 @@
-import Image from "next/image";
 import type { Venue, Category } from "@haku/core";
 import { CardSaveButton } from "@/components/card-save-button";
+import { CoverImage } from "@/components/cover-image";
 import { TransitionLink } from "@/components/transition-link";
 import { categoryVisual } from "@/lib/category-visuals";
 
@@ -41,30 +41,17 @@ export function VenueCard({
         className="relative shrink-0 size-16 rounded-[10px] overflow-hidden"
         style={{ background: "var(--card-2)" }}
       >
-        {venue.coverImageUrl ? (
-          <Image
-            src={venue.coverImageUrl}
-            alt=""
-            fill
-            sizes="64px"
-            className="object-cover"
-            style={{ viewTransitionName: `venue-image-${venue.id}` } as React.CSSProperties}
-            {...(priority ? { priority: true } : {})}
-          />
-        ) : (
-          <div
-            className="flex h-full w-full items-center justify-center text-2xl"
-            style={
-              {
-                background: visual.bg,
-                viewTransitionName: `venue-image-${venue.id}`,
-              } as React.CSSProperties
-            }
-            aria-hidden
-          >
-            {visual.emoji}
-          </div>
-        )}
+        <CoverImage
+          src={venue.coverImageUrl}
+          alt=""
+          name={venue.name}
+          sizes="64px"
+          fallbackBg={visual.bg}
+          fallbackFg={visual.fg}
+          fallbackTextClassName="text-[28px]"
+          viewTransitionName={`venue-image-${venue.id}`}
+          {...(priority ? { priority: true } : {})}
+        />
       </div>
 
       <div className="relative flex-1 min-w-0">
