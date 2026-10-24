@@ -1,7 +1,15 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Event } from "@haku/events";
-import { CoverImage } from "@/components/cover-image";
 
+const fmtDay = new Intl.DateTimeFormat("es-AR", {
+  day: "2-digit",
+  timeZone: "America/Argentina/Catamarca",
+});
+const fmtMonth = new Intl.DateTimeFormat("es-AR", {
+  month: "short",
+  timeZone: "America/Argentina/Catamarca",
+});
 const fmtTime = new Intl.DateTimeFormat("es-AR", {
   hour: "2-digit",
   minute: "2-digit",
@@ -20,20 +28,31 @@ export function EventCard({ event, distanceKm }: { event: Event; distanceKm?: nu
         className="absolute inset-0 z-10 transition-opacity active:opacity-70"
       />
 
-      <div
-        className="relative shrink-0 size-16 rounded-[10px] overflow-hidden"
-        style={{ background: "var(--card-2)" }}
-      >
-        <CoverImage
-          src={event.imageUrl}
-          alt=""
-          name={event.title}
-          sizes="64px"
-          fallbackBg="var(--terra-wash)"
-          fallbackFg="var(--terra-deep)"
-          fallbackTextClassName="text-[28px]"
-        />
-      </div>
+      {/* Date block o thumb */}
+      {event.imageUrl ? (
+        <div
+          className="relative shrink-0 size-16 rounded-[10px] overflow-hidden"
+          style={{ background: "var(--card-2)" }}
+        >
+          <Image
+            src={event.imageUrl}
+            alt=""
+            fill
+            sizes="64px"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <div
+          className="relative shrink-0 size-16 rounded-[10px] flex flex-col items-center justify-center"
+          style={{ background: "var(--terra-wash)", color: "var(--terra-deep)" }}
+        >
+          <span className="text-brand text-2xl leading-none">{fmtDay.format(d)}</span>
+          <span className="text-data uppercase mt-0.5" style={{ fontSize: "10px" }}>
+            {fmtMonth.format(d).replace(".", "")}
+          </span>
+        </div>
+      )}
 
       {/* Text */}
       <div className="relative flex-1 min-w-0">

@@ -7,7 +7,6 @@ import {
   createSupabaseEventRepository,
 } from "@haku/events";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { CoverImage } from "@/components/cover-image";
 import { VenueMapClient } from "@/components/venue-map-client";
 
 export const revalidate = 600;
@@ -87,21 +86,18 @@ export default async function EventDetailPage({ params }: Props) {
         </div>
       </header>
 
-      <div
-        className="relative mt-6 aspect-[16/7] overflow-hidden rounded-[12px] border"
-        style={{ borderColor: "var(--line)", background: "var(--card-2)" }}
-      >
-        <CoverImage
-          src={event.imageUrl}
-          alt={event.title}
-          name={event.title}
-          sizes="(max-width: 1024px) 100vw, 80vw"
-          priority
-          fallbackBg="var(--terra-wash)"
-          fallbackFg="var(--terra-deep)"
-          fallbackTextClassName="text-[7rem]"
-        />
-      </div>
+      {event.imageUrl && (
+        <div
+          className="mt-6 overflow-hidden rounded-[12px] border"
+          style={{ borderColor: "var(--line)" }}
+        >
+          <img
+            src={event.imageUrl}
+            alt={event.title}
+            className="aspect-[16/7] w-full object-cover"
+          />
+        </div>
+      )}
 
       <div className="mt-8 space-y-6">
         {event.description && (

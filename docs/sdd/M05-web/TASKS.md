@@ -191,32 +191,36 @@ Tests:
 SDD requirements satisfied:
 - FR-001
 
-## TASK-013 — Inicial del nombre como placeholder de foto
+## TASK-013 — Inicial del nombre como placeholder de foto (lugares)
 Status: COMPLETED
 Satisfies: FR-008
 
 Descripción:
-Reemplaza el emoji de categoría por la inicial del nombre, y cubre además el caso que
-antes quedaba descubierto: la foto existe pero falla al cargar (host caído, 404), donde
-`next/image` dejaba un hueco.
+Reemplaza el emoji de categoría por la inicial del nombre en los lugares, y cubre
+además el caso que antes quedaba descubierto: la foto existe pero falla al cargar
+(host caído, 404), donde `next/image` dejaba un hueco.
 
 Completed:
-- 2026-10-23: `CoverImage` centraliza los dos casos (sin URL y `onError`) y renderiza la
-  inicial en la serif de marca sobre el wash de la categoría. En eventos reemplaza al
-  bloque de fecha, y el héroe del detalle de evento pasa a tener placeholder (antes se
-  omitía el bloque entero).
+- 2026-10-23: `CoverImage` centraliza los dos casos (sin URL y `onError`) y renderiza
+  la inicial en la serif de marca sobre el wash de la categoría.
+- 2026-10-23 (iteración): se había extendido también a eventos (card con la inicial
+  del título en vez del bloque día/mes, hero con la H gigante como fallback). Beto
+  marcó que la inicial de un título como "4to Simposio" o "IV CONGRESO" no se lee
+  como la de un comercio, y pidió dejar los eventos como estaban antes.
+- 2026-10-24: eventos revertidos a su patrón original (card con bloque día/mes como
+  fallback, hero omitido si no hay foto). La inicial queda solo para lugares, que es
+  donde el pedido original tenía sentido ("ejemplo cafe del centro → C").
 
 Files:
-- `web/components/cover-image.tsx` (nuevo)
+- `web/components/cover-image.tsx` (nuevo, usado solo por lugares)
 - `web/components/venue-card.tsx`
-- `web/components/event-card.tsx`
 - `web/app/(site)/lugares/[slug]/page.tsx`
-- `web/app/(site)/eventos/[slug]/page.tsx`
 
 Tests:
-- `pnpm typecheck`, `pnpm test`
-- Verificación en navegador: "Café del Centro" sin foto muestra `C`; forzando `error` en
-  la imagen de "Lo de Lalo" el thumb pasa a `L`; legible en claro y en oscuro.
+- `pnpm typecheck`
+- Verificación en navegador: "Café del Centro" sin foto muestra `C` en lista y en
+  hero. Las cards de evento vuelven a mostrar el día/mes cuando no hay foto; el
+  detalle de evento sin foto no muestra el bloque hero.
 
 SDD requirements satisfied:
 - FR-008
