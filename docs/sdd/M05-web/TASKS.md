@@ -158,3 +158,32 @@ Tests:
 
 SDD requirements satisfied:
 - FR-008
+
+## TASK-014 — Splash con la H de marca desvaneciéndose
+Status: COMPLETED
+Satisfies: FR-006
+
+Descripción:
+El splash mostraba "Haku." + "vamos" durante 1 s. Pasa a la H en serif italic —la misma
+del ícono— en grande, sosteniéndose y desvaneciéndose a lo largo de 2,5 s.
+
+Completed:
+- 2026-10-23: el timing vive en dos keyframes de `globals.css` en vez de encadenar
+  timers. El velo se sostiene opaco hasta el 60% y recién ahí se desvanece, así que la
+  app aparece detrás en el último segundo; la marca entra con un scale corto y sigue
+  creciendo hasta 1.06 mientras se disuelve. Con `prefers-reduced-motion` la marca pierde
+  el scale y queda solo el fade. Se mantiene el gate de `sessionStorage`: una vez por
+  sesión de navegador.
+
+Files:
+- `web/components/splash-screen.tsx`
+- `web/app/globals.css`
+
+Tests:
+- `pnpm typecheck`, `pnpm lint`
+- Verificación en navegador congelando la animación: a 400 ms velo opaco con la H sólida,
+  a 1900 ms velo en 0.79 con la app asomando, a 2300 ms en 0.31. El overlay se desmonta a
+  los 2,5 s.
+
+SDD requirements satisfied:
+- FR-006

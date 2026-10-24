@@ -126,6 +126,29 @@
   to   { transform: translateY(0);    opacity: 1; }
 }
 
+/* Splash: el velo se sostiene y recién se desvanece en el último segundo. */
+@keyframes haku-splash-veil {
+  0%, 60% { opacity: 1; }
+  100%    { opacity: 0; }
+}
+@keyframes haku-splash-mark {
+  0%   { opacity: 0; transform: scale(0.94); }
+  16%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.06); }
+}
+.splash-veil {
+  animation: haku-splash-veil 2500ms ease-in forwards;
+}
+.splash-mark {
+  animation: haku-splash-mark 2500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash-mark {
+    animation-name: haku-splash-veil;
+    animation-timing-function: ease-in;
+  }
+}
+
 /* View Transitions (spec 031, O5) — solo si el navegador soporta la API */
 @supports (view-transition-name: none) {
   ::view-transition-old(root),
