@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SlidersHorizontal, X } from "lucide-react";
-import { formatEventCategory } from "@/lib/format-category";
 import {
   listUpcomingEvents,
   createSupabaseEventRepository,
@@ -30,7 +29,6 @@ export const dynamic = "force-dynamic";
 
 interface SearchParams {
   q?: string;
-  categoria?: string;
   lat?: string;
   lng?: string;
 }
@@ -49,14 +47,10 @@ export default async function EventosPage({
   const userLocation =
     Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
 
-  const [eventsRes, categories] = await Promise.all([
-    listUpcomingEvents(repo, {
-      limit: userLocation ? 60 : 30,
-      ...(sp.q ? { search: sp.q } : {}),
-      ...(sp.categoria ? { category: sp.categoria } : {}),
-    }),
-    repo.listEventCategories(),
-  ]);
+  const eventsRes = await listUpcomingEvents(repo, {
+    limit: userLocation ? 60 : 30,
+    ...(sp.q ? { search: sp.q } : {}),
+  });
 
   if (!eventsRes.ok) {
     return (
@@ -117,10 +111,9 @@ export default async function EventosPage({
       };
     });
 
-  const hasFilters = !!(sp.q || sp.categoria);
+  const hasFilters = !!sp.q;
   const activeFilters: Record<string, string> = {};
   if (sp.q) activeFilters["q"] = sp.q;
-  if (sp.categoria) activeFilters["categoria"] = sp.categoria;
 
   return (
     <main id="main" className="mx-auto max-w-2xl md:max-w-5xl px-4 py-8 pb-bottom">
@@ -169,19 +162,8 @@ export default async function EventosPage({
           value={sp.q}
           placeholder="Buscar por título…"
           action="/eventos"
-          preserveParams={{ ...activeFilters, q: "" }}
+          preserveParams={{ q: "" }}
         />
-
-        {categories.length > 0 && (
-          <div>
-            <p className="mb-2 text-data" style={{ color: "var(--fg-50)" }}>Categoría</p>
-            <EventCategoryPills
-              categories={categories}
-              active={sp.categoria}
-              activeFilters={activeFilters}
-            />
-          </div>
-        )}
       </aside>
 
       <LocateMeInline />
@@ -218,44 +200,3 @@ export default async function EventosPage({
   );
 }
 
-function EventCategoryPills({
-  categories,
-  active,
-  activeFilters,
-}: {
-  categories: string[];
-  active?: string | undefined;
-  activeFilters: Record<string, string>;
-}) {
-  const buildHref = (cat?: string) => {
-    const qs = new URLSearchParams({ ...activeFilters, categoria: "" });
-    if (cat) qs.set("categoria", cat);
-    const str = qs.toString().replace(/categoria=&?/, "").replace(/&$/, "");
-    return str ? `/eventos?${str}` : "/eventos";
-  };
-
-  return (
-    <nav aria-label="Categorías de eventos" className="flex flex-wrap gap-2">
-      <Pill href={buildHref()} active={!active} label="Todos" />
-      {categories.map((c) => (
-        <Pill key={c} href={buildHref(c)} active={active === c} label={formatEventCategory(c)} />
-      ))}
-    </nav>
-  );
-}
-
-function Pill({ href, active, label }: { href: string; active: boolean; label: string }) {
-  return (
-    <Link
-      href={href}
-      className="rounded-full border px-3 py-1 text-sm transition"
-      style={
-        active
-          ? { background: "var(--terra)", borderColor: "var(--terra)", color: "#fff" }
-          : { background: "var(--card-bg)", borderColor: "var(--line-2)", color: "var(--fg-70)" }
-      }
-    >
-      {label}
-    </Link>
-  );
-}
