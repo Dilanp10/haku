@@ -214,6 +214,7 @@ export interface Database {
           category: string | null;
           status: EventStatusEnum;
           dedupe_hash: string;
+          extra_sources: string[];
           raw: Json | null;
           ingested_at: string;
         };
@@ -235,6 +236,7 @@ export interface Database {
           category?: string | null;
           status?: EventStatusEnum;
           dedupe_hash: string;
+          extra_sources?: string[];
           raw?: Json | null;
           ingested_at?: string;
         };

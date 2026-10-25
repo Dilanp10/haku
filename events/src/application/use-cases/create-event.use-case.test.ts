@@ -11,11 +11,12 @@ const sampleEvent: Event = {
   startsAt: "2026-08-01T20:00:00Z",
   status: "published",
   dedupeHash: "abc123",
+  extraSources: [],
   ingestedAt: "2026-06-01T00:00:00Z",
 };
 
 const repo = (over: Partial<EventRepository> = {}): EventRepository => ({
-  upsertMany: async () => ({ inserted: 1, updated: 0 }),
+  upsertMany: async () => ({ inserted: 1, updated: 0, merged: 0 }),
   listUpcoming: async () => [],
   listAll: async () => [],
   getBySlug: async () => null,
@@ -55,7 +56,7 @@ describe("createEvent", () => {
   it("usa status published por defecto", async () => {
     let upserted: unknown[] = [];
     const r = await createEvent(
-      repo({ upsertMany: async (events) => { upserted = events; return { inserted: 1, updated: 0 }; } }),
+      repo({ upsertMany: async (events) => { upserted = events; return { inserted: 1, updated: 0, merged: 0 }; } }),
       { title: "Test", startsAt: "2026-08-01T20:00:00Z" },
     );
     expect(r.ok).toBe(true);
@@ -65,7 +66,7 @@ describe("createEvent", () => {
   it("permite override de status", async () => {
     let upserted: unknown[] = [];
     const r = await createEvent(
-      repo({ upsertMany: async (events) => { upserted = events; return { inserted: 1, updated: 0 }; } }),
+      repo({ upsertMany: async (events) => { upserted = events; return { inserted: 1, updated: 0, merged: 0 }; } }),
       { title: "Test", startsAt: "2026-08-01T20:00:00Z", status: "pending" },
     );
     expect(r.ok).toBe(true);

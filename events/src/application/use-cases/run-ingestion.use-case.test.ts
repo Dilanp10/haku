@@ -11,15 +11,35 @@ const raw = (over: Partial<RawEvent>): RawEvent => ({
   ...over,
 });
 
-const repo = (): EventRepository & { received: number } => {
+const repo = (): EventRepository & { received: number; batches: Omit<import("../../domain/event").Event, "id" | "ingestedAt">[][] } => {
   let received = 0;
+  const batches: Omit<import("../../domain/event").Event, "id" | "ingestedAt">[][] = [];
+  // Simula el merge por dedupeHash: la primera vez inserta, las siguientes mergean.
+  const seenHashes = new Map<string, string>(); // hash → sourceKey primario
   return {
     get received() {
       return received;
     },
+    get batches() {
+      return batches;
+    },
     async upsertMany(events) {
       received += events.length;
-      return { inserted: events.length, updated: 0 };
+      batches.push([...events]);
+      let inserted = 0;
+      let updated = 0;
+      let merged = 0;
+      for (const e of events) {
+        const existing = seenHashes.get(e.dedupeHash);
+        if (!existing) {
+          seenHashes.set(e.dedupeHash, e.sourceKey);
+          inserted++;
+        } else {
+          updated++;
+          if (existing !== e.sourceKey) merged++;
+        }
+      }
+      return { inserted, updated, merged };
     },
     async listUpcoming() {
       return [];
@@ -59,6 +79,25 @@ describe("runIngestion", () => {
     expect(summary.fetched).toBe(3);
     expect(summary.skipped).toBe(1);
     expect(r.received).toBe(2);
+  });
+
+  it("mergea el mismo evento desde dos fuentes distintas", async () => {
+    const r = repo();
+    const sfvc: EventSourcePort = {
+      key: "sfvc",
+      fetch: async () => [raw({ sourceKey: "sfvc", title: "La Beriso", startsAt: "2026-11-10T21:30:00Z" })],
+    };
+    const entradaweb: EventSourcePort = {
+      key: "entradaweb",
+      // Mismo título normalizado, misma hora (minutos distintos): hashea igual.
+      fetch: async () => [raw({ sourceKey: "entradaweb", title: "LA BERISO", startsAt: "2026-11-10T21:50:00Z" })],
+    };
+    const summary = await runIngestion({ sources: [sfvc, entradaweb], repo: r });
+    expect(summary.fetched).toBe(2);
+    expect(summary.inserted).toBe(1);
+    expect(summary.updated).toBe(1);
+    expect(summary.merged).toBe(1);
+    expect(summary.skipped).toBe(0);
   });
 
   it("el fallo de una fuente no aborta las demás", async () => {

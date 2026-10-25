@@ -146,3 +146,43 @@ Tests:
 
 SDD requirements satisfied:
 - FR-003
+
+## TASK-012 — Deduplicación entre fuentes
+Status: IN_PROGRESS
+Satisfies: FR-010
+
+Descripción:
+Hoy `dedupe_hash` incluye `source_key`, así que la misma peña publicada por sfvc y por
+(futuro) entradaweb genera dos filas y dos cards. Antes de sumar fuentes nuevas, el
+dedup debe trabajar entre fuentes.
+
+Diseño:
+- `dedupeHash(raw)` deja de tomar `sourceKey`. Hashea `md5(normalize_title(title) || '|' || hourEpoch(startsAt))`.
+- `normalizeTitle(s)`: lowercase + sin tildes (NFD + strip \u0300-\u036f) + alfanumérico y espacios + colapsar espacios + trim.
+- `hourEpoch(iso)`: `Math.floor(getTime() / 3600000) * 3600000` → entero en ms, siempre múltiplo de 1h.
+- SQL replica el mismo algoritmo en una función `normalize_title(text)` IMMUTABLE. La extensión `unaccent` se habilita en la migración si no está.
+- Columna nueva `events.extra_sources jsonb not null default '[]'`.
+- Backfill: la migración recomputa `dedupe_hash` para todas las filas existentes y, si hay colisiones (dos filas con el mismo hash nuevo), mergea: deja la fila más vieja, acumula el `source_key` del resto en su `extra_sources` y borra las demás.
+- Use-case `runIngestion`: por cada evento normalizado del lote, lookup por hash; si existe hace merge (campos no-null + append `source_key` a `extra_sources`), si no, insert como hoy. Agrega contador `merged` al resumen.
+- Adapter Supabase: `findByDedupeHashes(hashes[])`, `mergeInto(existing, patch)` y `insertMany(nuevos)` separados.
+
+Fuera de scope v1:
+- Sumar `venue_name`/`address` al hash (se evalúa si surgen falsos positivos reales).
+- Exponer múltiples URLs en el detalle del evento (hoy queda la del primero visto).
+
+Files:
+- `events/src/domain/event.ts` — `normalizeTitle`, `hourEpoch`, `dedupeHash` sin `sourceKey`.
+- `events/src/domain/event.test.ts` — unitarios de los helpers nuevos.
+- `events/src/application/use-cases/run-ingestion.use-case.ts` — merge path.
+- `events/src/application/use-cases/run-ingestion.use-case.test.ts` — caso cross-source con fakes.
+- `events/src/application/ports/event-repository.port.ts` — firmas nuevas si hace falta.
+- `events/src/infrastructure/supabase-event.repository.ts` — row ↔ dominio con `extra_sources`.
+- `supabase/migrations/0013_events_cross_source_dedup.sql`.
+
+Tests:
+- Unitarios de dominio: `normalizeTitle` (tildes, mayúsculas, puntuación), `hourEpoch` (minutos truncados), `dedupeHash` igual para dos sourceKeys distintos.
+- Use-case con fakes: mismo evento en 2 lotes de sources distintas → 1 fila, `extra_sources` con ambas, `merged: 1`.
+- Integración contra Supabase local (migración aplicada): backfill correcto, insert deduplicado, merge que completa campos null.
+
+SDD requirements satisfied:
+- FR-010

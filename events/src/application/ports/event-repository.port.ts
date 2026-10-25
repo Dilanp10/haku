@@ -20,8 +20,17 @@ export interface UpdateEventData {
   status?: EventStatus | undefined;
 }
 
+export interface UpsertResult {
+  /** Filas nuevas creadas. */
+  inserted: number;
+  /** Filas existentes a las que se les completó algún campo null (sin importar la fuente). */
+  updated: number;
+  /** Filas existentes a las que se les sumó una fuente distinta a `extra_sources`. */
+  merged: number;
+}
+
 export interface EventRepository {
-  upsertMany(events: Omit<Event, "id" | "ingestedAt">[]): Promise<{ inserted: number; updated: number }>;
+  upsertMany(events: Omit<Event, "id" | "ingestedAt">[]): Promise<UpsertResult>;
   listUpcoming(q: ListUpcomingQuery): Promise<Event[]>;
   listEventCategories(): Promise<string[]>;
   listAll(status: EventStatus | null, limit: number, includePast?: boolean): Promise<Event[]>;

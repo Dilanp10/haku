@@ -29,6 +29,7 @@ function rowToEvent(row: EventRow): Event {
     ...(row.category !== null ? { category: row.category } : {}),
     status: row.status,
     dedupeHash: row.dedupe_hash,
+    extraSources: Array.isArray(row.extra_sources) ? row.extra_sources : [],
     ingestedAt: row.ingested_at,
   };
 }
@@ -52,6 +53,7 @@ function toInsert(e: Omit<Event, "id" | "ingestedAt">) {
     category: e.category ?? null,
     status: e.status,
     dedupe_hash: e.dedupeHash,
+    extra_sources: e.extraSources ?? [],
   };
 }
 
@@ -60,24 +62,80 @@ export function createSupabaseEventRepository(
 ): EventRepository {
   return {
     async upsertMany(events) {
-      if (events.length === 0) return { inserted: 0, updated: 0 };
+      if (events.length === 0) return { inserted: 0, updated: 0, merged: 0 };
 
-      // Pre-check: cuáles dedupe_hash ya existen (para reportar inserted vs updated).
+      // Trae los existentes completos para poder mergear sin pisar campos ya cargados.
       const hashes = events.map((e) => e.dedupeHash);
-      const preRes = await client.from("events").select("dedupe_hash").in("dedupe_hash", hashes);
-      if (preRes.error) throw preRes.error;
-      const existing = new Set(
-        ((preRes.data as unknown as { dedupe_hash: string }[]) ?? []).map((r) => r.dedupe_hash),
-      );
-
-      const rows = events.map(toInsert);
-      const upsertRes = await client
+      const preRes = await client
         .from("events")
-        .upsert(rows, { onConflict: "dedupe_hash", ignoreDuplicates: false });
-      if (upsertRes.error) throw upsertRes.error;
+        .select("*")
+        .in("dedupe_hash", hashes);
+      if (preRes.error) throw preRes.error;
+      const existingByHash = new Map<string, EventRow>();
+      for (const row of (preRes.data as EventRow[] | null) ?? []) {
+        existingByHash.set(row.dedupe_hash, row);
+      }
 
-      const updated = events.filter((e) => existing.has(e.dedupeHash)).length;
-      return { inserted: events.length - updated, updated };
+      const toCreate: ReturnType<typeof toInsert>[] = [];
+      const updates: { id: string; patch: Partial<ReturnType<typeof toInsert>>; mergedSource: boolean }[] = [];
+
+      for (const e of events) {
+        const existing = existingByHash.get(e.dedupeHash);
+        if (!existing) {
+          toCreate.push(toInsert(e));
+          continue;
+        }
+        // Merge: completa campos null del existente con los no-null del nuevo,
+        // suma el source_key a extra_sources si es distinto del primario.
+        const patch: Record<string, unknown> = {};
+        const takeIfMissing = <K extends keyof EventRow>(key: K, incoming: EventRow[K] | undefined) => {
+          if (incoming !== null && incoming !== undefined && existing[key] === null) {
+            patch[key as string] = incoming;
+          }
+        };
+        const row = toInsert(e);
+        takeIfMissing("description", row.description);
+        takeIfMissing("ends_at", row.ends_at);
+        takeIfMissing("venue_name", row.venue_name);
+        takeIfMissing("address", row.address);
+        takeIfMissing("lat", row.lat);
+        takeIfMissing("lng", row.lng);
+        takeIfMissing("url", row.url);
+        takeIfMissing("image_url", row.image_url);
+        takeIfMissing("category", row.category);
+
+        const existingExtras = Array.isArray(existing.extra_sources) ? existing.extra_sources : [];
+        const existingAll = new Set<string>([existing.source_key, ...existingExtras]);
+        const mergedSource = !existingAll.has(e.sourceKey);
+        if (mergedSource) {
+          patch["extra_sources"] = [...existingExtras, e.sourceKey];
+        }
+
+        if (Object.keys(patch).length > 0) {
+          updates.push({ id: existing.id, patch, mergedSource });
+        } else if (mergedSource) {
+          // Caso puente: solo cambia extra_sources (ya cubierto arriba).
+          updates.push({ id: existing.id, patch: { extra_sources: [...existingExtras, e.sourceKey] }, mergedSource: true });
+        }
+      }
+
+      let inserted = 0;
+      if (toCreate.length > 0) {
+        const insRes = await client.from("events").insert(toCreate);
+        if (insRes.error) throw insRes.error;
+        inserted = toCreate.length;
+      }
+
+      let updated = 0;
+      let merged = 0;
+      for (const u of updates) {
+        const upd = await client.from("events").update(u.patch).eq("id", u.id);
+        if (upd.error) throw upd.error;
+        updated++;
+        if (u.mergedSource) merged++;
+      }
+
+      return { inserted, updated, merged };
     },
 
     async listUpcoming(q: ListUpcomingQuery): Promise<Event[]> {

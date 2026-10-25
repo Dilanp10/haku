@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { GeoPoint, EventStatus } from "@haku/shared";
 
 /** Lo que devuelve un scraper, sin normalizar ni persistir. */
@@ -22,6 +23,8 @@ export interface Event extends RawEvent {
   slug: string;
   status: EventStatus;
   dedupeHash: string;
+  /** source_keys adicionales que publicaron este mismo evento, sin el primario. */
+  extraSources: string[];
   ingestedAt: string;
 }
 
@@ -34,12 +37,33 @@ const toSlug = (s: string): string =>
     .replace(/(^-|-$)/g, "")
     .slice(0, 120);
 
-/** Hash estable para deduplicar el mismo evento entre corridas (djb2, sin deps). */
-export function dedupeHash(raw: Pick<RawEvent, "sourceKey" | "title" | "startsAt">): string {
-  const input = `${raw.sourceKey}|${raw.title.trim().toLowerCase()}|${raw.startsAt}`;
-  let h = 5381;
-  for (let i = 0; i < input.length; i++) h = ((h << 5) + h + input.charCodeAt(i)) | 0;
-  return (h >>> 0).toString(16);
+/**
+ * Normaliza un título para dedup: sin tildes, en minúsculas, solo alfanumérico y
+ * espacios, espacios colapsados. "La Beriso – Show" ≡ "la beriso show".
+ */
+export function normalizeTitle(title: string): string {
+  return title
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Trunca un ISO a la hora exacta (ignora minutos, segundos y ms). Devuelve el epoch en ms. */
+export function hourEpoch(iso: string): number {
+  const ms = new Date(iso).getTime();
+  return Math.floor(ms / 3_600_000) * 3_600_000;
+}
+
+/**
+ * Hash estable para deduplicar el mismo evento, incluso entre fuentes distintas.
+ * md5 porque es idéntico al nativo de Postgres y permite recomputar en SQL.
+ */
+export function dedupeHash(raw: Pick<RawEvent, "title" | "startsAt">): string {
+  const key = `${normalizeTitle(raw.title)}|${hourEpoch(raw.startsAt)}`;
+  return createHash("md5").update(key).digest("hex");
 }
 
 /** Normaliza un RawEvent a los campos persistibles (pura). */
@@ -52,5 +76,6 @@ export function normalize(raw: RawEvent): Omit<Event, "id" | "ingestedAt"> {
     slug: `${toSlug(title)}-${hash.slice(0, 6)}`,
     status: "pending",
     dedupeHash: hash,
+    extraSources: [],
   };
 }

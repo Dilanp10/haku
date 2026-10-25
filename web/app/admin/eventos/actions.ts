@@ -58,7 +58,7 @@ export async function triggerIngestionAction(): Promise<IngestionSummary> {
     .select("key, url, type, active, config")
     .eq("active", true);
   if (sourcesRes.error) {
-    return { fetched: 0, inserted: 0, updated: 0, skipped: 0, errors: [{ sourceKey: "db", message: sourcesRes.error.message }] };
+    return { fetched: 0, inserted: 0, updated: 0, merged: 0, skipped: 0, errors: [{ sourceKey: "db", message: sourcesRes.error.message }] };
   }
 
   const sources = buildSources((sourcesRes.data as unknown as SourceRow[]) ?? [], serverEnv.scraperUserAgent);

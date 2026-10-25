@@ -12,6 +12,8 @@ export interface IngestionSummary {
   fetched: number;
   inserted: number;
   updated: number;
+  /** De los `updated`, cuántos sumaron una fuente nueva distinta a la primaria. */
+  merged: number;
   skipped: number;
   errors: { sourceKey: string; message: string }[];
 }
@@ -26,7 +28,14 @@ export async function runIngestion(
 ): Promise<IngestionSummary> {
   const now = (deps.clock ?? (() => new Date()))();
   const sources = sourceKey ? deps.sources.filter((s) => s.key === sourceKey) : deps.sources;
-  const summary: IngestionSummary = { fetched: 0, inserted: 0, updated: 0, skipped: 0, errors: [] };
+  const summary: IngestionSummary = {
+    fetched: 0,
+    inserted: 0,
+    updated: 0,
+    merged: 0,
+    skipped: 0,
+    errors: [],
+  };
 
   for (const source of sources) {
     try {
@@ -49,6 +58,7 @@ export async function runIngestion(
       const res = await deps.repo.upsertMany(batch);
       summary.inserted += res.inserted;
       summary.updated += res.updated;
+      summary.merged += res.merged;
     } catch (e) {
       summary.errors.push({
         sourceKey: source.key,

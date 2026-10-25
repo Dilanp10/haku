@@ -11,13 +11,14 @@ const sampleEvent = (overrides: Partial<Event> = {}): Event => ({
   startsAt: "2026-08-15T20:00:00Z",
   status: "published",
   dedupeHash: "abc123",
+  extraSources: [],
   ingestedAt: "2026-06-01T00:00:00Z",
   location: { lat: -28.4696, lng: -65.7852 },
   ...overrides,
 });
 
 const repo = (over: Partial<EventRepository> = {}): EventRepository => ({
-  upsertMany: async () => ({ inserted: 0, updated: 0 }),
+  upsertMany: async () => ({ inserted: 0, updated: 0, merged: 0 }),
   listUpcoming: async () => [],
   listAll: async () => [],
   getBySlug: async () => null,

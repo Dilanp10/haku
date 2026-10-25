@@ -22,7 +22,7 @@ const PAST = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 const CENTER = { lat: -28.4696, lng: -65.7795 };
 
 function makeEvent(overrides: Partial<NewEvent> & { slug: string }): NewEvent {
-  const { slug, title, startsAt, status, dedupeHash, ...rest } = overrides;
+  const { slug, title, startsAt, status, dedupeHash, extraSources, ...rest } = overrides;
   return {
     sourceKey: "demo",
     slug,
@@ -30,6 +30,7 @@ function makeEvent(overrides: Partial<NewEvent> & { slug: string }): NewEvent {
     startsAt: startsAt ?? FUTURE,
     status: status ?? "published",
     dedupeHash: dedupeHash ?? `__test__-${slug}-${Date.now()}`,
+    extraSources: extraSources ?? [],
     ...rest,
   };
 }

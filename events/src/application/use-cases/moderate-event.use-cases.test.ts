@@ -12,11 +12,12 @@ const sampleEvent: Event = {
   startsAt: "2026-07-19T16:00:00Z",
   status: "published",
   dedupeHash: "abcdef",
+  extraSources: [],
   ingestedAt: "2026-06-01T00:00:00Z",
 };
 
 const repo = (over: Partial<EventRepository> = {}): EventRepository => ({
-  upsertMany: async () => ({ inserted: 0, updated: 0 }),
+  upsertMany: async () => ({ inserted: 0, updated: 0, merged: 0 }),
   listUpcoming: async () => [],
   listAll: async () => [],
   getBySlug: async () => null,
