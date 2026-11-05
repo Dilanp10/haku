@@ -35,7 +35,7 @@ export default async function BuscarPage({
 
   const [venuesRes, categoriesRes, eventsRes, statuses] = query
     ? await Promise.all([
-        listVenues(coreRepo, { search: query, pagination: { page: 1, pageSize: 6 } }),
+        listVenues(coreRepo, { status: 'published', search: query, pagination: { page: 1, pageSize: 6 } }),
         listCategories(coreRepo),
         listUpcomingEvents(eventsRepo, { search: query, limit: 6 }),
         getVenueStatuses(supabase),

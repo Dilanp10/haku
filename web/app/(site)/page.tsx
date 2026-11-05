@@ -64,6 +64,7 @@ export default async function HomePage({
   const [filteredRes, totalRes, categoriesRes, foodTypesRes, statuses] =
     await Promise.all([
       listVenues(coreRepo, {
+        status: "published",
         ...(categorySlugs.length ? { categorySlugs } : {}),
         ...(priceRanges.length ? { priceRanges } : {}),
         ...(foodTypeSlugs.length ? { foodTypeSlugs } : {}),
@@ -72,7 +73,7 @@ export default async function HomePage({
         ...(isOpenNow ? { openNow: true } : {}),
         pagination: { page: 1, pageSize },
       }),
-      listVenues(coreRepo, { pagination: { page: 1, pageSize: 1 } }),
+      listVenues(coreRepo, { status: 'published', pagination: { page: 1, pageSize: 1 } }),
       listCategories(coreRepo),
       listFoodTypes(coreRepo),
       getVenueStatuses(supabase),

@@ -77,6 +77,7 @@ export default async function VenuesPage({
 
   const [venuesRes, categoriesRes, foodTypesRes, statuses] = await Promise.all([
     listVenues(repo, {
+      status: "published",
       ...(categorySlugs.length ? { categorySlugs } : {}),
       ...(priceRanges.length ? { priceRanges } : {}),
       ...(foodTypeSlugs.length ? { foodTypeSlugs } : {}),

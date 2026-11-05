@@ -27,7 +27,7 @@ export default async function MapaPage() {
   const eventsRepo = createSupabaseEventRepository(supabase);
 
   const [venuesRes, categoriesRes, eventsRes, statuses] = await Promise.all([
-    listVenues(coreRepo, { pagination: { page: 1, pageSize: 100 } }),
+    listVenues(coreRepo, { status: 'published', pagination: { page: 1, pageSize: 100 } }),
     listCategories(coreRepo),
     listUpcomingEvents(eventsRepo, { limit: 100 }),
     getVenueStatuses(supabase),
